@@ -15,7 +15,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 
 ## Installation:
 
-     1. git clone https://github.com/redhuntlabs/apkhunt 
+     1. git clone https://github.com/Cyber-Buddy/APKHunt 
      2. cd apkhunt
      3. go run apkhunt.go 
 
