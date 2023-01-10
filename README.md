@@ -63,5 +63,5 @@ The OWASP MASVS (Mobile Application Security Verification Standard) is the indus
 
 ## Project Developer
 
- 1. Sumit Kalariya
+ 1. Sumit Kalaria
  2. Mrunal Chawda
