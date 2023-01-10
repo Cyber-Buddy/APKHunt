@@ -1,5 +1,7 @@
 # Getting Started 
-APKHunt is an OWASP MASVAS based android static code analysis tool for a comprehensive code review, and it can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure the completeness and consistency of test results.
+APKHunt is a comprehensive static code analysis tool for Android apps that is based on the OWASP MASVAS framework. Although it is intended primarily for mobile app developers and security testers, it can be used by anyone to identify and address potential security vulnerabilities in their code.
+
+With APKHunt, mobile software architects or developers can conduct thorough code reviews to ensure the security and integrity of their mobile applications, while security testers can use the tool to confirm the completeness and consistency of their test results. Whether you're a developer looking to build secure apps or an infosec tester charged with ensuring their security, APKHunt can be an invaluable resource for your work.
 
 ## APKHunt
 ![alt text](https://github.com/chawdamrunal/apkhuntmd/blob/main/1.png?raw=true)
@@ -7,7 +9,7 @@ APKHunt is an OWASP MASVAS based android static code analysis tool for a compreh
 ## Requirements
 
 - **Install Git**: sudo apt-get install git
-- **Install Python:** sudo apt-get install python3
+- **Install Golang:** sudo apt install golang-go
 - **Install JADX**: sudo apt-get install jadx
 - **Install Dex2jar**: sudo apt-get install dex2jar
 
