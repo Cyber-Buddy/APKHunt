@@ -1,1 +1,65 @@
-# APKHunt
+# Getting Started 
+APKHunt is an OWASP MASVAS based android static code analysis tool for a comprehensive code review, and it can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure the completeness and consistency of test results.
+
+## APKHunt
+![alt text](https://github.com/chawdamrunal/apkhuntmd/blob/main/1.png?raw=true)
+
+## Requirements
+
+- **Install Git**: sudo apt-get install git
+- **Install Python:** sudo apt-get install python3
+- **Install JADX**: sudo apt-get install jadx
+- **Install Dex2jar**: sudo apt-get install dex2jar
+
+## Installation:
+
+     1. git clone https://github.com/redhuntlabs/apkhunt 
+     2. cd apkhunt
+     3. go run apkhunt.go 
+
+## Usage:
+          _ _   __ __  _   __  _   _                _   
+         / _ \ | _ _ \| | / / | | | |              | |  
+        / /_\ \| |_/ /| |/ /  | |_| | _   _   _ _  | |_ 
+        |  _  ||  __/ |    \  |  _  || | | |/  _  \|  _|                                                                                     
+        | | | || |    | |\  \ | | | || |_| || | | || |_                                                                                      
+        \_| |_/\_|    \_| \_/ \_| |_/\ _ _ /|_| |_|\_ _|                                                                                     
+        ------------------------------------------------                                                                                     
+        OWASP MASVS Static Analyzer  
+    APKHunt Usage:                                                                                                                       
+              go run APKHunt.go [options] {.apk file}                                                                                        
+    
+        Options:                                                                                                                             
+             -h     For help                                                                                                                 
+             -p     Provide the apk file-path
+             -l     For logging (.txt file)
+    
+        Examples:                                                                                                                            
+             APKHunt.go -p /Downloads/redhuntlabs.apk                                                                                        
+             APKHunt.go -p /Downloads/redhuntlabs.apk -l
+## Demo:
+
+
+https://user-images.githubusercontent.com/32319538/209790338-4a977041-7215-45bf-aa8b-80b59b51f4dc.mp4
+
+
+## APKHunt Security Coverage: 
+The OWASP MASVS (Mobile Application Security Verification Standard) is the industry standard for mobile app security. It can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure completeness and consistency of test results.
+
+
+
+|    |  [OWASP MASVS](https://mobile-security.gitbook.io/masvs/) |  
+|----------|----------|  
+|  V1  | Architecture, Design and Threat Modeling Requirements |  
+|  V2  | Data Storage and Privacy Requirements |  
+|  V3  | Cryptography Requirements |  
+|  V4  | Authentication and Session Management Requirements |  
+|  V5  | Network Communication Requirements |  
+|  V6  | Environmental Interaction Requirements |  
+|  V7  | Code Quality and Build Setting Requirements |  
+|  V8  | Resiliency & Reverse Engineering Requirements |
+
+## Project Developer
+
+ 1. Sumit Kalariya
+ 2. Mrunal Chawda
