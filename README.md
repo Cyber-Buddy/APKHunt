@@ -40,10 +40,6 @@ With APKHunt, mobile software architects or developers can conduct thorough code
         Examples:                                                                                                                            
              APKHunt.go -p /Downloads/redhuntlabs.apk                                                                                        
              APKHunt.go -p /Downloads/redhuntlabs.apk -l
-## Demo:
-
-
-https://user-images.githubusercontent.com/32319538/209790338-4a977041-7215-45bf-aa8b-80b59b51f4dc.mp4
 
 
 ## APKHunt Security Coverage: 
@@ -61,6 +57,17 @@ The OWASP MASVS (Mobile Application Security Verification Standard) is the indus
 |  V6  | Environmental Interaction Requirements |  
 |  V7  | Code Quality and Build Setting Requirements |  
 |  V8  | Resiliency & Reverse Engineering Requirements |
+
+## Demo:
+
+
+https://user-images.githubusercontent.com/32319538/209790338-4a977041-7215-45bf-aa8b-80b59b51f4dc.mp4
+
+## Upcoming Features:
+- Scanning of multiple APK files at the same time
+- More output format such as HTML
+- Integration with third-party tools
+
 
 ## Project Developer
 
