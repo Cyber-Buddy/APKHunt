@@ -1,5 +1,5 @@
 # APKHunt | OWASP MASVS Static Analyzer 
-![APKHunt](https://github.com/Cyber-Buddy/APKHunt/blob/main/Resources/APKHunt_banner.png?raw=true)
+![APKHunt_banner](https://user-images.githubusercontent.com/122369607/211795797-2687c4f6-a1b1-4636-824e-9ba5e081967a.png)
 
 APKHunt is a comprehensive static code analysis tool for Android apps that is based on the OWASP MASVAS framework. Although it is intended primarily for mobile app developers and security testers, it can be used by anyone to identify and address potential security vulnerabilities in their code.
 
