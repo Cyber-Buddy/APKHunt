@@ -9,7 +9,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Scan coverage:** Covers most of the SAST (Static Application Security Testing) related test cases of the OWASP MASVS framework.
 - **Optimised scanning:** Specific rules are designed to check for particular security sinks, resulting in an almost accurate scanning process.
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
-- **Output format:** Results are provided in a TXT file format for easy readability for end-users
+- **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
 ## Requirements
 - **Install Git:** sudo apt-get install git
