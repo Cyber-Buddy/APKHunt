@@ -71,5 +71,5 @@ https://user-images.githubusercontent.com/32319538/209790338-4a977041-7215-45bf-
 
 ## Project Developer
 
- - Sumit Kalaria
- - Mrunal Chawda
+ - [Sumit Kalaria](https://github.com/0xMagn3t0)
+ - [Mrunal Chawda](https://github.com/chawdamrunal)
