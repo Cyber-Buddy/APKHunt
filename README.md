@@ -10,7 +10,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
 
-## APKHunt
+## APKHunt | OWASP MASVS Static Analyzer 
 ![alt text](https://github.com/chawdamrunal/apkhuntmd/blob/main/1.png?raw=true)
 
 ## Requirements
