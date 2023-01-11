@@ -32,7 +32,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
         ------------------------------------------------                                                                                     
         OWASP MASVS Static Analyzer  
     
-    APKHunt Usage:                                                                                                                       
+        APKHunt Usage:                                                                                                                       
               go run APKHunt.go [options] {.apk file}                                                                                        
     
         Options:                                                                                                                             
