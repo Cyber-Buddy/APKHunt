@@ -18,10 +18,10 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Install Dex2jar:** sudo apt-get install dex2jar
 
 ## Installation
-     1. git clone https://github.com/Cyber-Buddy/APKHunt 
-     2. cd apkhunt
-     3. go run apkhunt.go 
-
+   1. git clone https://github.com/Cyber-Buddy/APKHunt 
+   2. cd apkhunt
+   3. go run apkhunt.go 
+     
 ## Usage
           _ _   __ __  _   __  _   _                _   
          / _ \ | _ _ \| | / / | | | |              | |  
