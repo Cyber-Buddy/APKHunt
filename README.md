@@ -21,7 +21,13 @@ With APKHunt, mobile software architects or developers can conduct thorough code
    1. git clone https://github.com/Cyber-Buddy/APKHunt 
    2. cd apkhunt
    3. go run apkhunt.go 
-     
+  
+   Requirements:
+- Install Git: sudo apt-get install git
+- Install Golang: sudo apt install golang-go
+- Install JADX: sudo apt-get install jadx
+- Install Dex2jar: sudo apt-get install dex2jar
+
 ## Usage
           _ _   __ __  _   __  _   _                _   
          / _ \ | _ _ \| | / / | | | |              | |  
