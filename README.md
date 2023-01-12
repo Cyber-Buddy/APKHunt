@@ -61,7 +61,7 @@ The OWASP MASVS (Mobile Application Security Verification Standard) is the indus
 
 ## Demo
 
-https://user-images.githubusercontent.com/122369607/211791833-779662aa-2304-4ab4-9859-a31ba22becdf.mp4
+https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-8c56-78d1d568d3aa.mp4
 
 ## Upcoming Features
 - Scanning of multiple APK files at the same time
