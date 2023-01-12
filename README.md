@@ -12,7 +12,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
 ## Installation
-   1. git clone https://github.com/Cyber-Buddy/APKHunt 
+   1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
    2. cd apkhunt
    3. go run apkhunt.go 
   
