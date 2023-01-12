@@ -24,7 +24,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - Install JADX: sudo apt-get install jadx
 - Install Dex2jar: sudo apt-get install dex2jar
 
-   Limitation:
+ Limitation:
 - Only supported on Linux environments
 
 ## Usage
