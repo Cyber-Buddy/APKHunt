@@ -11,12 +11,6 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
-## Requirements
-- **Install Git:** sudo apt-get install git
-- **Install Golang:** sudo apt install golang-go
-- **Install JADX:** sudo apt-get install jadx
-- **Install Dex2jar:** sudo apt-get install dex2jar
-
 ## Installation
    1. git clone https://github.com/Cyber-Buddy/APKHunt 
    2. cd apkhunt
