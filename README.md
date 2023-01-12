@@ -69,8 +69,8 @@ https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-
 - Integration with third-party tools
 
 ## Project Developer
- - [Sumit Kalaria](https://github.com/0xMagn3t0) | [Twiiter](https://twitter.com/Sumit_4ever)
- - [Mrunal Chawda](https://github.com/chawdamrunal) | [Twiiter](https://twitter.com/mrunal110) 
+ - [Sumit Kalaria](https://github.com/0xMagn3t0) | [Twitter](https://twitter.com/Sumit_4ever)
+ - [Mrunal Chawda](https://github.com/chawdamrunal) | [Twitter](https://twitter.com/mrunal110) 
 
 ## Credits 
 - [RedHunt Labs](https://redhuntlabs.com)
