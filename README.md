@@ -74,7 +74,8 @@ https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-
 - More output format such as HTML - In the outer orbit! :thinking:
 - Integration with third-party tools - Cannot commit! :grimacing:
 
-## Contribution 
+## :handshake: Contribution 
+We would love to receive any sort of contribution from the community. Please provide your suggestions or feedback to make this tool more awesome.
 
 ## :warning: Disclaimer
 This project is created to help the infosec community. It is important to respect its core philosophy, values and intentions. Please refrain from using it for any harmful or malicious or evil purposes.
