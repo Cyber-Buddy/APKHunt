@@ -1,5 +1,6 @@
 ![APKHunt](https://user-images.githubusercontent.com/122369607/211984673-d9238cf5-0c04-48ed-ad3f-7af893f164c2.png)
 
+
 # APKHunt | OWASP MASVS Static Analyzer 
 ![apkhunt_banner](https://user-images.githubusercontent.com/122369607/212002244-84b8e359-a3e7-4ff1-ae87-b9c4a3e37d47.png)
 
@@ -72,6 +73,13 @@ https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-
 - Scanning of multiple APK files at the same time - Men at work! :crossed_fingers:
 - More output format such as HTML - In the outer orbit! :thinking:
 - Integration with third-party tools - Cannot commit! :grimacing:
+
+## Contribution 
+
+## Disclaimer
+
+## License
+This project is licensed under the General Public License v3.0(https://github.com/Cyber-Buddy/APKHunt/blob/main/LICENSE)
 
 ## :lotus_position_man: Project Developer
  - [Sumit Kalaria](https://github.com/0xMagn3t0) | [Twitter](https://twitter.com/Sumit_4ever) | [Linkedin](https://www.linkedin.com/in/magneto)
