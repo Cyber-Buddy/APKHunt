@@ -75,10 +75,10 @@ https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-
 - Integration with third-party tools - Cannot commit! :grimacing:
 
 ## :handshake: Contribution 
-We would love to receive any sort of contribution from the community. Please provide your valuable suggestions or feedback to make this tool more awesome.
+We would love to receive any sort of contribution from the community. Please provide your valuable suggestions or feedback to make this tool even more awesome.
 
 ## :warning: Disclaimer
-This project is created to help the infosec community. It is important to respect its core philosophy, values and intentions. Please refrain from using it for any harmful or malicious or evil purposes.
+This project is created to help the infosec community. It is important to respect its core philosophy, values, and intentions. Please refrain from using it for any harmful, malicious, or evil purposes.
 
 ## :receipt: License
 This project is licensed under the [GNU General Public License v3.0](https://github.com/Cyber-Buddy/APKHunt/blob/main/LICENSE)
