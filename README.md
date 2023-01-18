@@ -50,7 +50,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
              APKHunt.go -p /Downloads/redhuntlabs.apk -l
 
 
-## Security test-case coverage
+## :iphone: Security test-case coverage
 The OWASP MASVS (Mobile Application Security Verification Standard) is the industry standard for mobile app security. It can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure completeness and consistency of test results.
 
 |    |  [OWASP MASVS](https://mobile-security.gitbook.io/masvs/) |  
