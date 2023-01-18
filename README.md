@@ -1,4 +1,6 @@
+<p align="center">
 ![APKHunt](https://user-images.githubusercontent.com/122369607/213175318-413b0d16-2e50-4f0e-a422-08c0adcb3b93.png)
+</p>
 
 <hr/>
 
