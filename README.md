@@ -78,7 +78,7 @@ https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-
 
 ## Disclaimer
 
-## License
+## :receipt: License
 This project is licensed under the [GNU General Public License v3.0](https://github.com/Cyber-Buddy/APKHunt/blob/main/LICENSE)
 
 ## :lotus_position_man: Project Developer
