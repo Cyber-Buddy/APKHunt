@@ -1,4 +1,5 @@
-![APKHunt](https://user-images.githubusercontent.com/122369607/211984673-d9238cf5-0c04-48ed-ad3f-7af893f164c2.png)
+![APKHunt](https://user-images.githubusercontent.com/122369607/213175318-413b0d16-2e50-4f0e-a422-08c0adcb3b93.png)
+
 <hr/>
 
 # APKHunt | OWASP MASVS Static Analyzer 
