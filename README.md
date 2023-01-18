@@ -7,7 +7,7 @@ APKHunt is a comprehensive static code analysis tool for Android apps that is ba
 
 With APKHunt, mobile software architects or developers can conduct thorough code reviews to ensure the security and integrity of their mobile applications, while security testers can use the tool to confirm the completeness and consistency of their test results. Whether you're a developer looking to build secure apps or an infosec tester charged with ensuring their security, APKHunt can be an invaluable resource for your work.
 
-## Features :grin:
+## Features 
 - **Scan coverage:** Covers most of the SAST (Static Application Security Testing) related test cases of the OWASP MASVS framework.
 - **Optimised scanning:** Specific rules are designed to check for particular security sinks, resulting in an almost accurate scanning process.
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
