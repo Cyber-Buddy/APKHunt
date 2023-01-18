@@ -7,13 +7,13 @@ APKHunt is a comprehensive static code analysis tool for Android apps that is ba
 
 With APKHunt, mobile software architects or developers can conduct thorough code reviews to ensure the security and integrity of their mobile applications, while security testers can use the tool to confirm the completeness and consistency of their test results. Whether you're a developer looking to build secure apps or an infosec tester charged with ensuring their security, APKHunt can be an invaluable resource for your work.
 
-## Features 
+## :dart: Features 
 - **Scan coverage:** Covers most of the SAST (Static Application Security Testing) related test cases of the OWASP MASVS framework.
 - **Optimised scanning:** Specific rules are designed to check for particular security sinks, resulting in an almost accurate scanning process.
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
-## Installation
+## :spider_web: Installation
    1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
    2. cd apkhunt
    3. go run apkhunt.go 
@@ -27,7 +27,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
  Limitation:
 - Only supported on Linux environments
 
-## Usage
+## :gear: Usage
           _ _   __ __  _   __  _   _                _   
          / _ \ | _ _ \| | / / | | | |              | |  
         / /_\ \| |_/ /| |/ /  | |_| | _   _   _ _  | |_ 
@@ -68,14 +68,14 @@ The OWASP MASVS (Mobile Application Security Verification Standard) is the indus
 
 https://user-images.githubusercontent.com/32319538/211979260-194e858b-373a-4911-8c56-78d1d568d3aa.mp4
 
-## Upcoming Features
+## :construction: Upcoming Features
 - Scanning of multiple APK files at the same time - Men at work! :crossed_fingers:
 - More output format such as HTML - In the outer orbit! :thinking:
 - Integration with third-party tools - Cannot commit! :grimacing:
 
-## Project Developer
+## :lotus_position_man: Project Developer
  - [Sumit Kalaria](https://github.com/0xMagn3t0) | [Twitter](https://twitter.com/Sumit_4ever) | [Linkedin](https://www.linkedin.com/in/magneto)
  - [Mrunal Chawda](https://github.com/chawdamrunal) | [Twitter](https://twitter.com/mrunal110) | [Linkedin](https://www.linkedin.com/in/chawdamrunal)
 
-## Credits 
+## :bouquet: Credits 
 - [RedHunt Labs](https://redhuntlabs.com)
