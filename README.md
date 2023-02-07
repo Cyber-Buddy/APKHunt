@@ -13,6 +13,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 
 ## :dart: Features 
 - **Scan coverage:** Covers most of the SAST (Static Application Security Testing) related test cases of the OWASP MASVS framework.
+- **Multiple APK scanning:** Supports scanning multiple APK files in a perticular path or folder.
 - **Optimised scanning:** Specific rules are designed to check for particular security sinks, resulting in an almost accurate scanning process.
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
@@ -47,12 +48,14 @@ With APKHunt, mobile software architects or developers can conduct thorough code
         Options:                                                                                                                             
              -h     For help                                                                                                                 
              -p     Provide the apk file-path
+             -m     Provide the folder-path for multiple apk scanning
              -l     For logging (.txt file)
     
         Examples:                                                                                                                            
              APKHunt.go -p /Downloads/redhuntlabs.apk                                                                                        
              APKHunt.go -p /Downloads/redhuntlabs.apk -l
-
+             APKHunt.go -m /Downloads/redhuntlabs/
+             APKHunt.go -m /Downloads/redhuntlabs/ -l
 
 ## :iphone: Security test-case coverage
 The OWASP MASVS (Mobile Application Security Verification Standard) is the industry standard for mobile app security. It can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure completeness and consistency of test results.
