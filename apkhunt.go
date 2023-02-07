@@ -7,7 +7,6 @@ import (
         "log"
         "os"
         "runtime"
-        //"os/osutil"
         "os/exec"
         "path/filepath"
         "strings"
@@ -89,13 +88,16 @@ import (
                 fmt.Println("\n    Options:")
                 fmt.Printf(string(colorReset))
                 fmt.Println("\t -h     For help")
-                fmt.Println("\t -p     Provide the apk file-path")
+                fmt.Println("\t -p     Provide a single apk file-path")
+                fmt.Println("\t -m     Provide the folder-path for multiple apk scanning")
                 fmt.Println("\t -l     For logging (.txt file)")
                 fmt.Printf(string(colorBrown))
                 fmt.Println("\n    Examples:")
                 fmt.Printf(string(colorReset))
                 fmt.Println("\t APKHunt.go -p /Downloads/redhuntlabs.apk")
                 fmt.Println("\t APKHunt.go -p /Downloads/redhuntlabs.apk -l")
+                fmt.Println("\t APKHunt.go -m /Downloads/redhuntlabs/")
+                fmt.Println("\t APKHunt.go -m /Downloads/redhuntlabs/ -l")
                 fmt.Printf(string(colorBrown))
                 fmt.Println("\n    Note:")
                 fmt.Printf(string(colorReset))
@@ -129,14 +131,14 @@ func main() {
                 os.Exit(0)
         }
         
-        if ((FirstArg != "-h") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-p") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-l") && (len(os.Args[2:]) == 0)) {
+        if ((FirstArg != "-h") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-p") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-m") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-l") && (len(os.Args[2:]) == 0)) {
                 APKHunt_Intro_Func()
                 fmt.Println("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
                 os.Exit(0)
         }
         
         //cheking for valid arguments/path
-        if ((FirstArg == "-p") && (len(os.Args[2:]) == 0)) || ((FirstArg == "-l") && (len(os.Args[2:]) == 0)) || (FirstArg == "-l" && os.Args[2] == "-p" && len(os.Args[3:]) == 0) {
+        if ((FirstArg == "-p") && (len(os.Args[2:]) == 0)) || ((FirstArg == "-m") && (len(os.Args[2:]) == 0)) || ((FirstArg == "-l") && (len(os.Args[2:]) == 0)) || (FirstArg == "-l" && os.Args[2] == "-p" && len(os.Args[3:]) == 0) || (FirstArg == "-l" && os.Args[2] == "-m" && len(os.Args[3:]) == 0) {
                 APKHunt_Intro_Func()
                 fmt.Println("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
                 os.Exit(0)
@@ -153,14 +155,125 @@ func main() {
         if ((FirstArg == "-p") && (os.Args[2] != "") && (os.Args[3] == "-l")) {
                 apkpath := os.Args[2]
                 APKHunt_core_log(apkpath)
+                //APKHunt_Intro_Func()
                 APKHunt_core(apkpath)
                 os.Exit(0)
         }
         
         if ((FirstArg == "-l") && (os.Args[2] == "-p") && (os.Args[3] != "")) {
                 apkpath := os.Args[3]
+                //APKHunt_Intro_Func()
                 APKHunt_core_log(apkpath)       
                 APKHunt_core(apkpath)
+                os.Exit(0)
+        }
+        
+        //checking for multiple apks and log switches
+        if ((FirstArg == "-m") && (os.Args[2] != "") && (len(os.Args[3:]) == 0)) {
+                apkpath := os.Args[2]
+                log.SetFlags(0) 
+                APKHunt_Intro_Func()
+                
+                if _, err := os.Stat(apkpath); err != nil {
+        	if os.IsNotExist(err) {
+                	fmt.Printf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath)
+                	os.Exit(0)
+                	} 
+        	}
+                
+                apkFiles := []string{}
+    		countAPK := 0
+
+    		filepath.Walk(apkpath, func(path string, info os.FileInfo, err error) error {
+        	if filepath.Ext(path) == ".apk" {
+            		apkFiles = append(apkFiles, path)
+            		countAPK++
+        	}
+        	return nil
+    		})
+    		fmt.Printf(string(colorBrown))
+    		fmt.Printf("\n==>> Total number of APK files: %d \n\n", countAPK)
+    		fmt.Printf(string(colorReset))
+    		if countAPK == 0 {
+			fmt.Println("[!] No APK files found in the given directory. \n[!] Kindly verify the path/directory! \n[!] Exiting...")
+			os.Exit(0)
+		}
+		
+		fmt.Printf(string(colorBrown))
+    		fmt.Println("==>> List of the APK files:")
+    		fmt.Printf(string(colorReset))
+    		countAPKfiles := 0
+    		for _, apkPath := range apkFiles {
+        		countAPKfiles++
+        		fmt.Println("    ",countAPKfiles,filepath.Base(apkPath))
+    		}
+    		fmt.Printf("\n")
+    		
+    		countScanAPK := 0
+    		for _, apkPath := range apkFiles {
+    			countScanAPK++
+    			fmt.Printf(string(colorBrown))
+        		fmt.Println("==>> Scan has been started for the app:",countScanAPK,"-",filepath.Base(apkPath))
+        		fmt.Printf(string(colorReset))
+			//APKHunt_core_log(apkPath)
+                	APKHunt_core(apkPath)
+    		}
+                os.Exit(0)
+        }
+        
+        if (FirstArg == "-m" && os.Args[2] != "" && os.Args[3] == "-l") || (FirstArg == "-l" && os.Args[2] == "-m" && os.Args[3] != "") {
+		var apkpath string
+		if FirstArg == "-m" {
+			apkpath = os.Args[2]
+		} else {
+			apkpath = os.Args[3]
+		}	
+		
+		//APKHunt_Intro_Func()
+           	
+                if _, err := os.Stat(apkpath); err != nil {
+        	if os.IsNotExist(err) {
+                	fmt.Printf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath)
+                	os.Exit(0)
+                	} 
+        	}
+                
+                apkFiles := []string{}
+    		countAPK := 0
+    		filepath.Walk(apkpath, func(path string, info os.FileInfo, err error) error {
+        	if filepath.Ext(path) == ".apk" {
+            		apkFiles = append(apkFiles, path)
+            		countAPK++
+        	}
+        	return nil
+    		})
+    		fmt.Printf(string(colorBrown))
+    		fmt.Printf("\n==>> Total number of APK files: %d \n\n", countAPK)
+    		fmt.Printf(string(colorReset))
+    		if countAPK == 0 {
+			fmt.Println("[!] No APK files found in the given directory. \n[!] Kindly verify the path/directory! \n[!] Exiting...")
+			os.Exit(0)
+		}
+    		
+    		fmt.Printf(string(colorBrown))
+    		fmt.Println("==>> List of the APK files:")
+    		fmt.Printf(string(colorReset))
+    		countAPKfiles := 0
+    		for _, apkPath := range apkFiles {
+        		countAPKfiles++
+        		fmt.Println("    ",countAPKfiles,filepath.Base(apkPath))
+    		}
+    		fmt.Printf("\n")
+    		
+    		countScanAPK := 0
+    		for _, apkPath := range apkFiles {
+    			countScanAPK++
+    			fmt.Printf(string(colorBrown))
+        		fmt.Println("==>> Scan has been started for the app:",countScanAPK,"-",filepath.Base(apkPath))
+        		fmt.Printf(string(colorReset))
+			APKHunt_core_log(apkPath)
+                	APKHunt_core(apkPath)
+    		}
                 os.Exit(0)
         }
 }
@@ -323,11 +436,8 @@ func main() {
         log.Println("   ",cmd_and_pkg_nwSecConf_regex_match)
         nwSecConf_split := strings.Split(cmd_and_pkg_nwSecConf_regex_match, `android:networkSecurityConfig="@xml/`)
         nwSecConf_split_join := strings.Join(nwSecConf_split," ")
-        //fmt.Println("networkSecurityConfig file:", nwSecConf_split_join)
         nwSecConf_final_space := strings.Trim(nwSecConf_split_join,`"`)
-        //fmt.Println("networkSecurityConfig file:", nwSecConf_final_space)
         nwSecConf_final := strings.Trim(nwSecConf_final_space,` `)
-        //fmt.Println("networkSecurityConfig file:", nwSecConf_final)
         
         // AndroidManifest file - Activities
         fmt.Printf(string(colorPurple))
@@ -340,7 +450,6 @@ func main() {
         cmd_and_actv_output := string(cmd_and_actv[:])
         log.Println(cmd_and_actv_output)
         // AndroidManifest file - Exported Activities
-        // exec.Command("grep", "-e", "<activity", and_manifest_path, "|", "grep", "-e", `android:exported="true"`)
         exp_actv1 := `grep -ne '<activity' ` 
         exp_actv2 := ` | grep -e 'android:exported="true"'`
         exp_actv := exp_actv1+and_manifest_path+exp_actv2
@@ -460,7 +569,7 @@ func main() {
         log.Println(`[+] Let's start the static assessment based on "OWASP MASVS"`)
         fmt.Printf(string(colorReset))
         fmt.Println("[+] ========================================================")
-        // Read .java files - /sources folder - fmt.Println(globpath)
+        // Read .java files - /sources folder
         var files []string
         err_globpath := filepath.Walk(globpath, func(path string, info os.FileInfo, err error) error {
         files = append(files, path)
@@ -469,7 +578,7 @@ func main() {
         if err_globpath != nil {
                 panic(err_globpath)
         }
-        // Read .xml files - /resources folder - fmt.Println(globpath_res)
+        // Read .xml files - /resources folder 
         var files_res []string
         err_globpath_res := filepath.Walk(globpath_res, func(path string, info os.FileInfo, err error) error {
         files_res = append(files_res, path)
@@ -2920,7 +3029,7 @@ func main() {
         
         // MASVS V8 - MSTG-RESILIENCE-3 - File Integrity Checks
         fmt.Printf(string(colorPurple))
-        log.Println("\n==>> he File Integrity Checks implementation...\n")
+        log.Println("\n==>> The File Integrity Checks implementation...\n")
         fmt.Printf(string(colorReset))
         var countIntCheck = 0
         for _, sources_file := range files {
@@ -3054,12 +3163,7 @@ func main() {
         log.Printf("\n[+] Scan has been finished at: %s", end_time)
         
         log.Println("\n[+] Total time taken for hunting:",time.Since(start_time))
-        //fmt.Printf(string(colorBrown))
-        //log.Printf("%s",time.Since(start_time))
-        //fmt.Printf(string(colorReset))
         fmt.Printf(string(colorRedBold))
-        log.Println("\n[*] Thank you for using APKHunt! Made with <3 in India.")
-        fmt.Printf(string(colorReset))
-        
+        log.Println("\n[*] Thank you for using APKHunt! Made with <3 in India.\n")
+        fmt.Printf(string(colorReset))        
 }
-
