@@ -103,7 +103,6 @@ import (
                 fmt.Printf(string(colorReset))
                 fmt.Println("\t - Tested on linux only!")
                 fmt.Println("\t - Keep tools such as jadx, dex2jar, go, grep, etc.! installed")
-                log.Println("\t - It is on beta stage yet covers almost all of the SAST test-cases.")
         }
         
 func main() {
