@@ -53,10 +53,10 @@ With APKHunt, mobile software architects or developers can conduct thorough code
              -l     For logging (.txt file)
     
         Examples:                                                                                                                            
-             APKHunt.go -p /Downloads/redhuntlabs.apk                                                                                        
-             APKHunt.go -p /Downloads/redhuntlabs.apk -l
-             APKHunt.go -m /Downloads/redhuntlabs/
-             APKHunt.go -m /Downloads/redhuntlabs/ -l
+             APKHunt.go -p /Downloads/android_app.apk                                                                                        
+             APKHunt.go -p /Downloads/android_app.apk -l
+             APKHunt.go -m /Downloads/android_apps/
+             APKHunt.go -m /Downloads/android_apps/ -l
 
 ## :iphone: Security test-case coverage
 The OWASP MASVS (Mobile Application Security Verification Standard) is the industry standard for mobile app security. It can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure completeness and consistency of test results.
