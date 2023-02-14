@@ -62,8 +62,8 @@ import (
         //grep/jadx/dex2jar filepath check
         requiredUtilities := []string{"grep", "jadx", "d2j-dex2jar"}
         for _, utility := range requiredUtilities {
-                if _, err := os.Stat(fmt.Sprintf("/usr/bin/%s", utility)); err != nil {
-                        if os.IsNotExist(err) {
+                _, err := exec.LookPath(utility)
+                        if err != nil {
                                 APKHunt_Intro_Func()
                                 switch utility {
                                 case "grep":
