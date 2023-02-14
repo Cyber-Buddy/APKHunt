@@ -77,7 +77,7 @@ import (
                         }
                 }
         }       
-}
+
         
         func APKHunt_help() {
                 fmt.Printf(string(colorBrown))
