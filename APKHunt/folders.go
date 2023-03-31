@@ -1,4 +1,4 @@
-package apkhunt
+package APKHunt
 
 import (
 	"fmt"
@@ -30,9 +30,9 @@ func FindApksInFolder(pathToFolder string) []string {
 	}
 
 	if len(entries) > 0 {
-		fmt.Printf(string(colorBrown))
+		fmt.Printf(string(ColorBrown))
 		fmt.Printf("\n==>> Total number of APK files: %d \n\n", len(entries))
-		fmt.Printf(string(colorReset))
+		fmt.Printf(string(ColorReset))
 
 	} else {
 		fmt.Println("[!] No APK files found in the given directory.")

@@ -1,4 +1,4 @@
-package apkhunt
+package APKHunt
 
 import (
 	"fmt"
@@ -23,14 +23,13 @@ func Requirement() {
 	for _, utility := range requiredUtilities {
 		_, err := exec.LookPath(utility)
 		if err != nil {
-			Intro()
 			switch utility {
 			case "grep":
-				fmt.Printf("\n[!] grep utility has not been observed. \n[!] Kindly install it first! \n[!] Exiting...")
+				fmt.Printf("\n[!] grep utility has not been observed. \n[!] Kindly install it first! \n[!] Exiting...\n")
 			case "jadx":
-				fmt.Printf("\n[!] jadx decompiler has not been observed. \n[!] Kindly install it first! \n[!] Exiting...")
+				fmt.Printf("\n[!] jadx decompiler has not been observed. \n[!] Kindly install it first! \n[!] Exiting...\n")
 			case "d2j-dex2jar":
-				fmt.Printf("\n[!] dex2jar has not been observed. \n[!] Kindly install it first! \n[!] Exiting...")
+				fmt.Printf("\n[!] dex2jar has not been observed. \n[!] Kindly install it first! \n[!] Exiting...\n")
 			}
 			os.Exit(0)
 		}

@@ -5,16 +5,18 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/s9rA16Bf4/APKHunt/APKHunt"
+
 	arg "github.com/s9rA16Bf4/ArgumentParser/go/arguments"
 )
 
 func main() {
 
 	// APKHunt Intro
-	Intro()
+	APKHunt.Intro()
 
 	//APKHunt basic requirement checks
-	Requirement()
+	APKHunt.Requirement()
 
 	arg.Argument_add("--package", "-p", true, "Path to the APK")
 	arg.Argument_add("--multiple", "-m", true, "Path to a folder containing multiple apk's to scan")
@@ -35,27 +37,27 @@ func main() {
 				apkTargets = append(apkTargets, value)
 
 			case "-m":
-				apkTargets = append(apkTargets, FindApksInFolder(value)...)
+				apkTargets = append(apkTargets, APKHunt.FindApksInFolder(value)...)
 			case "-l":
 				logToFile = true
 			}
 		}
 
-		fmt.Printf(string(colorBrown))
+		fmt.Printf(string(APKHunt.ColorBrown))
 		fmt.Printf("==>> List of the APK files: %v", apkTargets)
-		fmt.Printf(string(colorReset))
+		fmt.Printf(string(APKHunt.ColorReset))
 
 		// Foreach found apk
 		for index, apkPath := range apkTargets {
 
-			fmt.Printf(string(colorBrown))
+			fmt.Printf(string(APKHunt.ColorBrown))
 			fmt.Println("==>> Scan has been started for the app:", index, "-", filepath.Base(apkPath))
-			fmt.Printf(string(colorReset))
+			fmt.Printf(string(APKHunt.ColorReset))
 
 			if logToFile {
-				APKHunt_core_log(apkPath)
+				APKHunt.CoreLog(apkPath)
 			} else {
-				CoreLog(apkPath)
+				APKHunt.Core(apkPath)
 			}
 		}
 	}

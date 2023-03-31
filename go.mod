@@ -1,4 +1,4 @@
-module github.com/Cyber-Buddy/APKHunt
+module github.com/s9rA16Bf4/APKHunt
 
 go 1.18
 

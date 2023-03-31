@@ -1,4 +1,4 @@
-package apkhunt
+package APKHunt
 
 import (
 	"io"

@@ -1,4 +1,4 @@
-package apkhunt
+package APKHunt
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 
 func Intro() {
 	log.SetFlags(0)
-	fmt.Printf(string(colorRedBold))
+	fmt.Printf(string(ColorRedBold))
 	log.Println(`
       _ _   __ __  _   __  _   _                _   
      / _ \ | _ _ \| | / / | | | |              | |  
@@ -18,7 +18,7 @@ func Intro() {
     ------------------------------------------------
     OWASP MASVS Static Analyzer                                
         `)
-	fmt.Printf(string(colorReset))
+	fmt.Printf(string(ColorReset))
 	log.Println("[+] APKHunt by RedHunt Labs - A Modern Attack Surface (ASM) Management Company")
 	log.Println("[+] Based on: OWASP MASVS - https://mobile-security.gitbook.io/masvs/")
 	log.Println("[+] Author: Sumit Kalaria & Mrunal Chawda (RHL PenTest Team)")
