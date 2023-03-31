@@ -1,2 +1,4 @@
 github.com/s9rA16Bf4/ArgumentParser v0.0.0-20220910114610-98aa712211c5 h1:00qlcUrvrDhwYoLWD8ICRwlZAwSMFEAs344GRRdYXQs=
 github.com/s9rA16Bf4/ArgumentParser v0.0.0-20220910114610-98aa712211c5/go.mod h1:NRKlnWNTdhYI+whq5u0Dx+pH/iE+NMGg/31yuWPHwaU=
+github.com/s9rA16Bf4/notify_handler v0.0.0-20220414214026-7cbc65f663ea h1:ENRxm6DdCRYiq2xVM+RHA6IPzXaeaqRa86+3l8jfpUk=
+github.com/s9rA16Bf4/notify_handler v0.0.0-20220414214026-7cbc65f663ea/go.mod h1:QNjxlxplV4bgRq0hMkD/ssRExdUmsuqql+lRh9afWgA=

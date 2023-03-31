@@ -11,6 +11,7 @@ clean:
 
 dependencies:
 	go get github.com/s9rA16Bf4/ArgumentParser
+	go get github.com/s9rA16Bf4/notify_handler/go/notify
 	apt install golang-go jadx dex2jar -y
 	
 docker:

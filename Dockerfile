@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY . ./
 
-RUN apt update && apt install golang-go jadx dex2jar -y
-
-RUN go build apkhunt.go
+RUN apt update && apt install golang-go
+RUN make dependencies
+RUN make build
 
 ENTRYPOINT ["/app/apkhunt"]
