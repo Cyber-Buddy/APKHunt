@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
-	"github.com/s9rA16Bf4/APKHunt/APKHunt"
+	"github.com/s9rA16Bf4/APKHunt/lib/APKHunt"
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/io"
 
 	arg "github.com/s9rA16Bf4/ArgumentParser/go/arguments"
 )
@@ -25,8 +26,7 @@ func main() {
 	parsed := arg.Argument_parse()
 
 	if len(parsed) == 0 {
-		fmt.Println("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
-		os.Exit(0)
+		APKHunt.Error("Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
 	} else {
 		apkTargets := []string{}
 		logToFile := false
@@ -35,24 +35,19 @@ func main() {
 			switch key {
 			case "-p":
 				apkTargets = append(apkTargets, value)
-
 			case "-m":
-				apkTargets = append(apkTargets, APKHunt.FindApksInFolder(value)...)
+				apkTargets = append(apkTargets, io.FindApksInFolder(value)...)
 			case "-l":
 				logToFile = true
 			}
 		}
 
-		fmt.Printf(string(APKHunt.ColorBrown))
-		fmt.Printf("==>> List of the APK files: %v", apkTargets)
-		fmt.Printf(string(APKHunt.ColorReset))
+		fmt.Printf("%s ==>> List of the APK files: %v %s", apkTargets, colors.Brown, colors.Reset)
 
 		// Foreach found apk
 		for index, apkPath := range apkTargets {
 
-			fmt.Printf(string(APKHunt.ColorBrown))
-			fmt.Println("==>> Scan has been started for the app:", index, "-", filepath.Base(apkPath))
-			fmt.Printf(string(APKHunt.ColorReset))
+			fmt.Printf("%s ==>> Scan has been started for the app: %d - %s %s", colors.Brown, index, filepath.Base(apkPath), colors.Reset)
 
 			if logToFile {
 				APKHunt.CoreLog(apkPath)
