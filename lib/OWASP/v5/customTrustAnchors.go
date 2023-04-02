@@ -6,14 +6,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateCustomTrustAnchors() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The custom Trust Anchors...\n")
-	fmt.Printf(string(Reset))
+func InvestigateCustomTrustAnchors(ResourceFiles []string) {
+	notify.StartSection("The custom Trust Anchors")
 	var countTrustAnch = 0
-	for _, sources_file := range files_res {
+	for _, sources_file := range ResourceFiles {
 		if filepath.Ext(sources_file) == ".xml" {
 			cmd_and_pkg_trustAnchors, err := exec.Command("grep", "-nr", "-e", "<certificates src=", "-e", "<domain", "-e", "<base", sources_file).CombinedOutput()
 			if err != nil {
@@ -21,9 +22,8 @@ func InvestigateCustomTrustAnchors() {
 			}
 			cmd_and_pkg_trustAnchors_output := string(cmd_and_pkg_trustAnchors[:])
 			if strings.Contains(cmd_and_pkg_trustAnchors_output, "<certificates") {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+
 				if (strings.Contains(cmd_and_pkg_trustAnchors_output, "<certificates")) || (strings.Contains(cmd_and_pkg_trustAnchors_output, "<domain")) || (strings.Contains(cmd_and_pkg_trustAnchors_output, "<base")) {
 					log.Println(cmd_and_pkg_trustAnchors_output)
 					countTrustAnch++
@@ -32,13 +32,9 @@ func InvestigateCustomTrustAnchors() {
 		}
 	}
 	if int(countTrustAnch) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended that custom Trust Anchors such as <certificates src=user should be avoided, if observed. The <pin> should be set appropriately if it cannot be avoided. Please note that, If the app will trust user-supplied CAs by using a custom Network Security Configuration with a custom trust anchor, the possibility of MITM attacks increases.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-NETWORK-4 | CWE-295: Improper Certificate Validation")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements")
 	}

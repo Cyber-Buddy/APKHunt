@@ -15,11 +15,11 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func Wrapper(networkConf string, Files []string, ManifestPath string, ResourceFiles []string) {
+func Wrapper(NetworkConf string, Files []string, ManifestPath string, ResourceFiles []string, ResourceGlobalPath string) {
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V2: Data Storage and Privacy Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-	v2.Wrapper(networkConf, Files, ManifestPath, ResourceFiles)
+	v2.Wrapper(Files, ManifestPath, ResourceFiles)
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V3: Cryptography Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
@@ -32,7 +32,7 @@ func Wrapper(networkConf string, Files []string, ManifestPath string, ResourceFi
 	// owasp MASVS - V5: Network Communication Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V5: Network Communication Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-	v5.Wrapper()
+	v5.Wrapper(NetworkConf, ResourceGlobalPath, Files, ResourceFiles)
 
 	// owasp MASVS - V6: Platform Interaction Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V6: Platform Interaction Requirements'%s", colors.BlueBold, colors.Reset))

@@ -1,6 +1,6 @@
 package owasp
 
-func Wrapper(networkConf string, Files []string, ManifestPath string, ResourceFiles []string) {
+func Wrapper(Files []string, ManifestPath string, ResourceFiles []string) {
 	// MASVS V2 - MSTG-STORAGE-2 - SQLite Database
 	InvestigateSQLDatabase(Files)
 

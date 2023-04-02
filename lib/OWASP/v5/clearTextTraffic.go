@@ -6,14 +6,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateClearTextTraffic() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>>  The app is allowing cleartext traffic...\n")
-	fmt.Printf(string(Reset))
+func InvestigateClearTextTraffic(ResourceFiles []string) {
+	notify.StartSection("The app is allowing cleartext traffic")
 	var countClearTraffic = 0
-	for _, sources_file := range files_res {
+	for _, sources_file := range ResourceFiles {
 		if filepath.Ext(sources_file) == ".xml" {
 			cmd_and_pkg_cleartextTraffic, err := exec.Command("grep", "-nr", "-e", "android:usesCleartextTraffic", "-e", "cleartextTrafficPermitted", sources_file).CombinedOutput()
 			if err != nil {
@@ -21,22 +22,17 @@ func InvestigateClearTextTraffic() {
 			}
 			cmd_and_pkg_cleartextTraffic_output := string(cmd_and_pkg_cleartextTraffic[:])
 			if (strings.Contains(cmd_and_pkg_cleartextTraffic_output, "android:usesCleartextTraffic")) || (strings.Contains(cmd_and_pkg_cleartextTraffic_output, "cleartextTrafficPermitted")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+
 				log.Println(cmd_and_pkg_cleartextTraffic_output)
 				countClearTraffic++
 			}
 		}
 	}
 	if int(countClearTraffic) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to set android:usesCleartextTraffic or cleartextTrafficPermitted to false. Please note that, Sensitive information should be sent over secure channels only.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-NETWORK-2 | CWE-319: Cleartext Transmission of Sensitive Information")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements")
 	}

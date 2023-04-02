@@ -33,15 +33,15 @@ func Core(apkpath string) {
 	ManifestPath, JadxPath := FilePathAnalysis(apkpath)
 	notify.Inform(fmt.Sprintf("%s==>> The Basic Information...\n%s", colors.Purple, colors.Reset))
 
-	exportedActivities, exportedContentProviders, exportedBroadCastReceivers, exportedServices, networkConf := AndroidManifest.Wrapper(ManifestPath)
+	exportedActivities, exportedContentProviders, exportedBroadCastReceivers, exportedServices, NetworkConf := AndroidManifest.Wrapper(ManifestPath)
 
 	// APK Component Summary
 	ApkSummary(exportedActivities, exportedContentProviders, exportedBroadCastReceivers, exportedServices)
 
 	// SAST - Recursive file reading
-	Files, ResourceFiles := SAST(JadxPath)
+	Files, ResourceFiles, _, ResourceGlobalPath := SAST(JadxPath)
 
-	owasp.Wrapper(networkConf, Files, ManifestPath, ResourceFiles)
+	owasp.Wrapper(NetworkConf, Files, ManifestPath, ResourceFiles, ResourceGlobalPath)
 
 	end_time := time.Now()
 	notify.Inform(fmt.Sprintf("Scan has been finished at: %s", end_time))

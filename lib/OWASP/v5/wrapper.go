@@ -1,28 +1,39 @@
 package owasp
 
-func Wrapper() {
+func Wrapper(NetworkConf string, ResourceGlobalPath string, Files []string, ResourceFiles []string) {
 	// MASVS V5 - MSTG-NETWORK-1 - Network Security Configuration file
-	InvestigateNetworkSecurityConfigFile()
+	InvestigateNetworkSecurityConfigFile(NetworkConf, ResourceGlobalPath)
+
 	// MASVS V5 - MSTG-NETWORK-1 - Possible MITM attack
-	InvestigatePossibleMITMAttack()
+	InvestigatePossibleMITMAttack(Files)
+
 	// MASVS V5 - MSTG-NETWORK-2 - Weak SSL/TLS protocols
-	InvestigateWeakSSLProtocol()
+	InvestigateWeakSSLProtocol(Files)
+
 	// MASVS V5 - MSTG-NETWORK-2 - Cleartext Traffic
-	InvestigateClearTextTraffic()
+	InvestigateClearTextTraffic(ResourceFiles)
+
 	// MASVS V5 - MSTG-NETWORK-3 - Server Certificate
-	InvestigateServerCertificate()
+	InvestigateServerCertificate(Files)
+
 	// MASVS V5 - MSTG-NETWORK-3 - WebView Server Certificate
-	InvestigateWebviewServerCertificate()
+	InvestigateWebviewServerCertificate(Files)
+
 	// MASVS V5 - MSTG-NETWORK-3 - Hostname Verification
-	InvestigateHostnameVerification()
+	InvestigateHostnameVerification(ResourceFiles)
+
 	// MASVS V5 - MSTG-NETWORK-4 - Hard-coded Certificates/Key/Keystore files
-	InvestigateHardCodedSensitiveFiles()
+	InvestigateHardCodedSensitiveFiles(Files)
+
 	// MASVS V5 - MSTG-NETWORK-4 - Certificate Pinning settings
-	InvestigateCertificatePinningSettings()
+	InvestigateCertificatePinningSettings(ResourceFiles)
+
 	// MASVS V5 - MSTG-NETWORK-4 - Certificate Pinning implementation
-	InvestigateCertificatePinningImplementation()
+	InvestigateCertificatePinningImplementation(Files)
+
 	// MASVS V5 - MSTG-NETWORK-4 - Custom Trust Anchors
-	InvestigateCustomTrustAnchors()
+	InvestigateCustomTrustAnchors(ResourceFiles)
+
 	// MASVS V5 - MSTG-NETWORK-6 - Security Provider
-	InvestigateSecurityProvider()
+	InvestigateSecurityProvider(Files)
 }
