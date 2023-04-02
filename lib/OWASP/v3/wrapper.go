@@ -1,18 +1,18 @@
 package owasp
 
-func Wrapper() {
+func Wrapper(Files []string) {
 	// owasp MASVS - V3: Cryptography Requirements
-	InvestigateSymmetricCryptography()
+	InvestigateSymmetricCryptography(Files)
 
 	// MASVS V3 - MSTG-CRYPTO-4 - Insecure/Deprecated Cryptographic Algorithms
-	InvestigateInsecureCryptographicAlgorithms()
+	InvestigateInsecureCryptographicAlgorithms(Files)
 
 	// MASVS V3 - MSTG-CRYPTO-3 - Insecure/Weak Cipher Modes
-	InvestigateInsecureCipherModes()
+	InvestigateInsecureCipherModes(Files)
 
 	// MASVS V3 - MSTG-CRYPTO-3 - Static IVs
-	InvestigateStaticIV()
+	InvestigateStaticIV(Files)
 
 	// MASVS V3 - MSTG-CRYPTO-6 - Weak Random functions
-	InvestigteWeakRandomFunctions()
+	InvestigteWeakRandomFunctions(Files)
 }

@@ -19,29 +19,24 @@ func Wrapper(networkConf string, Files []string, ManifestPath string, ResourceFi
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V2: Data Storage and Privacy Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-
 	v2.Wrapper(networkConf, Files, ManifestPath, ResourceFiles)
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V3: Cryptography Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
+	v3.Wrapper(Files)
 
-	v3.Wrapper()
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V4: Authentication and Session Management Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-
 	v4.Wrapper()
 
 	// owasp MASVS - V5: Network Communication Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V5: Network Communication Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-
-	// MASVS V5 - MSTG-NETWORK-1 - Network Security Configuration file
 	v5.Wrapper()
 
 	// owasp MASVS - V6: Platform Interaction Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V6: Platform Interaction Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-
 	v6.Wrapper()
 
 	v1.Wrapper(Files)
