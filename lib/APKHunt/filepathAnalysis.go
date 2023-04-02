@@ -64,7 +64,7 @@ func FilePathAnalysis(apkPath string) (string, string) {
 	cmd_apk_dex2jar_output := string(cmd_apk_dex2jar[:])
 	log.Println("   ", cmd_apk_dex2jar_output)
 
-	notify.Inform(fmt.Sprint("%sJadx has started decompiling the application%s", colors.Blue, colors.Reset))
+	notify.Inform(fmt.Sprintf("%sJadx has started decompiling the application%s", colors.Blue, colors.Reset))
 	notify.EndSection()
 
 	cmd_apk_jadx, err := exec.Command("jadx", "--deobf", apkPath, "-d", JadxPath).CombinedOutput()

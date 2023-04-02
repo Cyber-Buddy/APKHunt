@@ -1,10 +1,12 @@
 package owasp
 
-func Wrapper() {
-	// owasp MASVS - V4: Authentication and Session Management Requirements
-	InvestigateAuthAndSessionManagementReq()
+func Wrapper(Files []string) {
+	// MASVS V4 - MSTG-AUTH-2 - Cookies
+	InvestigateCookies(Files)
+
 	// MASVS V4 - MSTG-AUTH-8 - Biometric Authentication
-	InvestigateBiometricAuth()
+	InvestigateBiometricAuth(Files)
+
 	// MASVS V4 - MSTG-AUTH-8 - if Keys are not invalidated after biometric enrollment
-	InvestigateInvalidKeys()
+	InvestigateInvalidKeys(Files)
 }

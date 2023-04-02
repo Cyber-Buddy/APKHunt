@@ -28,9 +28,13 @@ func EndSection() {
 }
 
 func Reference() {
-	fmt.Printf("%s[*] Reference:%s", colors.Cyan, colors.Reset)
+	fmt.Printf("%s[*] Reference:%s\n", colors.Cyan, colors.Reset)
 }
 
 func QuickNote() {
-	fmt.Printf("%s[!] QuickNote:%s", colors.Cyan, colors.Reset)
+	fmt.Printf("%s[!] QuickNote:%s\n", colors.Cyan, colors.Reset)
+}
+
+func Note() {
+	fmt.Printf("%s[~] Note:%s\n", colors.Cyan, colors.Reset)
 }

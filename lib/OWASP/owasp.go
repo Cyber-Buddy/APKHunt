@@ -27,7 +27,7 @@ func Wrapper(networkConf string, Files []string, ManifestPath string, ResourceFi
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V4: Authentication and Session Management Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-	v4.Wrapper()
+	v4.Wrapper(Files)
 
 	// owasp MASVS - V5: Network Communication Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V5: Network Communication Requirements'%s", colors.BlueBold, colors.Reset))
