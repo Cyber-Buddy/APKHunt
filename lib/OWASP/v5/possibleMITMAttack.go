@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigatePossibleMITMAttack() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-NETWORK-1 | CWE-319: Cleartext Transmission of Sensitive Information")
+		log.Printf("    - owasp MASVS: MSTG-NETWORK-1 | CWE-319: Cleartext Transmission of Sensitive Information")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements")
 	}
 }

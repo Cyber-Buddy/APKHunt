@@ -1,7 +1,7 @@
-package OWASP
+package owasp
 
-func Wrapper() {
-	// OWASP MASVS - V2: Data Storage and Privacy Requirements
+func Start(networkConf string) {
+	// owasp MASVS - V2: Data Storage and Privacy Requirements
 	InvestigateStorageNPrivacyRequiements()
 
 	// MASVS V2 - MSTG-STORAGE-2 - SQLite Database

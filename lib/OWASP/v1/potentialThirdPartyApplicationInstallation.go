@@ -1,4 +1,4 @@
-package OWASP
+package v1
 
 import (
 	"fmt"
@@ -6,12 +6,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigatePotentialThirdPartyApplication() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The potential third-party application installation mechanism...\n")
-	fmt.Printf(string(Reset))
+	notify.StartSection("The potential third-party application installation mechanism")
+
 	var countAppInstall = 0
 	for _, sources_file := range files {
 		if filepath.Ext(sources_file) == ".java" {
@@ -21,9 +23,9 @@ func InvestigatePotentialThirdPartyApplication() {
 			}
 			cmd_and_pkg_AppInstall_output := string(cmd_and_pkg_AppInstall[:])
 			if strings.Contains(cmd_and_pkg_AppInstall_output, `vnd.android.package-archive`) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+
+				log.Println(fmt.Sprintf("%s%s%s", colors.Brown, sources_file, colors.Reset))
+
 				if (strings.Contains(cmd_and_pkg_AppInstall_output, "setDataAndType(")) || (strings.Contains(cmd_and_pkg_AppInstall_output, `application/vnd.android.package-archive`)) || (strings.Contains(cmd_and_pkg_AppInstall_output, "FileProvider")) || (strings.Contains(cmd_and_pkg_AppInstall_output, "getFileDirPath")) || (strings.Contains(cmd_and_pkg_AppInstall_output, "installApp")) {
 					log.Println(cmd_and_pkg_AppInstall_output)
 					countAppInstall++
@@ -32,14 +34,11 @@ func InvestigatePotentialThirdPartyApplication() {
 		}
 	}
 	if int(countAppInstall) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to install the application via Google Play and stop using local APK file installation, if observed. If it cannot be avoided, then make sure that the APK file should be stored in a private folder with no overwrite permission. Please note that, Attacker can install a malicious APK file if he/she can control the public folder or path.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS V1: MSTG-ARCH-9 | CWE-940: Improper Verification of Source of a Communication Channel")
+
+		notify.Reference()
+		log.Printf("    - owasp MASVS V1: MSTG-ARCH-9 | CWE-940: Improper Verification of Source of a Communication Channel")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x06-v1-architecture_design_and_threat_modelling_requireme")
 	}
 }

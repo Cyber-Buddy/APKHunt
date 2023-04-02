@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 func Wrapper() {
 	// MASVS V5 - MSTG-NETWORK-1 - Network Security Configuration file

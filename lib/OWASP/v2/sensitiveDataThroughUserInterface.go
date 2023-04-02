@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateSensitiveDataThroughUserInterface() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-STORAGE-7 | CWE-359: Exposure of Private Personal Information to an Unauthorized Actor")
+		log.Printf("    - owasp MASVS: MSTG-STORAGE-7 | CWE-359: Exposure of Private Personal Information to an Unauthorized Actor")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}
 	if int(countInputType) > 0 {
@@ -48,7 +48,7 @@ func InvestigateSensitiveDataThroughUserInterface() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-STORAGE-7 | CWE-359: Exposure of Private Personal Information to an Unauthorized Actor")
+		log.Printf("    - owasp MASVS: MSTG-STORAGE-7 | CWE-359: Exposure of Private Personal Information to an Unauthorized Actor")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}
 }

@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateInsecureCryptographicAlgorithms() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-CRYPTO-4 | CWE-327: Use of a Broken or Risky Cryptographic Algorithm")
+		log.Printf("    - owasp MASVS: MSTG-CRYPTO-4 | CWE-327: Use of a Broken or Risky Cryptographic Algorithm")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements")
 	}
 }

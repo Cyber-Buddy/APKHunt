@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateTemporaryFileCreation() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-STORAGE-2 | CWE-277: Insecure Inherited Permissions")
+		log.Printf("    - owasp MASVS: MSTG-STORAGE-2 | CWE-277: Insecure Inherited Permissions")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}
 }

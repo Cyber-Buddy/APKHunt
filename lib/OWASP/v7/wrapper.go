@@ -1,7 +1,7 @@
-package OWASP
+package owasp
 
 func Wrapper() {
-	// OWASP MASVS - V7: Code Quality and Build Setting Requirements
+	// owasp MASVS - V7: Code Quality and Build Setting Requirements
 	InvestigateCodeQuality()
 	// MASVS V7 - MSTG-CODE-4 - StrictMode
 	InvestigateStrictMode()

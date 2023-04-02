@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateSecurityProvider() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-NETWORK-6 | CWE-693: Protection Mechanism Failure")
+		log.Printf("    - owasp MASVS: MSTG-NETWORK-6 | CWE-693: Protection Mechanism Failure")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements")
 	}
 	if int(countProInst) > 0 {
@@ -48,7 +48,7 @@ func InvestigateSecurityProvider() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-NETWORK-6 | CWE-693: Protection Mechanism Failure")
+		log.Printf("    - owasp MASVS: MSTG-NETWORK-6 | CWE-693: Protection Mechanism Failure")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements")
 	}
 }

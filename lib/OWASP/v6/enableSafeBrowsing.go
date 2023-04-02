@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateEnableSafeBrowsing() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-PLATFORM-2 | CWE-940: Improper Verification of Source of a Communication Channel")
+		log.Printf("    - owasp MASVS: MSTG-PLATFORM-2 | CWE-940: Improper Verification of Source of a Communication Channel")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}
 }

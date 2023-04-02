@@ -1,7 +1,7 @@
-package OWASP
+package owasp
 
 func Wrapper() {
-	// OWASP MASVS - V8: Resilience Requirements
+	// owasp MASVS - V8: Resilience Requirements
 
 	// MASVS V8 - MSTG-RESILIENCE-1 - Root Detection
 	InvestigateRootDetection()

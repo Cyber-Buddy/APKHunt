@@ -1,7 +1,7 @@
-package OWASP
+package owasp
 
 func Wrapper() {
-	// OWASP MASVS - V3: Cryptography Requirements
+	// owasp MASVS - V3: Cryptography Requirements
 	InvestigateSymmetricCryptography()
 
 	// MASVS V3 - MSTG-CRYPTO-4 - Insecure/Deprecated Cryptographic Algorithms

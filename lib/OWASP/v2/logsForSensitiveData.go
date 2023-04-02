@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func InvestigateLogsForSensitiveData() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-STORAGE-3 | CWE-532: Insertion of Sensitive Information into Log File")
+		log.Printf("    - owasp MASVS: MSTG-STORAGE-3 | CWE-532: Insertion of Sensitive Information into Log File")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}
 }

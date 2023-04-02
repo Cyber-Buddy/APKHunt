@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 func Wrapper() {
 	// MASVS V6 - MSTG-PLATFORM-1 - Permissions

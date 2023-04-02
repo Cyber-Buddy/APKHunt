@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func InvestigateAllowBackup() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-STORAGE-8 | CWE-921: Storage of Sensitive Data in a Mechanism without Access Control")
+		log.Printf("    - owasp MASVS: MSTG-STORAGE-8 | CWE-921: Storage of Sensitive Data in a Mechanism without Access Control")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}
 }

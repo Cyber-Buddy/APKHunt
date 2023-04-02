@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateStaticIV() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-CRYPTO-3 | CWE-1204: Generation of Weak Initialization Vector (IV)")
+		log.Printf("    - owasp MASVS: MSTG-CRYPTO-3 | CWE-1204: Generation of Weak Initialization Vector (IV)")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements")
 	}
 }

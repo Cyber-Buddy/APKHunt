@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ func InvestigateInvalidKeys() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-AUTH-8 | CWE-287: Improper Authentication")
+		log.Printf("    - owasp MASVS: MSTG-AUTH-8 | CWE-287: Improper Authentication")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x09-v4-authentication_and_session_management_requirements")
 	}
 	fmt.Printf(string(Cyan))

@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func InvestigateAntiDebugProtection() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS V8: MSTG-RESILIENCE-2 | CWE-693: Protection Mechanism Failure")
+		log.Printf("    - owasp MASVS V8: MSTG-RESILIENCE-2 | CWE-693: Protection Mechanism Failure")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x15-v8-resiliency_against_reverse_engineering_requirements")
 	}
 	if int(countDebugDetect) > 0 {
@@ -48,7 +48,7 @@ func InvestigateAntiDebugProtection() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS V8: MSTG-RESILIENCE-2 | CWE-693: Protection Mechanism Failure")
+		log.Printf("    - owasp MASVS V8: MSTG-RESILIENCE-2 | CWE-693: Protection Mechanism Failure")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x15-v8-resiliency_against_reverse_engineering_requirements")
 	}
 }

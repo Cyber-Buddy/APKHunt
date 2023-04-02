@@ -16,7 +16,7 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func FilePathAnalysis(apkPath string) string {
+func FilePathAnalysis(apkPath string) (string, string) {
 	apkPathBase := filepath.Base(apkPath)
 	notify.Inform(fmt.Sprintf("APK Base: %s", apkPathBase))
 
@@ -42,8 +42,8 @@ func FilePathAnalysis(apkPath string) string {
 
 	apkoutpath := apkPathdir + apkName
 	dex2jarpath := apkoutpath + ".jar"
-	jadxpath := apkoutpath + "_SAST/"
-	notify.Inform(fmt.Sprintf("APK Static Analysis Path: %s\n", jadxpath))
+	JadxPath := apkoutpath + "_SAST/"
+	notify.Inform(fmt.Sprintf("APK Static Analysis Path: %s\n", JadxPath))
 
 	file_hash, err := ioutil.ReadFile(apkPath)
 	if err != nil {
@@ -67,16 +67,16 @@ func FilePathAnalysis(apkPath string) string {
 	notify.Inform(fmt.Sprint("%sJadx has started decompiling the application%s", colors.Blue, colors.Reset))
 	notify.EndSection()
 
-	cmd_apk_jadx, err := exec.Command("jadx", "--deobf", apkPath, "-d", jadxpath).CombinedOutput()
+	cmd_apk_jadx, err := exec.Command("jadx", "--deobf", apkPath, "-d", JadxPath).CombinedOutput()
 	if err != nil {
 		notify.Error(err.Error())
 	}
 	cmd_apk_jadx_output := string(cmd_apk_jadx[:])
 	log.Println(cmd_apk_jadx_output)
 
-	and_manifest_path := jadxpath + "resources/AndroidManifest.xml"
+	and_manifest_path := JadxPath + "resources/AndroidManifest.xml"
 	notify.Inform(fmt.Sprintf("%sCapturing the data from the AndroidManifest file%s", colors.Blue, colors.Reset))
 	notify.EndSection()
 
-	return and_manifest_path
+	return and_manifest_path, JadxPath
 }

@@ -2,54 +2,42 @@ package owasp
 
 import (
 	"fmt"
-	"log"
 
 	v1 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v1"
-	v2 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v2"
-	v3 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v3"
-	v4 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v4"
-	v5 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v5"
-	v6 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v6"
-	v7 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v7"
-	v8 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v7"
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
+	v2 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v2"
+	v3 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v3"
+	v4 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v4"
+	v5 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v5"
+	v6 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v6"
+	v7 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v7"
+	v8 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v7"
 )
 
-func Wrapper() {
+func Wrapper(networkConf string) {
 
 	v2.Wrapper()
 
-	log.Println("\n")
-	fmt.Printf(string(BlueBold))
-	log.Println(`[+] Hunting begins based on "V3: Cryptography Requirements"`)
-	fmt.Printf(string(Reset))
-	log.Println("[+] -------------------------------------------------------")
+	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V3: Cryptography Requirements'%s", colors.BlueBold, colors.Reset))
+	notify.Inform("-------------------------------------------------------")
 
 	v3.Wrapper()
-
-	log.Println("\n")
-	fmt.Printf(string(BlueBold))
-	log.Println(`[+] Hunting begins based on "V4: Authentication and Session Management Requirements"`)
-	fmt.Printf(string(Reset))
-	log.Println("[+] --------------------------------------------------------------------------------")
+	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V4: Authentication and Session Management Requirements'%s", colors.BlueBold, colors.Reset))
+	notify.Inform("-------------------------------------------------------")
 
 	v4.Wrapper()
 
-	// OWASP MASVS - V5: Network Communication Requirements
-	log.Println("\n")
-	fmt.Printf(string(BlueBold))
-	log.Println(`[+] Hunting begins based on "V5: Network Communication Requirements"`)
-	fmt.Printf(string(Reset))
-	log.Println("[+] ----------------------------------------------------------------")
+	// owasp MASVS - V5: Network Communication Requirements
+	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V5: Network Communication Requirements'%s", colors.BlueBold, colors.Reset))
+	notify.Inform("-------------------------------------------------------")
 
 	// MASVS V5 - MSTG-NETWORK-1 - Network Security Configuration file
 	v5.Wrapper()
 
-	// OWASP MASVS - V6: Platform Interaction Requirements
-	log.Println("\n")
-	fmt.Printf(string(BlueBold))
-	log.Println(`[+] Hunting begins based on "V6: Platform Interaction Requirements"`)
-	fmt.Printf(string(Reset))
-	log.Println("[+] ---------------------------------------------------------------")
+	// owasp MASVS - V6: Platform Interaction Requirements
+	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V6: Platform Interaction Requirements'%s", colors.BlueBold, colors.Reset))
+	notify.Inform("-------------------------------------------------------")
 
 	v6.Wrapper()
 
@@ -57,11 +45,8 @@ func Wrapper() {
 
 	v7.Wrapper()
 
-	log.Println("\n")
-	fmt.Printf(string(BlueBold))
-	log.Println(`[+] Hunting begins based on "V8: Resilience Requirements"`)
-	fmt.Printf(string(Reset))
-	log.Println("[+] -----------------------------------------------------")
+	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V8: Resilience Requirements'%s", colors.BlueBold, colors.Reset))
+	notify.Inform("-------------------------------------------------------")
 
 	v8.Wrapper()
 

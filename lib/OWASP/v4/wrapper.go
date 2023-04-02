@@ -1,7 +1,7 @@
-package OWASP
+package owasp
 
 func Wrapper() {
-	// OWASP MASVS - V4: Authentication and Session Management Requirements
+	// owasp MASVS - V4: Authentication and Session Management Requirements
 	InvestigateAuthAndSessionManagementReq()
 	// MASVS V4 - MSTG-AUTH-8 - Biometric Authentication
 	InvestigateBiometricAuth()

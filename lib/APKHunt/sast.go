@@ -9,9 +9,9 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func SAST() {
-	globpath := jadxpath + "sources/"
-	globpath_res := jadxpath + "resources/"
+func SAST(JadxPath string) {
+	globpath := JadxPath + "sources/"
+	globpath_res := JadxPath + "resources/"
 
 	notify.Inform(fmt.Sprintf("%sLet's start the static assessment based on 'OWASP MASVS'%s", colors.CyanBold, colors.Reset))
 	notify.Inform("========================================================")

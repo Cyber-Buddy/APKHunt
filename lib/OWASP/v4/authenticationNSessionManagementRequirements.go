@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func InvestigateAuthAndSessionManagementReq() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS: MSTG-AUTH-2 | CWE-359: Exposure of Private Personal Information to an Unauthorized Actor")
+		log.Printf("    - owasp MASVS: MSTG-AUTH-2 | CWE-359: Exposure of Private Personal Information to an Unauthorized Actor")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x09-v4-authentication_and_session_management_requirements")
 	}
 }

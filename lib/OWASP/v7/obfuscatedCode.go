@@ -1,4 +1,4 @@
-package OWASP
+package owasp
 
 import (
 	"fmt"
@@ -58,7 +58,7 @@ func InvestigateObfuscatedCode() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS V7: MSTG-CODE-9 | CWE-693: Protection Mechanism Failure")
+		log.Printf("    - owasp MASVS V7: MSTG-CODE-9 | CWE-693: Protection Mechanism Failure")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x12-v7-code_quality_and_build_setting_requirements")
 	}
 	if int(countObfusc) > 0 {
@@ -69,7 +69,7 @@ func InvestigateObfuscatedCode() {
 		fmt.Printf(string(Cyan))
 		log.Printf("\n[*] Reference:")
 		fmt.Printf(string(Reset))
-		log.Printf("    - OWASP MASVS V7: MSTG-CODE-9 | CWE-693: Protection Mechanism Failure")
+		log.Printf("    - owasp MASVS V7: MSTG-CODE-9 | CWE-693: Protection Mechanism Failure")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x12-v7-code_quality_and_build_setting_requirements")
 	}
 }

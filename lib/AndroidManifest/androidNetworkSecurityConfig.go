@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func InvestigateAndroidNetworkSecurity(ManifestPath string) {
+func InvestigateAndroidNetworkSecurity(ManifestPath string) string {
 	cmd_and_pkg_nwSecConf, err := exec.Command("grep", "-i", "android:networkSecurityConfig=", ManifestPath).CombinedOutput()
 	if err != nil {
 		log.Println("    - android:networkSecurityConfig attribute has not been observed.")
@@ -20,4 +20,6 @@ func InvestigateAndroidNetworkSecurity(ManifestPath string) {
 	nwSecConf_split_join := strings.Join(nwSecConf_split, " ")
 	nwSecConf_final_space := strings.Trim(nwSecConf_split_join, `"`)
 	nwSecConf_final := strings.Trim(nwSecConf_final_space, ` `)
+
+	return nwSecConf_final
 }
