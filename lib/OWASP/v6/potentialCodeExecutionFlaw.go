@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigatePotentialCodeExecutionFlaw() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The potential Code Execution flaws...\n")
-	fmt.Printf(string(Reset))
+func InvestigatePotentialCodeExecutionFlaw(Files []string) {
+	notify.StartSection("The potential Code Execution flaws")
 	var countRCE = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_RCE, err := exec.Command("grep", "-nr", "-e", `Runtime.getRuntime().exec(`, "-e", `Runtime.getRuntime(`, sources_file).CombinedOutput()
 			if err != nil {

@@ -1,6 +1,6 @@
 package owasp
 
-func Wrapper() {
+func Wrapper(Files []string) {
 	// MASVS V6 - MSTG-PLATFORM-1 - Permissions
 	InvestigatePermissions()
 
@@ -20,7 +20,7 @@ func Wrapper() {
 	InvestigatePotentialXSS()
 
 	// MASVS V6 - MSTG-PLATFORM-2 - potential Code Execution Flaws
-	InvestigatePotentialCodeExecutionFlaw()
+	InvestigatePotentialCodeExecutionFlaw(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - Fragment Injection
 	InvestigateFragmentInjection()

@@ -39,7 +39,7 @@ func Wrapper(NetworkConf string, Files []string, ManifestPath string, ResourceFi
 	// owasp MASVS - V6: Platform Interaction Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V6: Platform Interaction Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-	v6.Wrapper()
+	v6.Wrapper(Files)
 
 	// owasp MASVS - V7: Code Quality and Build Setting Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V7: Code Quality and Build Setting Requirements'%s", colors.BlueBold, colors.Reset))
