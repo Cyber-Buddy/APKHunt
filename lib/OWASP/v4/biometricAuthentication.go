@@ -22,7 +22,7 @@ func InvestigateBiometricAuth(Files []string) {
 			}
 			cmd_and_pkg_biometric_output := string(cmd_and_pkg_biometric[:])
 			if (strings.Contains(cmd_and_pkg_biometric_output, "CryptoObject")) || (strings.Contains(cmd_and_pkg_biometric_output, "BiometricPrompt")) || (strings.Contains(cmd_and_pkg_biometric_output, "FingerprintManager")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_biometric_output)
 				countBiometric++

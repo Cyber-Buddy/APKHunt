@@ -29,7 +29,7 @@ func InvestigateObfuscatedCode(Files []string) {
 
 			cmd_and_pkg_packageObfuscate_output := string(cmd_and_pkg_packageObfuscate[:])
 			if strings.Contains(cmd_and_pkg_packageObfuscate_output, "package") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_packageObfuscate_output)
 				countObfusc++
@@ -37,7 +37,7 @@ func InvestigateObfuscatedCode(Files []string) {
 
 			cmd_and_pkg_importObfuscate_output := string(cmd_and_pkg_importObfuscate[:])
 			if strings.Contains(cmd_and_pkg_importObfuscate_output, "import") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_importObfuscate_output)
 				countObfusc++
@@ -45,7 +45,7 @@ func InvestigateObfuscatedCode(Files []string) {
 
 			cmd_and_pkg_classObfuscate_output := string(cmd_and_pkg_classObfuscate[:])
 			if strings.Contains(cmd_and_pkg_classObfuscate_output, "class") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_classObfuscate_output)
 				countObfusc++

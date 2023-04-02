@@ -22,7 +22,7 @@ func InvestigateKeyboardCache(ResourceFiles []string) {
 			}
 			cmd_and_pkg_keyboardCache_output := string(cmd_and_pkg_keyboardCache[:])
 			if (strings.Contains(cmd_and_pkg_keyboardCache_output, "textAutoComplete")) || (strings.Contains(cmd_and_pkg_keyboardCache_output, "textAutoCorrect")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_keyboardCache_output)
 				countKeyCache++

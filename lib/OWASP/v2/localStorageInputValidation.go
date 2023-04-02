@@ -22,7 +22,7 @@ func InvestigateLocalStorageInputValidation(Files []string) {
 			}
 			cmd_and_pkg_sharedPreferencesEditor_output := string(cmd_and_pkg_sharedPreferencesEditor[:])
 			if strings.Contains(cmd_and_pkg_sharedPreferencesEditor_output, "SharedPreferences.Editor") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_sharedPreferencesEditor_output)
 				countSharedPrefEd++

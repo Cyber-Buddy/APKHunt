@@ -22,7 +22,7 @@ func InvestigateFireDatabse(ResourceFiles []string) {
 			}
 			cmd_and_pkg_firebase_output := string(cmd_and_pkg_firebase[:])
 			if strings.Contains(cmd_and_pkg_firebase_output, "firebaseio") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 				log.Println(cmd_and_pkg_firebase_output)
 				countFireDB++
 			}

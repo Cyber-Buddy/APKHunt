@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateImplicitIntentForActivity() {
@@ -21,9 +24,8 @@ func InvestigateImplicitIntentForActivity() {
 			}
 			cmd_and_pkg_impliIntAct_output := string(cmd_and_pkg_impliIntAct[:])
 			if (strings.Contains(cmd_and_pkg_impliIntAct_output, "startActivity(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "startActivityForResult(")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				if (strings.Contains(cmd_and_pkg_impliIntAct_output, "startActivity")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "new Intent(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, `new android.content.Intent`)) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "setData(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "putExtra(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "setFlags(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "setAction(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "addFlags(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "setDataAndType(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "addCategory(")) || (strings.Contains(cmd_and_pkg_impliIntAct_output, "setClassName(")) {
 					log.Println(cmd_and_pkg_impliIntAct_output)
 					countImpliIntAct++
@@ -32,13 +34,9 @@ func InvestigateImplicitIntentForActivity() {
 		}
 	}
 	if int(countImpliIntAct) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to not start the activity using an implicit intent, if observed. Please note that, an attacker can hijack the activity and sometimes it may lead to sensitive information disclosure. Always use explicit intents to start activities using the setComponent, setPackage, setClass or setClassName methods of the Intent class.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-4 | CWE-927: Use of Implicit Intent for Sensitive Communication")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

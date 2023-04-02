@@ -22,7 +22,7 @@ func InvestigateHardcodedInformation(Files []string) {
 			}
 			cmd_and_pkg_hardcodeInfo_output := string(cmd_and_pkg_hardcodeInfo[:])
 			if (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "password")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "key")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "token")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "username")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "url")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "database")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "secret")) || (strings.Contains(cmd_and_pkg_hardcodeInfo_output, "bearer")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_hardcodeInfo_output)
 				countHardInfo++
@@ -33,7 +33,7 @@ func InvestigateHardcodedInformation(Files []string) {
 			}
 			cmd_and_pkg_hardcodeEmail_output := string(cmd_and_pkg_hardcodeEmail[:])
 			if strings.Contains(cmd_and_pkg_hardcodeEmail_output, "@") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_hardcodeEmail_output)
 				countHardInfo++
@@ -44,7 +44,7 @@ func InvestigateHardcodedInformation(Files []string) {
 			}
 			cmd_and_pkg_hardcodePrivIP_output := string(cmd_and_pkg_hardcodePrivIP[:])
 			if (strings.Contains(cmd_and_pkg_hardcodePrivIP_output, "192")) || (strings.Contains(cmd_and_pkg_hardcodePrivIP_output, "172")) || (strings.Contains(cmd_and_pkg_hardcodePrivIP_output, "10")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_hardcodePrivIP_output)
 				countHardInfo++
@@ -55,7 +55,7 @@ func InvestigateHardcodedInformation(Files []string) {
 			}
 			cmd_and_pkg_cloudURLs_output := string(cmd_and_pkg_cloudURLs[:])
 			if (strings.Contains(cmd_and_pkg_cloudURLs_output, "amazonaws.com")) || (strings.Contains(cmd_and_pkg_cloudURLs_output, "core.windows.net")) || (strings.Contains(cmd_and_pkg_cloudURLs_output, "googleapis.com")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_cloudURLs_output)
 				countHardInfo++
@@ -66,7 +66,7 @@ func InvestigateHardcodedInformation(Files []string) {
 			}
 			cmd_and_pkg_begin_output := string(cmd_and_pkg_begin[:])
 			if strings.Contains(cmd_and_pkg_begin_output, "BEGIN") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_begin_output)
 				countHardInfo++

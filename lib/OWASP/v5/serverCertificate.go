@@ -22,7 +22,7 @@ func InvestigateServerCertificate(Files []string) {
 			}
 			cmd_and_pkg_serverCert_output := string(cmd_and_pkg_serverCert[:])
 			if (strings.Contains(cmd_and_pkg_serverCert_output, "checkServerTrusted")) || (strings.Contains(cmd_and_pkg_serverCert_output, "checkClientTrusted")) || (strings.Contains(cmd_and_pkg_serverCert_output, "getAcceptedIssuers")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_serverCert_output, "checkServerTrusted")) || (strings.Contains(cmd_and_pkg_serverCert_output, "checkClientTrusted")) || (strings.Contains(cmd_and_pkg_serverCert_output, "getAcceptedIssuers")) || (strings.Contains(cmd_and_pkg_serverCert_output, "X509Certificate")) {
 					log.Println(cmd_and_pkg_serverCert_output)

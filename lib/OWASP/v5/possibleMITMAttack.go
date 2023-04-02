@@ -22,7 +22,7 @@ func InvestigatePossibleMITMAttack(Files []string) {
 			}
 			cmd_and_pkg_unencryptedProtocol_output := string(cmd_and_pkg_unencryptedProtocol[:])
 			if (strings.Contains(cmd_and_pkg_unencryptedProtocol_output, "HttpURLConnection")) || (strings.Contains(cmd_and_pkg_unencryptedProtocol_output, "getInsecure")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_unencryptedProtocol_output)
 				countHTTP++

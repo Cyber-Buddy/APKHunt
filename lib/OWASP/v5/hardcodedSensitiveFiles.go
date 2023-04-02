@@ -22,7 +22,7 @@ func InvestigateHardCodedSensitiveFiles(Files []string) {
 			}
 			cmd_and_pkg_HostnameVerifier_output := string(cmd_and_pkg_HostnameVerifier[:])
 			if (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "setHostnameVerifier(")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "setDefaultHostnameVerifier(")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "NullHostnameVerifier")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "ALLOW_ALL_HOSTNAME_VERIFIER")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "AllowAllHostnameVerifier")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "NO_VERIFY")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "verify(String")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "HostnameVerifier")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "ALLOW_ALL_HOSTNAME_VERIFIER")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "NO_VERIFY")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "verify(")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "return true")) || (strings.Contains(cmd_and_pkg_HostnameVerifier_output, "return 1")) {
 					log.Println(cmd_and_pkg_HostnameVerifier_output)

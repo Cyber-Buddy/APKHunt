@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateJavascriptExecutionInWebview() {
@@ -21,9 +24,8 @@ func InvestigateJavascriptExecutionInWebview() {
 			}
 			cmd_and_pkg_setJavaScriptEnabled_output := string(cmd_and_pkg_setJavaScriptEnabled[:])
 			if strings.Contains(cmd_and_pkg_setJavaScriptEnabled_output, "setJavaScriptEnabled") {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				if (strings.Contains(cmd_and_pkg_setJavaScriptEnabled_output, "setJavaScriptEnabled")) || (strings.Contains(cmd_and_pkg_setJavaScriptEnabled_output, "WebView")) {
 					log.Println(cmd_and_pkg_setJavaScriptEnabled_output)
 					countSetJavScr++
@@ -32,13 +34,9 @@ func InvestigateJavascriptExecutionInWebview() {
 		}
 	}
 	if int(countSetJavScr) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to implement JavaScript execution in WebViews securely, if observed. Please note that, depending on the permissions of the application, it may allow an attacker to interact with the different functionalities of the device.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-5 | CWE-749: Exposed Dangerous Method or Function")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

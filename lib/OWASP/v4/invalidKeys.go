@@ -23,7 +23,7 @@ func InvestigateInvalidKeys(Files []string) {
 			}
 			cmd_and_pkg_biometricKeys_output := string(cmd_and_pkg_biometricKeys[:])
 			if strings.Contains(cmd_and_pkg_biometricKeys_output, "setInvalidatedByBiometricEnrollment") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_biometricKeys_output)
 				countBiometricKeys++

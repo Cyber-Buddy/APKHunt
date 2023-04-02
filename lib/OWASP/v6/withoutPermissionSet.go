@@ -5,6 +5,8 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateWithoutPermissionSet() {
@@ -26,13 +28,9 @@ func InvestigateWithoutPermissionSet() {
 	log.Println(cmd_and_pkg_permNotSet_output)
 
 	if int(strings.Count(cmd_and_pkg_permNotSet_output, "\n")) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended that the appropriate Permission should be set via android:permission attribute with a proper android:protectionLevel in the AndroidManifest file, if observed. Please note that, The unprotected components can be invoked by other malicious applications and potentially access sensitive data or perform any of the privileged tasks possibly.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-1 | CWE-276: Incorrect Default Permissions")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

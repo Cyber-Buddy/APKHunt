@@ -22,7 +22,7 @@ func InvestigateSensitiveDataThroughUserInterface(ResourceFiles []string) {
 			}
 			cmd_and_pkg_inputType_output := string(cmd_and_pkg_inputType[:])
 			if strings.Contains(cmd_and_pkg_inputType_output, ":inputType=") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_inputType_output)
 				countInputType++

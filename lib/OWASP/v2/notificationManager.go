@@ -22,7 +22,7 @@ func InvestigateNotificationManager(Files []string) {
 			}
 			cmd_and_pkg_notificationManager_output := string(cmd_and_pkg_notificationManager[:])
 			if (strings.Contains(cmd_and_pkg_notificationManager_output, "setContentTitle")) || (strings.Contains(cmd_and_pkg_notificationManager_output, "setContentText")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_notificationManager_output, "NotificationManager")) || (strings.Contains(cmd_and_pkg_notificationManager_output, "setContentTitle")) || (strings.Contains(cmd_and_pkg_notificationManager_output, "setContentText")) {
 					//fmt.Println(sources_file,"\n",cmd_and_pkg_notificationManager_output)

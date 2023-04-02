@@ -22,7 +22,7 @@ func InvestigateInsecureCipherModes(Files []string) {
 			}
 			cmd_and_pkg_cipher_output := string(cmd_and_pkg_cipher[:])
 			if (strings.Contains(cmd_and_pkg_cipher_output, "/None/")) || (strings.Contains(cmd_and_pkg_cipher_output, "/ECB/")) || (strings.Contains(cmd_and_pkg_cipher_output, "/CBC/")) || (strings.Contains(cmd_and_pkg_cipher_output, "PKCS1Padding")) || (strings.Contains(cmd_and_pkg_cipher_output, `"AES"`)) || (strings.Contains(cmd_and_pkg_cipher_output, `"DES"`)) || (strings.Contains(cmd_and_pkg_cipher_output, `"RC4"`)) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_cipher_output)
 				countWeakCipher++

@@ -22,7 +22,7 @@ func InvestigateSQLDatabase(Files []string) {
 			}
 			cmd_and_pkg_sqlitedatbase_output := string(cmd_and_pkg_sqlitedatbase[:])
 			if (strings.Contains(cmd_and_pkg_sqlitedatbase_output, "openOrCreateDatabase")) || (strings.Contains(cmd_and_pkg_sqlitedatbase_output, "getWritableDatabase")) || (strings.Contains(cmd_and_pkg_sqlitedatbase_output, "getReadableDatabase")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_sqlitedatbase_output)
 				countSqliteDb++

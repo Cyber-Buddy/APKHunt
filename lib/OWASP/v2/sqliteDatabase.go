@@ -23,7 +23,7 @@ func InvestigateSharedPreferences(Files []string) {
 			}
 			cmd_and_pkg_getSharedPreferences_output := string(cmd_and_pkg_getSharedPreferences[:])
 			if strings.Contains(cmd_and_pkg_getSharedPreferences_output, "getSharedPreferences") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_getSharedPreferences_output)
 				countSharedPref++

@@ -22,7 +22,7 @@ func InvestigateClearTextTraffic(ResourceFiles []string) {
 			}
 			cmd_and_pkg_cleartextTraffic_output := string(cmd_and_pkg_cleartextTraffic[:])
 			if (strings.Contains(cmd_and_pkg_cleartextTraffic_output, "android:usesCleartextTraffic")) || (strings.Contains(cmd_and_pkg_cleartextTraffic_output, "cleartextTrafficPermitted")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_cleartextTraffic_output)
 				countClearTraffic++

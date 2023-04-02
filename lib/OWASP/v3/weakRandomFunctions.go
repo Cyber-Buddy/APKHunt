@@ -22,7 +22,7 @@ func InvestigteWeakRandomFunctions(Files []string) {
 			}
 			cmd_and_pkg_random_func_output := string(cmd_and_pkg_random_func[:])
 			if (strings.Contains(cmd_and_pkg_random_func_output, "new Random(")) || (strings.Contains(cmd_and_pkg_random_func_output, "SHA1PRNG")) || (strings.Contains(cmd_and_pkg_random_func_output, "Dual_EC_DRBG")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_random_func_output)
 				countRandom++

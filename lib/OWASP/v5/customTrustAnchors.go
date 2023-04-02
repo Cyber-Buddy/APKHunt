@@ -22,7 +22,7 @@ func InvestigateCustomTrustAnchors(ResourceFiles []string) {
 			}
 			cmd_and_pkg_trustAnchors_output := string(cmd_and_pkg_trustAnchors[:])
 			if strings.Contains(cmd_and_pkg_trustAnchors_output, "<certificates") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_trustAnchors_output, "<certificates")) || (strings.Contains(cmd_and_pkg_trustAnchors_output, "<domain")) || (strings.Contains(cmd_and_pkg_trustAnchors_output, "<base")) {
 					log.Println(cmd_and_pkg_trustAnchors_output)

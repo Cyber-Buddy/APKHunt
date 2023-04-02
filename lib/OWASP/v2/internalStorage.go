@@ -22,7 +22,7 @@ func InvestigateInternalStorage(Files []string) {
 			}
 			cmd_and_pkg_internalStorage_output := string(cmd_and_pkg_internalStorage[:])
 			if (strings.Contains(cmd_and_pkg_internalStorage_output, "MODE_WORLD_READABLE")) || (strings.Contains(cmd_and_pkg_internalStorage_output, "MODE_WORLD_WRITEABLE")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_internalStorage_output, "openFileOutput")) || (strings.Contains(cmd_and_pkg_internalStorage_output, "FileInputStream")) || (strings.Contains(cmd_and_pkg_internalStorage_output, "MODE_WORLD_READABLE")) || (strings.Contains(cmd_and_pkg_internalStorage_output, "MODE_WORLD_WRITEABLE")) {
 					log.Println(cmd_and_pkg_internalStorage_output)

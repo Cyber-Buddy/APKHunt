@@ -22,7 +22,7 @@ func InvestigateRealmDatabse(Files []string) {
 			}
 			cmd_and_pkg_realm_output := string(cmd_and_pkg_realm[:])
 			if strings.Contains(cmd_and_pkg_realm_output, "RealmConfiguration") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_realm_output)
 				countRealmDB++

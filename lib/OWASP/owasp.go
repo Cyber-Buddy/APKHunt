@@ -46,8 +46,9 @@ func Wrapper(NetworkConf string, Files []string, ManifestPath string, ResourceFi
 	notify.Inform("-------------------------------------------------------")
 	v7.Wrapper(Files, ManifestPath)
 
+	// owasp MASVS - V8: Resilience Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V8: Resilience Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-	v8.Wrapper()
+	v8.Wrapper(Files)
 
 }

@@ -22,7 +22,7 @@ func InvestigateCertificatePinningSettings(ResourceFiles []string) {
 			}
 			cmd_and_pkg_certPinning_output := string(cmd_and_pkg_certPinning[:])
 			if strings.Contains(cmd_and_pkg_certPinning_output, "<pin") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_certPinning_output, "<pin")) || (strings.Contains(cmd_and_pkg_certPinning_output, "<domain")) || (strings.Contains(cmd_and_pkg_certPinning_output, "<base")) {
 					log.Println(cmd_and_pkg_certPinning_output)

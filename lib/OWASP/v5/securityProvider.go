@@ -22,7 +22,7 @@ func InvestigateSecurityProvider(Files []string) {
 			}
 			cmd_and_pkg_ProviderInstaller_output := string(cmd_and_pkg_ProviderInstaller[:])
 			if strings.Contains(cmd_and_pkg_ProviderInstaller_output, "ProviderInstaller") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_ProviderInstaller_output)
 				countProInst++

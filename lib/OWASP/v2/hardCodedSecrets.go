@@ -22,7 +22,7 @@ func InvestigateHardCodedSecrets(ResourceFiles []string) {
 			}
 			cmd_and_pkg_hardcodedKeys_output := string(cmd_and_pkg_hardcodedKeys[:])
 			if (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_key")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_secret")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_token")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_client_id")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_api")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_debug")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_prod")) || (strings.Contains(cmd_and_pkg_hardcodedKeys_output, "_stage")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_hardcodedKeys_output)
 				countHardcodedKeys++

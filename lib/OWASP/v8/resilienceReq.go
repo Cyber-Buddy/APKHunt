@@ -6,14 +6,16 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateRootDetection() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Root Detection implementation...\n")
-	fmt.Printf(string(Reset))
+func InvestigateRootDetection(Files []string) {
+	notify.StartSection("The Root Detection implementation")
+
 	var countRootDetect = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_rootDetect, err := exec.Command("grep", "-nr", "-e", "supersu", "-e", "superuser", "-e", "/xbin/", "-e", "/sbin/", sources_file).CombinedOutput()
 			if err != nil {
@@ -21,34 +23,25 @@ func InvestigateRootDetection() {
 			}
 			cmd_and_pkg_rootDetect_output := string(cmd_and_pkg_rootDetect[:])
 			if (strings.Contains(cmd_and_pkg_rootDetect_output, "super")) || (strings.Contains(cmd_and_pkg_rootDetect_output, "bin/")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				log.Println(cmd_and_pkg_rootDetect_output)
 				countRootDetect++
 			}
 		}
 	}
 	if int(countRootDetect) == 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to implement root detection mechanisms in the application, if not observed. Please note that, Multiple detection methods should be implemented so that it cannot be bypassed easily.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS V8: MSTG-RESILIENCE-1 | CWE-250: Execution with Unnecessary Privileges")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x15-v8-resiliency_against_reverse_engineering_requirements")
-	}
-	if int(countRootDetect) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+	} else {
+		notify.QuickNote()
 		log.Printf("    - It seems that root detection mechanism has been implemented. Please note that, Multiple detection methods should be implemented. It is recommended to check it out manually as well for better clarity.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS V8: MSTG-RESILIENCE-1 | CWE-250: Execution with Unnecessary Privileges")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x15-v8-resiliency_against_reverse_engineering_requirements")
+
 	}
 }

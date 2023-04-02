@@ -22,7 +22,7 @@ func InvestigateExternalStorage(Files []string) {
 			}
 			cmd_and_pkg_externalStorage_output := string(cmd_and_pkg_externalStorage[:])
 			if (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalFilesDirs(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalFilesDirs(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalCacheDir(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalFilesDirs(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getCacheDir(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalStorageState(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalStorageDirectory(")) || (strings.Contains(cmd_and_pkg_externalStorage_output, "getExternalStoragePublicDirectory(")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_externalStorage_output)
 				countExtStorage++

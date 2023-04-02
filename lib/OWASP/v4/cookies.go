@@ -24,7 +24,7 @@ func InvestigateCookies(Files []string) {
 			}
 			cmd_and_pkg_cookie_output := string(cmd_and_pkg_cookie[:])
 			if (strings.Contains(cmd_and_pkg_cookie_output, "setAcceptThirdPartyCookies(")) || (strings.Contains(cmd_and_pkg_cookie_output, "setCookie(")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_cookie_output, "setAcceptThirdPartyCookies(")) || (strings.Contains(cmd_and_pkg_cookie_output, "setCookie(")) || (strings.Contains(cmd_and_pkg_cookie_output, "CookieManager(")) || (strings.Contains(cmd_and_pkg_cookie_output, "findViewById(")) || (strings.Contains(cmd_and_pkg_cookie_output, "setWebViewClient(")) {
 					log.Println(cmd_and_pkg_cookie_output)

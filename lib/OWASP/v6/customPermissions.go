@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateCustomPermissions() {
@@ -21,22 +24,17 @@ func InvestigateCustomPermissions() {
 			}
 			cmd_and_pkg_custPerm_output := string(cmd_and_pkg_custPerm[:])
 			if (strings.Contains(cmd_and_pkg_custPerm_output, "checkCallingOrSelfPermission")) || (strings.Contains(cmd_and_pkg_custPerm_output, "checkSelfPermission")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				log.Println(cmd_and_pkg_custPerm_output)
 				countCustPerm++
 			}
 		}
 	}
 	if int(countCustPerm) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended that Custom Permissions should be used appropriately, if observed. Please note that, The permissions provided programmatically are enforced in the manifest file, as those are more error-prone and can be bypassed more easily with, e.g., runtime instrumentation.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-1 | CWE-276: Incorrect Default Permissions")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

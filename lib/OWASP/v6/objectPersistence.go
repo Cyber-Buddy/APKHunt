@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateObjectPersistence() {
@@ -21,22 +24,17 @@ func InvestigateObjectPersistence() {
 			}
 			cmd_and_pkg_serializable_output := string(cmd_and_pkg_serializable[:])
 			if (strings.Contains(cmd_and_pkg_serializable_output, "getSerializable")) || (strings.Contains(cmd_and_pkg_serializable_output, "Gson")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				log.Println(cmd_and_pkg_serializable_output)
 				countSerialize++
 			}
 		}
 	}
 	if int(countSerialize) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to use Serializable only when the serialized classes are stable, if observed. Reflection-based persistence should be avoided as the attacker might be able to manipulate it to execute business logic.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-8 | CWE-502: Deserialization of Untrusted Data")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateRemoteWebviewDebugging() {
@@ -21,22 +24,17 @@ func InvestigateRemoteWebviewDebugging() {
 			}
 			cmd_and_pkg_webConDebug_output := string(cmd_and_pkg_webConDebug[:])
 			if strings.Contains(cmd_and_pkg_webConDebug_output, "setWebContentsDebuggingEnabled") {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				log.Println(cmd_and_pkg_webConDebug_output)
 				countWebConDebug++
 			}
 		}
 	}
 	if int(countWebConDebug) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to disable setWebContentsDebuggingEnabled flag, if observed. Please note that, Remote WebView debugging can allow attackers to steal or corrupt the contents of WebViews loaded with web contents (HTML/CSS/JavaScript).")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-6 | CWE-215: Insertion of Sensitive Information Into Debugging Code")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

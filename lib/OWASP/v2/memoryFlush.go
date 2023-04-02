@@ -22,7 +22,7 @@ func InvestigateMemoryFlush(Files []string) {
 			}
 			cmd_and_pkg_flushMem_output := string(cmd_and_pkg_flushMem[:])
 			if strings.Contains(cmd_and_pkg_flushMem_output, ".flush(") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_flushMem_output)
 				countFlushMem++

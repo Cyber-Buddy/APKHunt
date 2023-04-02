@@ -24,7 +24,7 @@ func InvestigateLogsForSensitiveData(Files []string) {
 			}
 			cmd_and_pkg_logs_output := string(cmd_and_pkg_logs[:])
 			if (strings.Contains(cmd_and_pkg_logs_output, "Log.v(")) || (strings.Contains(cmd_and_pkg_logs_output, "Log.d(")) || (strings.Contains(cmd_and_pkg_logs_output, "Log.i(")) || (strings.Contains(cmd_and_pkg_logs_output, "Log.w(")) || (strings.Contains(cmd_and_pkg_logs_output, "Log.e(")) || (strings.Contains(cmd_and_pkg_logs_output, "logger.log(")) || (strings.Contains(cmd_and_pkg_logs_output, "logger.logp(")) || (strings.Contains(cmd_and_pkg_logs_output, "log.info")) || (strings.Contains(cmd_and_pkg_logs_output, "System.out.print")) || (strings.Contains(cmd_and_pkg_logs_output, "System.err.print")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_logs_output)
 				countLogs++

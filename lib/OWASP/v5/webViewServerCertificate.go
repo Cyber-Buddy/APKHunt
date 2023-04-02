@@ -22,7 +22,7 @@ func InvestigateWebviewServerCertificate(Files []string) {
 			}
 			cmd_and_pkg_webviewCert_output := string(cmd_and_pkg_webviewCert[:])
 			if strings.Contains(cmd_and_pkg_webviewCert_output, "onReceivedSslError") {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				if (strings.Contains(cmd_and_pkg_webviewCert_output, "onReceivedSslError")) || (strings.Contains(cmd_and_pkg_webviewCert_output, "sslErrorHandler")) || (strings.Contains(cmd_and_pkg_webviewCert_output, "proceed(")) || (strings.Contains(cmd_and_pkg_webviewCert_output, "setWebViewClient")) || (strings.Contains(cmd_and_pkg_webviewCert_output, "findViewById")) {
 					log.Println(cmd_and_pkg_webviewCert_output)

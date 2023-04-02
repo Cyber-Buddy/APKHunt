@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateImplicitIntentForBroadcast() {
@@ -21,9 +24,8 @@ func InvestigateImplicitIntentForBroadcast() {
 			}
 			cmd_and_pkg_impliIntBroad_output := string(cmd_and_pkg_impliIntBroad[:])
 			if (strings.Contains(cmd_and_pkg_impliIntBroad_output, "sendBroadcast(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "sendOrderedBroadcast(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "sendStickyBroadcast(")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
 				if (strings.Contains(cmd_and_pkg_impliIntBroad_output, "Broadcast(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "new Intent(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, `new android.content.Intent`)) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "setData(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "putExtra(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "setFlags(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "setAction(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "addFlags(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "setDataAndType(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "addCategory(")) || (strings.Contains(cmd_and_pkg_impliIntBroad_output, "setClassName(")) {
 					log.Println(cmd_and_pkg_impliIntBroad_output)
 					countImpliIntBroad++
@@ -32,13 +34,9 @@ func InvestigateImplicitIntentForBroadcast() {
 		}
 	}
 	if int(countImpliIntBroad) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended to not send the broadcast using an implicit intent, if observed. Use methods such as sendBroadcast, sendOrderedBroadcast, sendStickyBroadcast, etc. appropriately. Please note that, an attacker can intercept or hijack the sensitive data among components. Always use explicit intents for broadcast components or LocalBroadcastManager and use an appropriate permission.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-PLATFORM-4 | CWE-927: Use of Implicit Intent for Sensitive Communication")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
 	}

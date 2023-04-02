@@ -22,7 +22,7 @@ func InvestigateStaticIV(Files []string) {
 			}
 			cmd_and_pkg_key_output := string(cmd_and_pkg_key[:])
 			if (strings.Contains(cmd_and_pkg_key_output, " = {0, 0, 0, 0, 0")) || (strings.Contains(cmd_and_pkg_key_output, " = {1, 2, 3, 4, 5")) || (strings.Contains(cmd_and_pkg_key_output, " = {0, 1, 2, 3, 4")) {
-				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
 
 				log.Println(cmd_and_pkg_key_output)
 				countHardKeys++
