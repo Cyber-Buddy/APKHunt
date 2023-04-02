@@ -1,12 +1,15 @@
 package owasp
 
-func Wrapper() {
-	// owasp MASVS - V7: Code Quality and Build Setting Requirements
-	InvestigateCodeQuality()
+func Wrapper(Files []string, ManifestPath string) {
+	// MASVS V7 - MSTG-CODE-2 - AndroidManifest file - Package Debuggable
+	InvestigateCodeQuality(ManifestPath)
+
 	// MASVS V7 - MSTG-CODE-4 - StrictMode
-	InvestigateStrictMode()
+	InvestigateStrictMode(Files)
+
 	// MASVS V7 - MSTG-CODE-6 - Exception Handling
-	InvestigateExceptionHandling()
+	InvestigateExceptionHandling(Files)
+
 	// MASVS V7 - MSTG-CODE-9 - Obfuscated Code
-	InvestigateObfuscatedCode()
+	InvestigateObfuscatedCode(Files)
 }

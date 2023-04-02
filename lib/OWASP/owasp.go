@@ -10,17 +10,19 @@ import (
 	v5 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v5"
 	v6 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v6"
 	v7 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v7"
-	v8 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v7"
+	v8 "github.com/s9rA16Bf4/APKHunt/lib/OWASP/v8"
 	"github.com/s9rA16Bf4/APKHunt/lib/colors"
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func Wrapper(NetworkConf string, Files []string, ManifestPath string, ResourceFiles []string, ResourceGlobalPath string) {
+	v1.Wrapper(Files)
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V2: Data Storage and Privacy Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
 	v2.Wrapper(Files, ManifestPath, ResourceFiles)
 
+	// owasp MASVS - V3: Cryptography Requirements
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V3: Cryptography Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
 	v3.Wrapper(Files)
@@ -39,13 +41,13 @@ func Wrapper(NetworkConf string, Files []string, ManifestPath string, ResourceFi
 	notify.Inform("-------------------------------------------------------")
 	v6.Wrapper()
 
-	v1.Wrapper(Files)
-
-	v7.Wrapper()
+	// owasp MASVS - V7: Code Quality and Build Setting Requirements
+	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V7: Code Quality and Build Setting Requirements'%s", colors.BlueBold, colors.Reset))
+	notify.Inform("-------------------------------------------------------")
+	v7.Wrapper(Files, ManifestPath)
 
 	notify.Inform(fmt.Sprintf("%sHunting begins based on 'V8: Resilience Requirements'%s", colors.BlueBold, colors.Reset))
 	notify.Inform("-------------------------------------------------------")
-
 	v8.Wrapper()
 
 }
