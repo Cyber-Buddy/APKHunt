@@ -15,7 +15,7 @@ import (
 	v8 "github.com/s9rA16Bf4/APKHunt/lib/owasp/v7"
 )
 
-func Wrapper(networkConf string) {
+func Wrapper(networkConf string, Files []string) {
 
 	v2.Wrapper()
 
@@ -41,7 +41,7 @@ func Wrapper(networkConf string) {
 
 	v6.Wrapper()
 
-	v1.Wrapper()
+	v1.Wrapper(Files)
 
 	v7.Wrapper()
 

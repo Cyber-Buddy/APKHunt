@@ -11,11 +11,11 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateAppUpdateManager() {
+func InvestigateAppUpdateManager(Files []string) {
 	notify.StartSection("The Application Update mechanism...")
 
 	var countAppUpManag = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_AppUpdateManager, err := exec.Command("grep", "-nr", "-e", " AppUpdateManager", sources_file).CombinedOutput()
 			if err != nil {
