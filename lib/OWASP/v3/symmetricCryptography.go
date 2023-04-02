@@ -9,13 +9,7 @@ import (
 )
 
 func InvestigateSymmetricCryptography() {
-	log.Println("\n")
-	fmt.Printf(string(BlueBold))
-	log.Println(`[+] Hunting begins based on "V3: Cryptography Requirements"`)
-	fmt.Printf(string(Reset))
-	log.Println("[+] -------------------------------------------------------")
 
-	// MASVS V3 - MSTG-CRYPTO-1 - Symmetric Cryptography
 	fmt.Printf(string(Purple))
 	log.Println("\n==>> The Symmetric Cryptography implementation...\n")
 	fmt.Printf(string(Reset))

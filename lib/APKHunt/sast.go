@@ -2,19 +2,20 @@ package APKHunt
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func SAST() {
 	globpath := jadxpath + "sources/"
 	globpath_res := jadxpath + "resources/"
-	log.Printf("\n")
-	fmt.Printf(string(CyanBold))
-	log.Println(`[+] Let's start the static assessment based on "OWASP MASVS"`)
-	fmt.Printf(string(Reset))
-	fmt.Println("[+] ========================================================")
+
+	notify.Inform(fmt.Sprintf("%sLet's start the static assessment based on 'OWASP MASVS'%s", colors.CyanBold, colors.Reset))
+	notify.Inform("========================================================")
+
 	// Read .java files - /sources folder
 	var files []string
 	err_globpath := filepath.Walk(globpath, func(path string, info os.FileInfo, err error) error {
