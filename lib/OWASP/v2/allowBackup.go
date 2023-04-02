@@ -5,13 +5,14 @@ import (
 	"log"
 	"os/exec"
 	"regexp"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateAllowBackup() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>>  The allowBackup flag configuration...\n")
-	fmt.Printf(string(Reset))
-	cmd_and_pkg_bckup, err := exec.Command("grep", "-i", "android:allowBackup", and_manifest_path).CombinedOutput()
+func InvestigateAllowBackup(ManifestPath string) {
+	notify.StartSection("the allowBackup flag configuration")
+	cmd_and_pkg_bckup, err := exec.Command("grep", "-i", "android:allowBackup", ManifestPath).CombinedOutput()
 	if err != nil {
 		//fmt.Println(`[!] "android:allowBackup" flag has not been observed.`)
 	}
@@ -21,17 +22,16 @@ func InvestigateAllowBackup() {
 	if cmd_and_pkg_bckup_regex_match == "" {
 		log.Printf(`    - android:allowBackup="true" flag has not been observed in the AndroidManifest.xml file.`)
 	} else {
-		fmt.Printf(string(Brown))
-		log.Println(and_manifest_path)
-		fmt.Printf(string(Reset))
+		fmt.Printf("%s%s%s\n", colors.Brown, ManifestPath, colors.Reset)
+
 		log.Printf("    - %s", cmd_and_pkg_bckup_regex_match)
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[!] QuickNote:")
-		fmt.Printf(string(Reset))
+
+		notify.QuickNote()
+
 		log.Printf("    - It is recommended not to enable the allowBackup flag, if observed. Please note that, the enabled setting allows attackers to copy application data off of the device if they have enabled USB debugging.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+
+		notify.Reference()
+
 		log.Printf("    - owasp MASVS: MSTG-STORAGE-8 | CWE-921: Storage of Sensitive Data in a Mechanism without Access Control")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}

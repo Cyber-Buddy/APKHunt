@@ -6,14 +6,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateClipboardManager() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Clipboard Copying instances...\n")
-	fmt.Printf(string(Reset))
+func InvestigateClipboardManager(Files []string) {
+	notify.StartSection("The Clipboard Copying instances")
 	var countClipCopy = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_clipCopy, err := exec.Command("grep", "-nr", "-e", "ClipboardManager", "-e", ".setPrimaryClip(", "-e", "OnPrimaryClipChangedListener", sources_file).CombinedOutput()
 			if err != nil {
@@ -21,9 +22,8 @@ func InvestigateClipboardManager() {
 			}
 			cmd_and_pkg_clipCopy_output := string(cmd_and_pkg_clipCopy[:])
 			if (strings.Contains(cmd_and_pkg_clipCopy_output, "setPrimaryClip")) || (strings.Contains(cmd_and_pkg_clipCopy_output, "OnPrimaryClipChangedListener")) {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+
 				if (strings.Contains(cmd_and_pkg_clipCopy_output, "ClipboardManager")) || (strings.Contains(cmd_and_pkg_clipCopy_output, "setPrimaryClip")) || (strings.Contains(cmd_and_pkg_clipCopy_output, "OnPrimaryClipChangedListener")) {
 					log.Println(cmd_and_pkg_clipCopy_output)
 					countClipCopy++
@@ -32,13 +32,10 @@ func InvestigateClipboardManager() {
 		}
 	}
 	if int(countClipCopy) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended that any sensitive data should not be copied to the clipboard. Please note that, The data can be accessed by other malicious applications if copied to the clipboard.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-STORAGE-10 | CWE-316: Cleartext Storage of Sensitive Information in Memory")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}

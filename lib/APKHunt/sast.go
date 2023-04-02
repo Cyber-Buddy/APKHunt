@@ -9,7 +9,7 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func SAST(JadxPath string) []string {
+func SAST(JadxPath string) ([]string, []string) {
 	globpath := JadxPath + "sources/"
 	globpath_res := JadxPath + "resources/"
 
@@ -26,14 +26,14 @@ func SAST(JadxPath string) []string {
 		panic(err_globpath)
 	}
 	// Read .xml files - /resources folder
-	var files_res []string
+	var ResourceFiles []string
 	err_globpath_res := filepath.Walk(globpath_res, func(path string, info os.FileInfo, err error) error {
-		files_res = append(files_res, path)
+		ResourceFiles = append(ResourceFiles, path)
 		return nil
 	})
 	if err_globpath_res != nil {
 		panic(err_globpath_res)
 	}
 
-	return Files
+	return Files, ResourceFiles
 }

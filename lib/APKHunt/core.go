@@ -39,9 +39,9 @@ func Core(apkpath string) {
 	ApkSummary(exportedActivities, exportedContentProviders, exportedBroadCastReceivers, exportedServices)
 
 	// SAST - Recursive file reading
-	Files := SAST(JadxPath)
+	Files, ResourceFiles := SAST(JadxPath)
 
-	owasp.Wrapper(networkConf, Files)
+	owasp.Wrapper(networkConf, Files, ManifestPath, ResourceFiles)
 
 	end_time := time.Now()
 	notify.Inform(fmt.Sprintf("Scan has been finished at: %s", end_time))

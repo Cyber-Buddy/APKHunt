@@ -6,14 +6,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateMemoryFlush() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The flush instances utilized for clearing the Memory...\n")
-	fmt.Printf(string(Reset))
+func InvestigateMemoryFlush(Files []string) {
+	notify.StartSection("The flush instances utilized for clearing the Memory")
 	var countFlushMem = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_flushMem, err := exec.Command("grep", "-nr", "-F", ".flush(", sources_file).CombinedOutput()
 			if err != nil {
@@ -21,22 +22,17 @@ func InvestigateMemoryFlush() {
 			}
 			cmd_and_pkg_flushMem_output := string(cmd_and_pkg_flushMem[:])
 			if strings.Contains(cmd_and_pkg_flushMem_output, ".flush(") {
-				fmt.Printf(string(Brown))
-				log.Println(sources_file)
-				fmt.Printf(string(Reset))
+				fmt.Printf("%s%s%s", colors.Brown, sources_file, colors.Reset)
+
 				log.Println(cmd_and_pkg_flushMem_output)
 				countFlushMem++
 			}
 		}
 	}
 	if int(countFlushMem) > 0 {
-		fmt.Printf(string(Cyan))
-		log.Printf("[!] QuickNote:")
-		fmt.Printf(string(Reset))
+		notify.QuickNote()
 		log.Printf("    - It is recommended that the sensitive data should be flushed appropriately after its usage. Please note that, all the sensitive data should be removed from memory as soon as possible.")
-		fmt.Printf(string(Cyan))
-		log.Printf("\n[*] Reference:")
-		fmt.Printf(string(Reset))
+		notify.Reference()
 		log.Printf("    - owasp MASVS: MSTG-STORAGE-10 | CWE-316: Cleartext Storage of Sensitive Information in Memory")
 		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x07-v2-data_storage_and_privacy_requirements")
 	}
