@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateCustomPermissions() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Custom Permissions...\n")
-	fmt.Printf(string(Reset))
+func InvestigateCustomPermissions(Files []string) {
+	notify.StartSection("The Custom Permissions")
 	var countCustPerm = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_custPerm, err := exec.Command("grep", "-nr", "-e", "checkCallingOrSelfPermission", "-e", "checkSelfPermission", sources_file).CombinedOutput()
 			if err != nil {

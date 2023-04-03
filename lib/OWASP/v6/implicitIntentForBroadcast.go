@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateImplicitIntentForBroadcast() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Implicit intents used for broadcast...\n")
-	fmt.Printf(string(Reset))
+func InvestigateImplicitIntentForBroadcast(Files []string) {
+	notify.StartSection("The Implicit intents used for broadcast")
 	var countImpliIntBroad = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_impliIntBroad, err := exec.Command("grep", "-nr", "-e", "sendBroadcast(", "-e", "sendOrderedBroadcast(", "-e", "sendStickyBroadcast(", "-e", `new android.content.Intent`, "-e", `new Intent(`, "-e", "setData(", "-e", "putExtra(", "-e", "setFlags(", "-e", "setAction(", "-e", "addFlags(", "-e", "setDataAndType(", "-e", "addCategory(", "-e", "setClassName(", sources_file).CombinedOutput()
 			if err != nil {

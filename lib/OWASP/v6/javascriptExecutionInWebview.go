@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateJavascriptExecutionInWebview() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The instances of JavaScript Execution in WebViews...\n")
-	fmt.Printf(string(Reset))
+func InvestigateJavascriptExecutionInWebview(Files []string) {
+	notify.StartSection("The instances of JavaScript Execution in WebViews")
 	var countSetJavScr = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_setJavaScriptEnabled, err := exec.Command("grep", "-nri", "-e", "setJavaScriptEnabled(", "-e", "WebView", sources_file).CombinedOutput()
 			if err != nil {

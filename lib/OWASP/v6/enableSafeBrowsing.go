@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateEnableSafeBrowsing() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The EnableSafeBrowsing setting...\n")
-	fmt.Printf(string(Reset))
+func InvestigateEnableSafeBrowsing(ResourceFiles []string) {
+	notify.StartSection("The EnableSafeBrowsing setting")
 	var countSafeBrow = 0
-	for _, sources_file := range files_res {
+	for _, sources_file := range ResourceFiles {
 		if filepath.Ext(sources_file) == ".xml" {
 			cmd_and_pkg_EnableSafeBrowsing, err := exec.Command("grep", "-nr", "-F", "EnableSafeBrowsing", sources_file).CombinedOutput()
 			if err != nil {

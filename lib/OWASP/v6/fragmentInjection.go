@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateFragmentInjection() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Fragment Injection instances...\n")
-	fmt.Printf(string(Reset))
+func InvestigateFragmentInjection(Files []string) {
+	notify.StartSection("The Fragment Injection instances")
 	var countPrefAct = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_prefActivity, err := exec.Command("grep", "-nr", "-e", "extends PreferenceActivity", sources_file).CombinedOutput()
 			if err != nil {

@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigatePermissions() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Permissions...\n")
-	fmt.Printf(string(Reset))
+func InvestigatePermissions(ResourceFiles []string) {
+	notify.StartSection("The Permissions")
 	var countPerm = 0
-	for _, sources_file := range files_res {
+	for _, sources_file := range ResourceFiles {
 		if filepath.Ext(sources_file) == ".xml" {
 			cmd_and_pkg_permission, err := exec.Command("grep", "-nr", "-E", `<uses-permission|<permission`, sources_file).CombinedOutput()
 			if err != nil {

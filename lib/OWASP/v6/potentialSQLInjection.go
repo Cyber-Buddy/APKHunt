@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigatePotentialSQLInjection() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The potential SQL Injection instances...\n")
-	fmt.Printf(string(Reset))
+func InvestigatePotentialSQLInjection(Files []string) {
+	notify.StartSection("The potential SQL Injection instances")
 	var countSqli = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_sqli, err := exec.Command("grep", "-nr", "-e", ".rawQuery(", "-e", ".execSQL(", "-e", "appendWhere(", sources_file).CombinedOutput()
 			if err != nil {

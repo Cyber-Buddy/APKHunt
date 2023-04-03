@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateWebviewCleanup() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The WebViews Cleanup implementation...\n")
-	fmt.Printf(string(Reset))
+func InvestigateWebviewCleanup(Files []string) {
+	notify.StartSection("The WebViews Cleanup implementation")
 	var countWebViewCleanUp = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_webViewClean, err := exec.Command("grep", "-nr", "-e", `\.clearCache(`, "-e", `\.deleteAllData(`, "-e", `\.removeAllCookies(`, "-e", `\.deleteRecursively(`, "-e", `\.clearFormData(`, sources_file).CombinedOutput()
 			if err != nil {

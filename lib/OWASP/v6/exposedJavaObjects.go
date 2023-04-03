@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateExposedJavaObjects() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The instances of Java Objects exposure through WebViews...\n")
-	fmt.Printf(string(Reset))
+func InvestigateExposedJavaObjects(Files []string) {
+	notify.StartSection("The instances of Java Objects exposure through WebViews")
 	var countJavInt = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_addJavascriptInterface, err := exec.Command("grep", "-nr", "-F", "addJavascriptInterface(", sources_file).CombinedOutput()
 			if err != nil {

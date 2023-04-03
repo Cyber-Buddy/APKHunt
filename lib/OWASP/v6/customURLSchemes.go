@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateCustomURLSchemes() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Custom URL Schemes...\n")
-	fmt.Printf(string(Reset))
+func InvestigateCustomURLSchemes(ResourceFiles []string) {
+	notify.StartSection("The Custom URL Schemes")
 	var countCustUrlSch = 0
-	for _, sources_file := range files_res {
+	for _, sources_file := range ResourceFiles {
 		if filepath.Ext(sources_file) == ".xml" {
 			cmd_and_pkg_custUrlSchemes, err := exec.Command("grep", "-nr", "-e", "<intent-filter", "-e", "<data android:scheme", "-e", "<action android:name", sources_file).CombinedOutput()
 			if err != nil {

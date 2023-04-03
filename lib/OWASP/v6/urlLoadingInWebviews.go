@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateURLLoadingInWebview() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The instances of URL Loading in WebViews...\n")
-	fmt.Printf(string(Reset))
+func InvestigateURLLoadingInWebview(Files []string) {
+	notify.StartSection("The instances of URL Loading in WebViews")
 	var countUrlLoad = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_urlLoading, err := exec.Command("grep", "-nr", "-e", "shouldOverrideUrlLoading(", "-e", "shouldInterceptRequest(", sources_file).CombinedOutput()
 			if err != nil {

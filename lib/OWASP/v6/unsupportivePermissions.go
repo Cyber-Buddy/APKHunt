@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateUnsupportivePermissions() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Deprecated/Unsupprotive Permissions...\n")
-	fmt.Printf(string(Reset))
+func InvestigateUnsupportivePermissions(Files []string, ResourceFiles []string) {
+	notify.StartSection("The Deprecated/Unsupprotive Permissions")
 	var countDeprecatedPerm = 0
-	for _, sources_file := range files_res {
+	for _, sources_file := range ResourceFiles {
 		if filepath.Ext(sources_file) == ".xml" {
 			cmd_and_pkg_deprecatedPerm, err := exec.Command("grep", "-nr", "-E", `BIND_CARRIER_MESSAGING_SERVICE|BIND_CHOOSER_TARGET_SERVICE|GET_TASKS|PERSISTENT_ACTIVITY|PROCESS_OUTGOING_CALLS|READ_INPUT_STATE|RESTART_PACKAGES|SET_PREFERRED_APPLICATIONS|SMS_FINANCIAL_TRANSACTIONS|USE_FINGERPRINT|UNINSTALL_SHORTCUT`, sources_file).CombinedOutput()
 			if err != nil {
@@ -31,7 +29,7 @@ func InvestigateUnsupportivePermissions() {
 			}
 		}
 	}
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_deprecatedPerm, err := exec.Command("grep", "-nr", "-E", `BIND_CARRIER_MESSAGING_SERVICE|BIND_CHOOSER_TARGET_SERVICE|GET_TASKS|PERSISTENT_ACTIVITY|PROCESS_OUTGOING_CALLS|READ_INPUT_STATE|RESTART_PACKAGES|SET_PREFERRED_APPLICATIONS|SMS_FINANCIAL_TRANSACTIONS|USE_FINGERPRINT|UNINSTALL_SHORTCUT`, sources_file).CombinedOutput()
 			if err != nil {

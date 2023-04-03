@@ -11,13 +11,11 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateHardcodedLinks() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Hard-coded links...\n")
-	fmt.Printf(string(Reset))
+func InvestigateHardcodedLinks(Files []string) {
+	notify.StartSection("The Hard-coded links")
 	var countExtLink = 0
 	var countExtLink2 = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_extLinks, err := exec.Command("grep", "-nr", "-e", "://", sources_file).CombinedOutput()
 			if err != nil {

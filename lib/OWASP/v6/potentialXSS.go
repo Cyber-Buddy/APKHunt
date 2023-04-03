@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigatePotentialXSS() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The potential Cross-Site Scripting flaws...\n")
-	fmt.Printf(string(Reset))
+func InvestigatePotentialXSS(Files []string) {
+	notify.StartSection("The potential Cross-Site Scripting flaws")
 	var countXSS = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_xss, err := exec.Command("grep", "-nr", "-e", `.evaluateJavascript(`, "-e", `.loadUrl("javascript:`, sources_file).CombinedOutput()
 			if err != nil {

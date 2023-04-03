@@ -1,66 +1,66 @@
 package owasp
 
-func Wrapper(Files []string) {
+func Wrapper(Files []string, ResourceFiles []string, ManifestPath string) {
 	// MASVS V6 - MSTG-PLATFORM-1 - Permissions
-	InvestigatePermissions()
+	InvestigatePermissions(ResourceFiles)
 
 	// MASVS V6 - MSTG-PLATFORM-1 - Deprecated/Unsupprotive Permissions
-	InvestigateUnsupportivePermissions()
+	InvestigateUnsupportivePermissions(Files, ResourceFiles)
 
 	// MASVS V6 - MSTG-PLATFORM-1 - Custom Permissions
-	InvestigateCustomPermissions()
+	InvestigateCustomPermissions(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-1 - Exported service/activity/provider/receiver without permission set
-	InvestigateWithoutPermissionSet()
+	InvestigateWithoutPermissionSet(ManifestPath)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - potential SQL Injection
-	InvestigatePotentialSQLInjection()
+	InvestigatePotentialSQLInjection(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - potential Cross-Site Scripting Flaws
-	InvestigatePotentialXSS()
+	InvestigatePotentialXSS(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - potential Code Execution Flaws
 	InvestigatePotentialCodeExecutionFlaw(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - Fragment Injection
-	InvestigateFragmentInjection()
+	InvestigateFragmentInjection(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - EnableSafeBrowsing
-	InvestigateEnableSafeBrowsing()
+	InvestigateEnableSafeBrowsing(ResourceFiles)
 
 	// MASVS V6 - MSTG-PLATFORM-2 - URL Loading in WebViews
-	InvestigateURLLoadingInWebview()
+	InvestigateURLLoadingInWebview(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-3 - Custom URL Schemes
-	InvestigateCustomURLSchemes()
+	InvestigateCustomURLSchemes(ResourceFiles)
 
 	// MASVS V6 - MSTG-PLATFORM-4 - Implicit intent used for broadcast
-	InvestigateImplicitIntentForBroadcast()
+	InvestigateImplicitIntentForBroadcast(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-4 - Implicit intent used for activity
-	InvestigateImplicitIntentForActivity()
+	InvestigateImplicitIntentForActivity(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-5 - JavaScript Execution in WebViews
-	InvestigateJavascriptExecutionInWebview()
+	InvestigateJavascriptExecutionInWebview(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-6 - Remote/Local URL load in WebViews
-	InvestigateRemoteURLLoadingInWebview()
+	InvestigateRemoteURLLoadingInWebview(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-6 - Hard-coded Links
-	InvestigateHardcodedLinks()
+	InvestigateHardcodedLinks(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-6 - Resource Access permissions
-	InvestigateResourceAccessPermissions()
+	InvestigateResourceAccessPermissions(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-6 - Remote WebView Debugging setting
-	InvestigateRemoteWebviewDebugging()
+	InvestigateRemoteWebviewDebugging(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-7 - Java Objects Are Exposed Through WebViews
-	InvestigateExposedJavaObjects()
+	InvestigateExposedJavaObjects(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-8 - Object Persistence
-	InvestigateObjectPersistence()
+	InvestigateObjectPersistence(Files)
 
 	// MASVS V6 - MSTG-PLATFORM-10 - WebViews Cleanup
-	InvestigateWebviewCleanup()
+	InvestigateWebviewCleanup(Files)
 }

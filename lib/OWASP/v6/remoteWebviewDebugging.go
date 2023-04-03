@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateRemoteWebviewDebugging() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The Remote WebView Debugging setting...\n")
-	fmt.Printf(string(Reset))
+func InvestigateRemoteWebviewDebugging(Files []string) {
+	notify.StartSection("The Remote WebView Debugging setting")
 	var countWebConDebug = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_webConDebug, err := exec.Command("grep", "-nr", "-e", `setWebContentsDebuggingEnabled(`, sources_file).CombinedOutput()
 			if err != nil {

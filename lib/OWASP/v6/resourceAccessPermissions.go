@@ -11,12 +11,10 @@ import (
 	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
-func InvestigateResourceAccessPermissions() {
-	fmt.Printf(string(Purple))
-	log.Println("\n==>> The instances of Resource Access permissions...\n")
-	fmt.Printf(string(Reset))
+func InvestigateResourceAccessPermissions(Files []string) {
+	notify.StartSection("The instances of Resource Access permissions")
 	var countFileAccPerm = 0
-	for _, sources_file := range files {
+	for _, sources_file := range Files {
 		if filepath.Ext(sources_file) == ".java" {
 			cmd_and_pkg_fileAccessPerm, err := exec.Command("grep", "-nr", "-e", "setAllowFileAccess(", "-e", "setAllowFileAccessFromFileURLs(", "-e", "setAllowUniversalAccessFromFileURLs(", "-e", "setAllowContentAccess(", sources_file).CombinedOutput()
 			if err != nil {
