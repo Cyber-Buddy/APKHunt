@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/s9rA16Bf4/APKHunt/lib/APKHunt"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
+
 	"github.com/s9rA16Bf4/APKHunt/lib/colors"
 	"github.com/s9rA16Bf4/APKHunt/lib/io"
 
@@ -26,7 +28,7 @@ func main() {
 	parsed := arg.Argument_parse()
 
 	if len(parsed) == 0 {
-		APKHunt.Error("Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
+		notify.Error("Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
 	} else {
 		apkTargets := []string{}
 		logToFile := false
