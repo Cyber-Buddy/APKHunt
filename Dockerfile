@@ -4,8 +4,10 @@ WORKDIR /app
 
 COPY . ./
 
-RUN apt update && apt install golang-go
+RUN apt update && apt install golang-go ca-certificates openssl make -y
+RUN update-ca-certificates
+
 RUN make dependencies
-RUN make build
+RUN make compile
 
 ENTRYPOINT ["/app/apkhunt"]
