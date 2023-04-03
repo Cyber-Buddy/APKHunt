@@ -19,10 +19,20 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
-## :spider_web: Installation
+## :spider_web: Docker Installation 
    1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
    2. cd apkhunt
-   3. go run apkhunt.go 
+   3. make docker
+   4. Run `docker run --rm apkhunt/apkhunt <commands>` or `bash apkhunt.sh <commands>`
+  
+  Requirements:
+- Docker
+
+## :spider_web: Local Installation 
+   1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
+   2. cd apkhunt
+   3. make
+   4. ./apkhunt
   
    Requirements:
 - Install Git: sudo apt-get install git
@@ -34,6 +44,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - Only supported on Linux environments
 
 ## :gear: Usage
+```
           _ _   __ __  _   __  _   _                _   
          / _ \ | _ _ \| | / / | | | |              | |  
         / /_\ \| |_/ /| |/ /  | |_| | _   _   _ _  | |_ 
@@ -43,20 +54,20 @@ With APKHunt, mobile software architects or developers can conduct thorough code
         ------------------------------------------------                                                                                     
         OWASP MASVS Static Analyzer  
     
-        APKHunt Usage:                                                                                                                       
-              go run APKHunt.go [options] {.apk file}                                                                                        
-    
-        Options:                                                                                                                             
-             -h     For help                                                                                                                 
-             -p     Provide the apk file-path
-             -m     Provide the folder-path for multiple apk scanning
-             -l     For logging (.txt file)
-    
-        Examples:                                                                                                                            
-             APKHunt.go -p /Downloads/android_app.apk                                                                                        
-             APKHunt.go -p /Downloads/android_app.apk -l
-             APKHunt.go -m /Downloads/android_apps/
-             APKHunt.go -m /Downloads/android_apps/ -l
+[+] APKHunt by RedHunt Labs - A Modern Attack Surface (ASM) Management Company
+[+] Based on: OWASP MASVS - https://mobile-security.gitbook.io/masvs/
+[+] Author: Sumit Kalaria & Mrunal Chawda (RHL PenTest Team)
+[+] Updated and revised by @s9rA16Bf4
+[*] Connect: Please do write to us for any suggestions/feedback.
+[*] Remember: Continuously track your Attack Surface using https://redhuntlabs.com/nvadr.
+[+] Checking if APKHunt is being executed on Linux OS or not...
+[+] Checking if the needed tools are installed...
+
+#### Definied Arguments ####
+--package, -p <value>  | Path to a single APK
+--multiple, -m <value>  | Path to a folder containing multiple apk's to scan
+--logging, -l <value>  | For logging (.txt file)
+```
 
 ## :iphone: Security test-case coverage
 The OWASP MASVS (Mobile Application Security Verification Standard) is the industry standard for mobile app security. It can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure completeness and consistency of test results.

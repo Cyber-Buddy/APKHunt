@@ -1,0 +1,42 @@
+package owasp
+
+import (
+	"fmt"
+	"log"
+	"os/exec"
+	"path/filepath"
+	"strings"
+
+	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
+)
+
+func InvestigateHardcodedLinks(Files []string) {
+	notify.StartSection("The Hard-coded links")
+	var countExtLink = 0
+	var countExtLink2 = 0
+	for _, sources_file := range Files {
+		if filepath.Ext(sources_file) == ".java" {
+			cmd_and_pkg_extLinks, err := exec.Command("grep", "-nr", "-e", "://", sources_file).CombinedOutput()
+			if err != nil {
+				//fmt.Println("- Hard-coded links have not been observed")
+			}
+			cmd_and_pkg_extLinks_output := string(cmd_and_pkg_extLinks[:])
+			if strings.Contains(cmd_and_pkg_extLinks_output, "://") {
+				fmt.Printf("%s%s%s\n", colors.Brown, sources_file, colors.Reset)
+
+				log.Println(cmd_and_pkg_extLinks_output)
+				countExtLink++
+				countExtLink2 = countExtLink2 + strings.Count(cmd_and_pkg_extLinks_output, "\n")
+			}
+		}
+	}
+	if int(countExtLink) > 0 {
+		log.Println("[+] Total file sources are:", countExtLink, "& its total instances are:", countExtLink2, "\n")
+		notify.QuickNote()
+		log.Printf("    - It is recommended that external/hard-coded links have been used wisely across the application, if observed.")
+		notify.Reference()
+		log.Printf("    - owasp MASVS: MSTG-PLATFORM-6 | CWE-200: Exposure of Sensitive Information to an Unauthorized Actor")
+		log.Printf("    - https://mobile-security.gitbook.io/masvs/security-requirements/0x11-v6-interaction_with_the_environment")
+	}
+}
