@@ -1,15 +1,14 @@
 package AndroidManifest
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 
-	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateContentProviders(ManifestPath string) {
-	log.Println(fmt.Sprintf("%s\n==>> The Content Providers...\n%s", colors.Purple, colors.Reset))
+	notify.StartSection("The Content Providers")
 
 	cmd_and_cont, err := exec.Command("grep", "-ne", "<provider", ManifestPath).CombinedOutput()
 	if err != nil {

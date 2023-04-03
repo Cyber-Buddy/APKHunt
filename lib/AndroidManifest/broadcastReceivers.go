@@ -1,15 +1,14 @@
 package AndroidManifest
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 
-	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateBroadcastReceivers(ManifestPath string) {
-	log.Println(fmt.Sprintf("%s\n==>> The Brodcast Receivers...\n%s", colors.Purple, colors.Reset))
+	notify.StartSection("The Brodcast Receivers")
 
 	cmd_and_brod, err := exec.Command("grep", "-ne", "<receiver", ManifestPath).CombinedOutput()
 	if err != nil {

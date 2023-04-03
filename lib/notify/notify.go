@@ -9,7 +9,7 @@ import (
 
 // Prints the message
 func Inform(msg string) {
-	fmt.Printf("\n[+] %s\n", msg)
+	fmt.Printf("[+] %s\n", msg)
 }
 
 // Prints the error and quits

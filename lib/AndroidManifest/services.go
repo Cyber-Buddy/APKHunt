@@ -4,11 +4,11 @@ import (
 	"log"
 	"os/exec"
 
-	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateServices(ManifestPath string) {
-	log.Println("%s\n==>>  The Services...\n%s", colors.Purple, colors.Reset)
+	notify.StartSection("The Services")
 
 	cmd_and_serv, err := exec.Command("grep", "-ne", "<service", ManifestPath).CombinedOutput()
 	if err != nil {

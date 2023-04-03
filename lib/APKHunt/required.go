@@ -26,4 +26,6 @@ func Requirement() {
 			notify.Error(fmt.Sprintf("%s has not been observed. Kindly install it first!", utility))
 		}
 	}
+
+	fmt.Println("") // So that we get a newline
 }

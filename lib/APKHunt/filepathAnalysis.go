@@ -28,7 +28,7 @@ func FilePathAnalysis(apkPath string) (string, string) {
 	bytes := file_size.Size()
 	kilobytes := float32((bytes / 1024))
 	megabytes := float32((kilobytes / 1024))
-	notify.Inform(fmt.Sprintf("APK Size: %d MB", megabytes))
+	notify.Inform(fmt.Sprintf("APK Size: %f MB", megabytes))
 
 	apkPathdir := filepath.Dir(apkPath) + "/"
 	notify.Inform(fmt.Sprintf("APK Directory: %s", apkPathdir))
@@ -43,15 +43,15 @@ func FilePathAnalysis(apkPath string) (string, string) {
 	apkoutpath := apkPathdir + apkName
 	dex2jarpath := apkoutpath + ".jar"
 	JadxPath := apkoutpath + "_SAST/"
-	notify.Inform(fmt.Sprintf("APK Static Analysis Path: %s\n", JadxPath))
+	notify.Inform(fmt.Sprintf("APK Static Analysis Path: %s", JadxPath))
 
 	file_hash, err := ioutil.ReadFile(apkPath)
 	if err != nil {
 		notify.Error(err.Error())
 	}
 
-	notify.Inform(fmt.Sprintf("APK Hash: MD5: %x\n", md5.Sum(file_hash)))
-	notify.Inform(fmt.Sprintf("APK Hash: SHA256: %x\n", sha256.Sum256(file_hash)))
+	notify.Inform(fmt.Sprintf("APK Hash: MD5 - %x", md5.Sum(file_hash)))
+	notify.Inform(fmt.Sprintf("APK Hash: SHA256 - %x", sha256.Sum256(file_hash)))
 
 	notify.Inform(fmt.Sprintf("%sd2j-dex2jar has started converting APK to Java JAR file%s", colors.Blue, colors.Reset))
 	notify.EndSection()

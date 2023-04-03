@@ -4,11 +4,11 @@ import (
 	"log"
 	"os/exec"
 
-	"github.com/s9rA16Bf4/APKHunt/lib/colors"
+	"github.com/s9rA16Bf4/APKHunt/lib/notify"
 )
 
 func InvestigateActivities(ManifestPath string) {
-	log.Println("%s\n==>> The Activities...%s", colors.Purple, colors.Reset)
+	notify.StartSection("The Activities")
 	cmd_and_actv, err := exec.Command("grep", "-ne", "<activity", ManifestPath).CombinedOutput()
 
 	if err != nil {
