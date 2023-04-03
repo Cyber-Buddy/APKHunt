@@ -19,10 +19,20 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - **Low false-positive rate:** Designed to pinpoint and highlight the exact location of potential vulnerabilities in the source code.
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
-## :spider_web: Installation
+## :spider_web: Docker Installation 
    1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
    2. cd apkhunt
-   3. go run apkhunt.go 
+   3. make docker
+   4. Run `docker run --rm apkhunt/apkhunt <commands>` or `bash apkhunt.sh <commands>`
+  
+  Requirements:
+- Docker
+
+## :spider_web: Local Installation 
+   1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
+   2. cd apkhunt
+   3. make
+   4. ./apkhunt
   
    Requirements:
 - Install Git: sudo apt-get install git
