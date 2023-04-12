@@ -30,7 +30,7 @@ With APKHunt, mobile software architects or developers can conduct thorough code
 - Install JADX: sudo apt-get install jadx
 - Install Dex2jar: sudo apt-get install dex2jar
 
-   macOS Requirements:
+ macOS Requirements:
 - Install [Homebrew](https://brew.sh/) 
 - Install Git: brew install git
 - Install Golang: brew install go
