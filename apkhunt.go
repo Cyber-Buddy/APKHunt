@@ -51,7 +51,7 @@ import (
         func APKHunt_basic_req_checks() {
         
         // OS type check
-        if runtime.GOOS != "linux" {
+        if (runtime.GOOS != "linux") && (runtime.GOOS != "darwin") {
                 APKHunt_Intro_Func()
                 fmt.Println("\n[+] Checking if APKHunt is being executed on Linux OS or not...") 
                 fmt.Println("[!] Linux OS has not been identified! \n[!] Exiting...")
