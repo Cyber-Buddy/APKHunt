@@ -43,7 +43,7 @@ import (
         fmt.Printf(string(colorReset))
         log.Println("[+] APKHunt - a comprehensive static code analysis tool for Android apps")
         log.Println("[+] Based on: OWASP MASVS - https://mobile-security.gitbook.io/masvs/")
-        log.Println("[+] Author: Sumit Kalaria & Mrunal Chawda (RHL PenTest Team)")
+        log.Println("[+] Author: Sumit Kalaria & Mrunal Chawda")
         log.Println("[*] Connect: Please do write to us for any suggestions/feedback.")
         }
 
