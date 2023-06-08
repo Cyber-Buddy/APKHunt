@@ -12,7 +12,8 @@ APKHunt is a comprehensive static code analysis tool for Android apps that is ba
 
 With APKHunt, mobile software architects or developers can conduct thorough code reviews to ensure the security and integrity of their mobile applications, while security testers can use the tool to confirm the completeness and consistency of their test results. Whether you're a developer looking to build secure apps or an infosec tester charged with ensuring their security, APKHunt can be an invaluable resource for your work.
 
-- Black Hat Asia Arsenal 2023
+**Black Hat Asia Arsenal 2023**
+
 https://www.blackhat.com/asia-23/arsenal/schedule/#apkhunt--owasp-masvs-static-analyzer-31003
 
 ## :dart: Features 
