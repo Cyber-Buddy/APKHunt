@@ -41,11 +41,10 @@ import (
     OWASP MASVS Static Analyzer                                
         `)
         fmt.Printf(string(colorReset))
-        log.Println("[+] APKHunt by RedHunt Labs - A Modern Attack Surface (ASM) Management Company")
+        log.Println("[+] APKHunt - a comprehensive static code analysis tool for Android apps")
         log.Println("[+] Based on: OWASP MASVS - https://mobile-security.gitbook.io/masvs/")
         log.Println("[+] Author: Sumit Kalaria & Mrunal Chawda (RHL PenTest Team)")
         log.Println("[*] Connect: Please do write to us for any suggestions/feedback.")
-        log.Println("[*] Remember: Continuously track your Attack Surface using https://redhuntlabs.com/nvadr.")
         }
 
         func APKHunt_basic_req_checks() {
