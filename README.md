@@ -27,7 +27,7 @@ https://www.blackhat.com/asia-23/arsenal/schedule/#apkhunt--owasp-masvs-static-a
 
 ## :spider_web: Installation
    1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
-   2. cd apkhunt
+   2. cd APKHunt
    3. go run apkhunt.go 
   
    Requirements:
@@ -50,7 +50,7 @@ https://www.blackhat.com/asia-23/arsenal/schedule/#apkhunt--owasp-masvs-static-a
         OWASP MASVS Static Analyzer  
     
         APKHunt Usage:                                                                                                                       
-              go run APKHunt.go [options] {.apk file}                                                                                        
+              go run apkhunt.go [options] {.apk file}                                                                                        
     
         Options:                                                                                                                             
              -h     For help                                                                                                                 
