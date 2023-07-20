@@ -103,7 +103,70 @@ import (
                 fmt.Println("\t - Tested on linux only!")
                 fmt.Println("\t - Keep tools such as jadx, dex2jar, go, grep, etc.! installed")
         }
-        
+
+// This function is intended to be called when a fatal error is detected.
+// It prints the provided error_string in red (without any further formatting), and
+// then terminates the execution (os.Exit) with the specified error code.
+//
+// Suggested codes:
+//	-1 => Pre-requisite not fulfilled (i.e.: the required dependencies are not installed)
+//	-2 => Error with an external program (see stack trace / error message)
+//
+// No cleanup is performed
+func print_error_and_exit (error_string string, error_code int) {
+	fmt.Printf (string (colorRedBold))
+	log.Fatal (error_string)
+	fmt.Printf (string (colorReset))
+	os.Exit (error_code)
+}
+
+// After executing `grep <whatever>`, this function can be invoked to check
+// the returned value:
+//	if it's 2 => prints an error and exits using print_error_and_exit
+//	otherwise, it just prints the message provided in "no_match_msg"
+//
+// The second argument, "cmd_output", is the output of the executed command
+// execution
+func control_grep_error (err error, cmd_output []byte, no_match_msg string) {
+	exit_status := err.(*exec.ExitError).ExitCode ()
+	// `man grep` says "Normally the exit status is 0 if a line is selected, 1 if no lines were selected, and 2 if an error occurred"
+	if exit_status == 2 {
+
+		log.Println (string (cmd_output)) // Probably a "not found" error
+		print_error_and_exit (
+			fmt.Sprintf ("[!] `grep` returned an error: %s", err.Error ()),
+			-2, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+		)
+	}
+	// I guess there are valid cases for when the exit code is 1 (no matches) ??
+	log.Println (no_match_msg)
+}
+
+// After executing `bash -c '<whatever>'`, this function can be invoked to check
+// the returned value:
+//	if it's 2 => prints an error and exits using print_error_and_exit
+//	otherwise, it just prints the message provided in "no_match_msg" (if not an empty string, "")
+//
+// The second argument, "cmd_output", is the output of the executed command
+// execution
+func control_bash_error (err error, cmd_output []byte, no_match_msg string) {
+	exit_status := err.(*exec.ExitError).ExitCode ()
+	// `man bash` says "An exit status of zero indicates success.  A non-zero exit status indicates failure."
+	if exit_status != 0 {
+
+		log.Println (string (cmd_output)) // Probably a "not found" error
+		print_error_and_exit (
+			fmt.Sprintf ("[!] `bash -c` returned an error: %s", err.Error ()),
+			-2, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+		)
+	}
+	// I guess there are valid cases for when the exit code is 1 (no matches) ??
+	if no_match_msg != "" {
+		log.Println (no_match_msg)
+	}
+}
+
+
 func main() {
         
         // APKHunt Intro
@@ -117,8 +180,7 @@ func main() {
         argLength := len(os.Args[1:])
         if argLength == 0 {
                 APKHunt_Intro_Func()
-                fmt.Println("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
-                os.Exit(0)
+		print_error_and_exit ("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!", -1)
         }
         
         //checking for the first argument
@@ -131,15 +193,13 @@ func main() {
         
         if ((FirstArg != "-h") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-p") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-m") && (len(os.Args[2:]) == 0)) || ((FirstArg != "-l") && (len(os.Args[2:]) == 0)) {
                 APKHunt_Intro_Func()
-                fmt.Println("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
-                os.Exit(0)
+		print_error_and_exit ("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!", -1)
         }
         
         //cheking for valid arguments/path
         if ((FirstArg == "-p") && (len(os.Args[2:]) == 0)) || ((FirstArg == "-m") && (len(os.Args[2:]) == 0)) || ((FirstArg == "-l") && (len(os.Args[2:]) == 0)) || (FirstArg == "-l" && os.Args[2] == "-p" && len(os.Args[3:]) == 0) || (FirstArg == "-l" && os.Args[2] == "-m" && len(os.Args[3:]) == 0) {
                 APKHunt_Intro_Func()
-                fmt.Println("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!")
-                os.Exit(0)
+                print_error_and_exit ("\n[!] Kindly provide the valid arguments/path. \n[!] Please use -h switch to know how-about the APKHunt!", -1)
         }
 
         //checking for apk path and log switches
@@ -173,9 +233,11 @@ func main() {
                 APKHunt_Intro_Func()
                 
                 if _, err := os.Stat(apkpath); err != nil {
-        	if os.IsNotExist(err) {
-                	fmt.Printf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath)
-                	os.Exit(0)
+	        	if os.IsNotExist(err) {
+	                	print_error_and_exit (
+					fmt.Sprintf ("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath),
+					-1, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+				)
                 	} 
         	}
                 
@@ -193,8 +255,7 @@ func main() {
     		fmt.Printf("\n==>> Total number of APK files: %d \n\n", countAPK)
     		fmt.Printf(string(colorReset))
     		if countAPK == 0 {
-			fmt.Println("[!] No APK files found in the given directory. \n[!] Kindly verify the path/directory! \n[!] Exiting...")
-			os.Exit(0)
+			print_error_and_exit ("[!] No APK files found in the given directory. \n[!] Kindly verify the path/directory! \n[!] Exiting...", -1)
 		}
 		
 		fmt.Printf(string(colorBrown))
@@ -230,9 +291,11 @@ func main() {
 		//APKHunt_Intro_Func()
            	
                 if _, err := os.Stat(apkpath); err != nil {
-        	if os.IsNotExist(err) {
-                	fmt.Printf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath)
-                	os.Exit(0)
+	        	if os.IsNotExist(err) {
+	                	print_error_and_exit (
+					fmt.Sprintf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath),
+					-1, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+				)
                 	} 
         	}
                 
@@ -249,8 +312,7 @@ func main() {
     		fmt.Printf("\n==>> Total number of APK files: %d \n\n", countAPK)
     		fmt.Printf(string(colorReset))
     		if countAPK == 0 {
-			fmt.Println("[!] No APK files found in the given directory. \n[!] Kindly verify the path/directory! \n[!] Exiting...")
-			os.Exit(0)
+			print_error_and_exit ("[!] No APK files found in the given directory. \n[!] Kindly verify the path/directory! \n[!] Exiting...", -1)
 		}
     		
     		fmt.Printf(string(colorBrown))
@@ -305,15 +367,19 @@ func main() {
         
         //APK filepath check
         if _, err := os.Stat(apkpath); err != nil {
-        if os.IsNotExist(err) {
-                log.Printf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath)
-                os.Exit(0)
+	        if os.IsNotExist(err) {
+        	        print_error_and_exit (
+				fmt.Sprintf("\n[!] Given file-path '%s' does not exist. \n[!] Kindly verify the path/filename! \n[!] Exiting...", apkpath),
+				-1, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+			)
                 } 
         }
         if filepath.Ext(apkpath) != ".apk" {
-                log.Printf("\n[!] Given file '%s' does not seem to be an apk file. \n[!] Kindly verify the file! \n[!] Exiting...", apkpath)
-                os.Exit(0)
-                }
+		print_error_and_exit (
+	                fmt.Sprintf("\n[!] Given file '%s' does not seem to be an apk file. \n[!] Kindly verify the file! \n[!] Exiting...", apkpath),
+			-1, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+		)
+        }
                 
         start_time := time.Now()
         log.Println("\n[+] Scan has been started at:",start_time)
@@ -336,8 +402,7 @@ func main() {
         
         is_alphanumeric := regexp.MustCompile(`^[a-zA-Z0-9_-]*$`).MatchString(apkname)
         if !is_alphanumeric{
-                log.Println("[!] Only Alphanumeric string with/without underscore/dash is accepted as APK file-name. Request you to rename the APK file.")
-                os.Exit(0)
+                print_error_and_exit ("[!] Only Alphanumeric string with/without underscore/dash is accepted as APK file-name. Request you to rename the APK file.", -1)
         }
         
         apkoutpath := apkpathdir + apkname
@@ -354,9 +419,13 @@ func main() {
         log.Println("\n[+] d2j-dex2jar has started converting APK to Java JAR file")
         fmt.Printf(string(colorReset))
         log.Println("[+] =======================================================")
-        cmd_apk_dex2jar, err := exec.Command("d2j-dex2jar", apkpath, "-f", "-o", dex2jarpath).CombinedOutput()
+	cmd_apk_dex2jar, err := exec.Command("d2j-dex2jar", apkpath, "-f", "-o", dex2jarpath).CombinedOutput()
         if err != nil {
-                log.Println(err.Error())
+		log.Println (string (cmd_apk_dex2jar)) // Probably a stack trace
+		print_error_and_exit (
+			fmt.Sprintf ("[!] `d2j-dex2jar` returned an error: %s", err.Error ()),
+			-2, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+		)
         }
         cmd_apk_dex2jar_output := string(cmd_apk_dex2jar[:])
         log.Println("   ",cmd_apk_dex2jar_output)
@@ -367,7 +436,11 @@ func main() {
         log.Println("[+] ============================================")
         cmd_apk_jadx, err := exec.Command("jadx", "--deobf", apkpath, "-d", jadxpath).CombinedOutput()
         if err != nil {
-                log.Println(err.Error())
+        	log.Println (string (cmd_apk_jadx)) // Probably a stack trace
+		print_error_and_exit (
+			fmt.Sprintf ("[!] `jadx` returned an error: %s", err.Error ()),
+			-2, // Go is stupid as fuck and can't stand a new-line before the closing bracket (which makes it less readable, in my opinion)
+		)
         }
         cmd_apk_jadx_output := string(cmd_apk_jadx[:])
         log.Println(cmd_apk_jadx_output)
@@ -382,11 +455,11 @@ func main() {
         fmt.Printf(string(colorPurple))
         log.Println("\n==>> The Basic Information...\n")
         fmt.Printf(string(colorReset))
+
         // AndroidManifest file - Package name
-        
         cmd_and_pkg_nm, err := exec.Command( "grep", "-i", "package", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("    - Package Name has not been observed.")
+		control_grep_error (err, cmd_and_pkg_nm, "    - Package Name has not been observed.")
         }
         cmd_and_pkg_nm_output := string(cmd_and_pkg_nm[:])
         cmd_and_pkg_nm_regex := regexp.MustCompile(`package=".*?"`)
@@ -396,7 +469,7 @@ func main() {
         //AndroidManifest file - Package version number
         cmd_and_pkg_ver, err := exec.Command( "grep", "-i", "versionName", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("    - android:versionName has not been observed.")
+                control_grep_error (err, cmd_and_pkg_ver,"    - android:versionName has not been observed.")
         }
         cmd_and_pkg_ver_output := string(cmd_and_pkg_ver[:])
         cmd_and_pkg_ver_regex := regexp.MustCompile(`versionName=".*?"`)
@@ -406,7 +479,7 @@ func main() {
         //AndroidManifest file - minSdkVersion
         cmd_and_pkg_minSdkVersion, err := exec.Command( "grep", "-i", "minSdkVersion", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("    - android:minSdkVersion has not been observed.")
+		control_grep_error (err, cmd_and_pkg_minSdkVersion, "    - android:minSdkVersion has not been observed.")
         }
         cmd_and_pkg_minSdkVersion_output := string(cmd_and_pkg_minSdkVersion[:])
         cmd_and_pkg_minSdkVersion_regex := regexp.MustCompile(`minSdkVersion=".*?"`)
@@ -416,7 +489,7 @@ func main() {
         //AndroidManifest file - targetSdkVersion
         cmd_and_pkg_targetSdkVersion, err := exec.Command( "grep", "-i", "targetSdkVersion", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("    - android:targetSdkVersion has not been observed.")
+		control_grep_error (err, cmd_and_pkg_targetSdkVersion, "    - android:targetSdkVersion has not been observed.")
         }
         cmd_and_pkg_targetSdkVersion_output := string(cmd_and_pkg_targetSdkVersion[:])
         cmd_and_pkg_targetSdkVersion_regex := regexp.MustCompile(`targetSdkVersion=".*?"`)
@@ -426,7 +499,7 @@ func main() {
         //AndroidManifest file - android:networkSecurityConfig="@xml/
         cmd_and_pkg_nwSecConf, err := exec.Command( "grep", "-i", "android:networkSecurityConfig=", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("    - android:networkSecurityConfig attribute has not been observed.")
+		control_grep_error (err, cmd_and_pkg_nwSecConf, "    - android:networkSecurityConfig attribute has not been observed.")
         }
         cmd_and_pkg_nwSecConf_output := string(cmd_and_pkg_nwSecConf[:])
         cmd_and_pkg_nwSecConf_regex := regexp.MustCompile(`android:networkSecurityConfig="@xml/.*?"`)
@@ -443,7 +516,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_actv, err := exec.Command("grep", "-ne", "<activity", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("- No activities have been observed")
+		control_grep_error (err, cmd_and_actv, "- No activities have been observed")
         }
         cmd_and_actv_output := string(cmd_and_actv[:])
         log.Println(cmd_and_actv_output)
@@ -454,7 +527,7 @@ func main() {
         log.Printf("[+] Looking for the Exported Activities specifically...\n\n")
         cmd_and_exp_actv, err := exec.Command("bash", "-c", exp_actv).CombinedOutput()
         if err != nil {
-                log.Printf("\t- No exported activities have been observed.")
+		control_bash_error (err, cmd_and_exp_actv, "\t- No exported activities have been observed.")
         }
         cmd_and_exp_actv_output := string(cmd_and_exp_actv[:])
         log.Println(cmd_and_exp_actv_output)
@@ -468,7 +541,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_cont, err := exec.Command("grep", "-ne", "<provider", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("\t- No Content Providers have been observed")
+		control_grep_error (err, cmd_and_cont, "\t- No Content Providers have been observed")
         }
         cmd_and_cont_output := string(cmd_and_cont[:])
         log.Println(cmd_and_cont_output)
@@ -479,7 +552,7 @@ func main() {
         log.Printf("[+] Looking for the Exported Content Providers specifically...\n\n")
         cmd_and_exp_cont, err := exec.Command("bash", "-c", exp_cont).CombinedOutput()
         if err != nil {
-                log.Printf("\t- No exported Content Providers have been observed.")
+		control_bash_error (err, cmd_and_exp_cont, "\t- No exported Content Providers have been observed.")
         }
         cmd_and_exp_cont_output := string(cmd_and_exp_cont[:])
         log.Println(cmd_and_exp_cont_output)
@@ -493,7 +566,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_brod, err := exec.Command("grep", "-ne", "<receiver", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("\t- No Brodcast Receivers have been observed.")
+		control_grep_error (err, cmd_and_brod, "\t- No Brodcast Receivers have been observed.")
         }
         cmd_and_brod_output := string(cmd_and_brod[:])
         log.Println(cmd_and_brod_output)
@@ -504,7 +577,8 @@ func main() {
         log.Printf("[+] Looking for the Exported Brodcast Receivers specifically...\n\n")
         cmd_and_exp_brod, err := exec.Command("bash", "-c", exp_brod).CombinedOutput()
         if err != nil {
-                log.Printf("\t- No exported Brodcast Receivers have been observed.")
+		log.Println (string(cmd_and_exp_brod))
+		control_bash_error (err, cmd_and_exp_brod, "\t- No exported Brodcast Receivers have been observed.")
         }
         cmd_and_exp_brod_output := string(cmd_and_exp_brod[:])
         log.Println(cmd_and_exp_brod_output)
@@ -518,7 +592,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_serv, err := exec.Command("grep", "-ne", "<service", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("\t- No Services have been observed.")
+		control_grep_error (err, cmd_and_serv, "\t- No Services have been observed.")
         }
         cmd_and_serv_output := string(cmd_and_serv[:])
         log.Println(cmd_and_serv_output)
@@ -529,7 +603,7 @@ func main() {
         log.Printf("[+] Looking for the Exported Services specifically...\n\n")
         cmd_and_exp_serv, err := exec.Command("bash", "-c", exp_serv).CombinedOutput()
         if err != nil {
-                log.Printf("\t- No exported Services have been observed.")
+                control_bash_error (err, cmd_and_exp_serv, "\t- No exported Services have been observed.")
         }
         cmd_and_exp_serv_output := string(cmd_and_exp_serv[:])
         log.Println(cmd_and_exp_serv_output)
@@ -543,7 +617,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_intentFilters, err := exec.Command("grep", "-ne", "android.intent.", and_manifest_path).CombinedOutput()
         if err != nil {
-                log.Println("\t- No Intents Filters have been observed.")
+		control_grep_error (err, cmd_and_intentFilters, "\t- No Intents Filters have been observed.")
         }
         cmd_and_intentFilters_output := string(cmd_and_intentFilters[:])
         log.Println(cmd_and_intentFilters_output)
@@ -601,6 +675,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_getSharedPreferences, err := exec.Command("grep", "-nr", "-F", "getSharedPreferences(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_brod, "")
                                 //fmt.Println("- Shared Preferences instances have not been observed.")
                         }
                         cmd_and_pkg_getSharedPreferences_output := string(cmd_and_pkg_getSharedPreferences[:])
@@ -635,6 +710,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_sqlitedatbase, err := exec.Command("grep", "-nr", "-e", "openOrCreateDatabase", "-e", "getWritableDatabase", "-e", "getReadableDatabase", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_sqlitedatbase, "")
                                 //fmt.Println("- Storage instances of SQLite Database has not been observed")
                         }
                         cmd_and_pkg_sqlitedatbase_output := string(cmd_and_pkg_sqlitedatbase[:])
@@ -668,6 +744,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_firebase, err := exec.Command("grep", "-nr", "-F", ".firebaseio.com", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_firebase, "")
                                 //fmt.Println("- Firebase Database instances have not been observed")
                         }
                         cmd_and_pkg_firebase_output := string(cmd_and_pkg_firebase[:])
@@ -701,6 +778,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_realm, err := exec.Command("grep", "-nr", "-e", "RealmConfiguration", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_realm, "")
                                 //fmt.Println("- Firebase Database instances have not been observed")
                         }
                         cmd_and_pkg_realm_output := string(cmd_and_pkg_realm[:])
@@ -734,6 +812,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_internalStorage, err := exec.Command("grep", "-nr", "-e", "openFileOutput", "-e", "MODE_WORLD_READABLE", "-e", "MODE_WORLD_WRITEABLE", "-e", "FileInputStream", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_internalStorage, "")
                                 //fmt.Println("- Internal Storage has not been observed")
                         }
                         cmd_and_pkg_internalStorage_output := string(cmd_and_pkg_internalStorage[:])
@@ -769,6 +848,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_externalStorage, err := exec.Command("grep", "-nr", "-e", "getExternalFilesDir", "-e", "getExternalFilesDirs", "-e", "getExternalCacheDir", "-e", "getExternalCacheDirs", "-e", "getCacheDir", "-e", "getExternalStorageState", "-e", "getExternalStorageDirectory", "-e", "getExternalStoragePublicDirectory", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_externalStorage, "")
                                 //fmt.Println("- External Storage has not been observed")
                         }
                         cmd_and_pkg_externalStorage_output := string(cmd_and_pkg_externalStorage[:])
@@ -802,6 +882,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_tempFile, err := exec.Command("grep", "-nr", "-F", ".createTempFile(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_tempFile, "")
                                 //fmt.Println("- Temporary File Creation instances have not been observed")
                         }
                         cmd_and_pkg_tempFile_output := string(cmd_and_pkg_tempFile[:])
@@ -835,6 +916,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_sharedPreferencesEditor, err := exec.Command("grep", "-nr", "-F", "SharedPreferences.Editor", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_sharedPreferencesEditor, "")
                                 //fmt.Println("- Local Storage - Input Validation has not been observed")
                         }
                         cmd_and_pkg_sharedPreferencesEditor_output := string(cmd_and_pkg_sharedPreferencesEditor[:])
@@ -870,6 +952,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_logs, err := exec.Command("grep", "-nr", "-e", "Log.v(", "-e", "Log.d(", "-e", "Log.i(", "-e", "Log.w(", "-e", "Log.e(", "-e", "logger.log(", "-e", "logger.logp(", "-e", "log.info", "-e", "System.out.print", "-e", "System.err.print", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_logs, "")
                                 //fmt.Println("- Logs have not been observed")
                         }
                         cmd_and_pkg_logs_output := string(cmd_and_pkg_logs[:])
@@ -905,6 +988,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_notificationManager, err := exec.Command("grep", "-nr", "-e", "NotificationManager", "-e", `\.setContentTitle(`, "-e", `\.setContentText(`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_notificationManager, "")
                                 //fmt.Println("- NotificationManager has not been observed")
                         }
                         cmd_and_pkg_notificationManager_output := string(cmd_and_pkg_notificationManager[:])
@@ -941,6 +1025,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_keyboardCache, err := exec.Command("grep", "-nr", "-e", ":inputType=", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_keyboardCache, "")
                                 //fmt.Println("- Keyboard Cache has not been observed")
                         }
                         cmd_and_pkg_keyboardCache_output := string(cmd_and_pkg_keyboardCache[:])
@@ -974,6 +1059,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_inputType, err := exec.Command("grep", "-nri", "-e", `:inputType="textPassword"`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_inputType, "")
                                 //fmt.Println("- Sensitive Data Disclosure Through the User Interface has not been observed")
                         }
                         cmd_and_pkg_inputType_output := string(cmd_and_pkg_inputType[:])
@@ -1015,6 +1101,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_pkg_bckup, err := exec.Command("grep", "-i", "android:allowBackup", and_manifest_path).CombinedOutput()
         if err != nil {
+		control_grep_error (err, cmd_and_pkg_bckup, "")
                 //fmt.Println(`[!] "android:allowBackup" flag has not been observed.`)
         } 
         cmd_and_pkg_bckup_output := string(cmd_and_pkg_bckup[:])
@@ -1047,6 +1134,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_screenShots, err := exec.Command("grep", "-nr", "-e", "FLAG_SECURE", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_screenShots, "")
                                 //fmt.Println("- Auto-Generated Screenshots has not been observed")
                         }
                         cmd_and_pkg_screenShots_output := string(cmd_and_pkg_screenShots[:])
@@ -1080,6 +1168,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_flushMem, err := exec.Command("grep", "-nr", "-F", ".flush(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_flushMem, "")
                                 //fmt.Println("- flush instances have not been observed")
                         }
                         cmd_and_pkg_flushMem_output := string(cmd_and_pkg_flushMem[:])
@@ -1113,6 +1202,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_clipCopy, err := exec.Command("grep", "-nr", "-e", "ClipboardManager", "-e", ".setPrimaryClip(", "-e", "OnPrimaryClipChangedListener", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_clipCopy, "")
                                 //fmt.Println("- ClipboardManager instances have not been observed")
                         }
                         cmd_and_pkg_clipCopy_output := string(cmd_and_pkg_clipCopy[:])
@@ -1148,6 +1238,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_hardcodeInfo, err := exec.Command("grep", "-nri", "-E", `String (password|key|token|username|url|database|secret|bearer) = "`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_hardcodeInfo, "")
                                 //fmt.Println("- Hard-coded Information")
                         }
                         cmd_and_pkg_hardcodeInfo_output := string(cmd_and_pkg_hardcodeInfo[:])
@@ -1160,6 +1251,7 @@ func main() {
                         }
                         cmd_and_pkg_hardcodeEmail, err := exec.Command("grep", "-nr", "-E", `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_hardcodeEmail, "")
                                 //fmt.Println("- Hard-coded Email")
                         }
                         cmd_and_pkg_hardcodeEmail_output := string(cmd_and_pkg_hardcodeEmail[:])
@@ -1172,6 +1264,7 @@ func main() {
                         }
                         cmd_and_pkg_hardcodePrivIP, err := exec.Command("grep", "-nr", "-E", `(192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5]))|(172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5]))|(10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5]))`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_hardcodePrivIP, "")
                                 //fmt.Println("- Hard-coded Private IP")
                         }
                         cmd_and_pkg_hardcodePrivIP_output := string(cmd_and_pkg_hardcodePrivIP[:])
@@ -1184,6 +1277,7 @@ func main() {
                         }
                         cmd_and_pkg_cloudURLs, err := exec.Command("grep", "-nr", "-E", `(\.amazonaws.com|\.(file|blob).core.windows.net|\.(storage|firebasestorage).googleapis.com)`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_cloudURLs, "")
                                 //fmt.Println("- amazonAWS")
                         }
                         cmd_and_pkg_cloudURLs_output := string(cmd_and_pkg_cloudURLs[:])
@@ -1196,6 +1290,7 @@ func main() {
                         }
                         cmd_and_pkg_begin, err := exec.Command("grep", "-nr", "-e", "-BEGIN ", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_begin, "")
                                 //fmt.Println("- -BEGIN")
                         }
                         cmd_and_pkg_begin_output := string(cmd_and_pkg_begin[:])
@@ -1229,6 +1324,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_hardcodedKeys, err := exec.Command("grep", "-nri", "-E", `(_key"|_secret"|_token"|_client_id"|_api"|_debug"|_prod"|_stage")`, "--include", `strings.xml`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_hardcodedKeys, "")
                                 //fmt.Println("- Possible Hard-coded Keys/Tokens have not been observed")
                         }
                         cmd_and_pkg_hardcodedKeys_output := string(cmd_and_pkg_hardcodedKeys[:])
@@ -1270,6 +1366,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_symKey, err := exec.Command("grep", "-nr", "-e", " SecretKeySpec(", "-e", "IvParameterSpec(", "-e", ` byte\[\] `, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_symKey, "")
                                 //fmt.Println("- Symmetric Cryptography has not been observed")
                         }
                         cmd_and_pkg_symKey_output := string(cmd_and_pkg_symKey[:])
@@ -1304,6 +1401,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_hash, err := exec.Command("grep", "-nr", "-e", "Signature.getInstance", "-e", "MessageDigest.getInstance", "-e", "Mac.getInstance", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_hash, "")
                                 //fmt.Println("- Insecure/Deprecated Cryptographic Algorithms has not been observed")
                         }
                         cmd_and_pkg_hash_output := string(cmd_and_pkg_hash[:])
@@ -1337,6 +1435,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_cipher, err := exec.Command("grep", "-nr", "-e", "Cipher.getInstance", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_cipher, "")
                                 //fmt.Println("- Insecure/Weak Cipher Modes has not been observed")
                         }
                         cmd_and_pkg_cipher_output := string(cmd_and_pkg_cipher[:])
@@ -1370,6 +1469,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_key, err := exec.Command("grep", "-nr", "-F", "byte[] ", sources_file).CombinedOutput()
                         if err != nil { 
+				control_grep_error (err, cmd_and_pkg_key, "")
                                 //fmt.Println("- Static IVs have not been observed") 
                         }
                         cmd_and_pkg_key_output := string(cmd_and_pkg_key[:])
@@ -1403,6 +1503,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_random_func, err := exec.Command("grep", "-nr", "-e", "new Random(", "-e", "SHA1PRNG", "-e", "Dual_EC_DRBG", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_random_func, "")
                                 //fmt.Println("- Weak Random function has not been observed")
                         }
                         cmd_and_pkg_random_func_output := string(cmd_and_pkg_random_func[:])
@@ -1444,6 +1545,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_cookie, err := exec.Command("grep", "-nri", "-e", " setAcceptThirdPartyCookies(", "-e","setCookie(", "-e", "CookieManager", "-e", "findViewById(", "-e", "setWebViewClient(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_cookie, "")
                                 //fmt.Println("- cookie related instances has not been observed")
                         }
                         cmd_and_pkg_cookie_output := string(cmd_and_pkg_cookie[:])
@@ -1478,6 +1580,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_biometric, err := exec.Command("grep", "-nr", "-e", "BiometricPrompt", "-e", "BiometricManager", "-e", "FingerprintManager", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_biometric, "")
                                 //fmt.Println("- Biometric Authentication mechanism has not been observed")
                         }
                         cmd_and_pkg_biometric_output := string(cmd_and_pkg_biometric[:])
@@ -1510,6 +1613,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_biometricKeys, err := exec.Command("grep", "-nr", "-F", ".setInvalidatedByBiometricEnrollment(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_biometricKeys, "")
                                 //fmt.Println("- Biometric Authentication mechanism has not been observed")
                         }
                         cmd_and_pkg_biometricKeys_output := string(cmd_and_pkg_biometricKeys[:])
@@ -1592,6 +1696,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_unencryptedProtocol, err := exec.Command("grep", "-nri", "-e", "(HttpURLConnection)", "-e", "SSLCertificateSocketFactory.getInsecure(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_unencryptedProtocol, "")
                                 //fmt.Println("- Possible MITM attack has not been observed")
                         }
                         cmd_and_pkg_unencryptedProtocol_output := string(cmd_and_pkg_unencryptedProtocol[:])
@@ -1625,6 +1730,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_weakTLSProtocol, err := exec.Command("grep", "-nri", "-e", "SSLContext.getInstance(", "-e", "tlsVersions(TlsVersion", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_weakTLSProtocol, "")
                                 //fmt.Println("- Weak SSL/TLS protocols has not been observed")
                         }
                         cmd_and_pkg_weakTLSProtocol_output := string(cmd_and_pkg_weakTLSProtocol[:])
@@ -1658,6 +1764,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_cleartextTraffic, err := exec.Command("grep", "-nr", "-e", "android:usesCleartextTraffic", "-e", "cleartextTrafficPermitted", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_cleartextTraffic, "")
                                 //fmt.Println("- cleartext traffic has not been observed")
                         }
                         cmd_and_pkg_cleartextTraffic_output := string(cmd_and_pkg_cleartextTraffic[:])
@@ -1691,6 +1798,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_serverCert, err := exec.Command("grep", "-nri", "-e", "X509Certificate", "-e", "checkServerTrusted(", "-e", "checkClientTrusted(", "-e", "getAcceptedIssuers(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_serverCert, "")
                                 //fmt.Println("- Server Certificate has not been observed")
                         }
                         cmd_and_pkg_serverCert_output := string(cmd_and_pkg_serverCert[:])
@@ -1726,6 +1834,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_webviewCert, err := exec.Command("grep", "-nri", "-e", "onReceivedSslError", "-e", "sslErrorHandler", "-e", ".proceed(", "-e", "setWebViewClient", "-e", "findViewById", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_webviewCert, "")
                                 //fmt.Println("- WebView Server Certificate has not been observed")
                         }
                         cmd_and_pkg_webviewCert_output := string(cmd_and_pkg_webviewCert[:])
@@ -1761,6 +1870,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_HostnameVerifier, err := exec.Command("grep", "-nri", "-e", " HostnameVerifier", "-e", `.setHostnameVerifier(`, "-e", `.setDefaultHostnameVerifier(`, "-e", "NullHostnameVerifier", "-e", "ALLOW_ALL_HOSTNAME_VERIFIER", "-e", "AllowAllHostnameVerifier", "-e", "NO_VERIFY", "-e", " verify(String ", "-e", "return true", "-e", "return 1", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_HostnameVerifier, "")
                                 //fmt.Println("- Hostname Verification has not been observed")
                         }
                         cmd_and_pkg_HostnameVerifier_output := string(cmd_and_pkg_HostnameVerifier[:])
@@ -1819,6 +1929,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_certPinning, err := exec.Command("grep", "-nr", "-e", "<pin-set", "-e", "<pin digest", "-e", "<domain", "-e", "<base", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_certPinning, "")
                                 //fmt.Println("- Certificate Pinning settings has not been observed")
                         }
                         cmd_and_pkg_certPinning_output := string(cmd_and_pkg_certPinning[:])
@@ -1854,6 +1965,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_certKeyStore, err := exec.Command("grep", "-nr", "-e", "certificatePinner","-e", "KeyStore.getInstance", "-e", "trustManagerFactory", "-e", "Retrofit.Builder(", "-e", "Picasso.Builder(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_certKeyStore, "")
                                 //fmt.Println("- Certificate Pinning implementation has not been observed")
                         }
                         cmd_and_pkg_certKeyStore_output := string(cmd_and_pkg_certKeyStore[:])
@@ -1887,6 +1999,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_trustAnchors, err := exec.Command("grep", "-nr", "-e", "<certificates src=", "-e", "<domain", "-e", "<base", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_trustAnchors, "")
                                 //fmt.Println("- custom Trust Anchors has not been observed")
                         }
                         cmd_and_pkg_trustAnchors_output := string(cmd_and_pkg_trustAnchors[:])
@@ -1922,6 +2035,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_ProviderInstaller, err := exec.Command("grep", "-nr", "-e", " ProviderInstaller.installIfNeeded", "-e", " ProviderInstaller.installIfNeededAsync", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_ProviderInstaller, "")
                                 //fmt.Println("- Security Provider implementation has not been observed")
                         }
                         cmd_and_pkg_ProviderInstaller_output := string(cmd_and_pkg_ProviderInstaller[:])
@@ -1974,6 +2088,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_permission, err := exec.Command("grep", "-nr", "-E", `<uses-permission|<permission`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_permission, "")
                                 //fmt.Println("- Permissions has not been observed")
                         }
                         cmd_and_pkg_permission_output := string(cmd_and_pkg_permission[:])
@@ -2007,6 +2122,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_deprecatedPerm, err := exec.Command("grep", "-nr", "-E", `BIND_CARRIER_MESSAGING_SERVICE|BIND_CHOOSER_TARGET_SERVICE|GET_TASKS|PERSISTENT_ACTIVITY|PROCESS_OUTGOING_CALLS|READ_INPUT_STATE|RESTART_PACKAGES|SET_PREFERRED_APPLICATIONS|SMS_FINANCIAL_TRANSACTIONS|USE_FINGERPRINT|UNINSTALL_SHORTCUT`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_deprecatedPerm, "")
                                 //fmt.Println("- Deprecated/Unsupprotive Permissions has not been observed")
                         }
                         cmd_and_pkg_deprecatedPerm_output := string(cmd_and_pkg_deprecatedPerm[:])
@@ -2023,6 +2139,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_deprecatedPerm, err := exec.Command("grep", "-nr", "-E", `BIND_CARRIER_MESSAGING_SERVICE|BIND_CHOOSER_TARGET_SERVICE|GET_TASKS|PERSISTENT_ACTIVITY|PROCESS_OUTGOING_CALLS|READ_INPUT_STATE|RESTART_PACKAGES|SET_PREFERRED_APPLICATIONS|SMS_FINANCIAL_TRANSACTIONS|USE_FINGERPRINT|UNINSTALL_SHORTCUT`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_deprecatedPerm, "")
                                 //fmt.Println("- Deprecated/Unsupprotive Permissions has not been observed")
                         }
                         cmd_and_pkg_deprecatedPerm_output := string(cmd_and_pkg_deprecatedPerm[:])
@@ -2056,6 +2173,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_custPerm, err := exec.Command("grep", "-nr", "-e", "checkCallingOrSelfPermission", "-e", "checkSelfPermission", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_custPerm, "")
                                 //fmt.Println("- Custom Permissions has not been observed")
                         }
                         cmd_and_pkg_custPerm_output := string(cmd_and_pkg_custPerm[:])
@@ -2090,6 +2208,7 @@ func main() {
         exp_PermNotSet := exp_PermNotSet1+and_manifest_path+exp_PermNotSet2+exp_PermNotSet3
         cmd_and_pkg_permNotSet, err := exec.Command("bash", "-c", exp_PermNotSet).CombinedOutput()
         if err != nil { 
+		control_bash_error (err, cmd_and_pkg_permNotSet, "")
         //fmt.Println("- Exported service/activity/provider/receiver without permission set has not been observed") 
         }
         cmd_and_pkg_permNotSet_output := string(cmd_and_pkg_permNotSet[:])
@@ -2119,6 +2238,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_sqli, err := exec.Command("grep", "-nr", "-e", ".rawQuery(", "-e", ".execSQL(", "-e", "appendWhere(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_sqli, "")
                                 //fmt.Println("- potential SQL Injection instances have not been observed")
                         }
                         cmd_and_pkg_sqli_output := string(cmd_and_pkg_sqli[:])
@@ -2152,6 +2272,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_xss, err := exec.Command("grep", "-nr", "-e", `.evaluateJavascript(`, "-e", `.loadUrl("javascript:`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_xss, "")
                                 //fmt.Println("- potential Cross-Site Scripting flaws have not been observed")
                         }
                         cmd_and_pkg_xss_output := string(cmd_and_pkg_xss[:])
@@ -2185,6 +2306,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_RCE, err := exec.Command("grep", "-nr", "-e", `Runtime.getRuntime().exec(`, "-e", `Runtime.getRuntime(`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_RCE, "")
                                 //fmt.Println("- potential Code Execution flaws have not been observed")
                         }
                         cmd_and_pkg_RCE_output := string(cmd_and_pkg_RCE[:])
@@ -2218,6 +2340,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_prefActivity, err := exec.Command("grep", "-nr", "-e", "extends PreferenceActivity", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_prefActivity, "")
                                 //fmt.Println("- Fragment Injection has not been observed")
                         }
                         cmd_and_pkg_prefActivity_output := string(cmd_and_pkg_prefActivity[:])
@@ -2251,6 +2374,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_EnableSafeBrowsing, err := exec.Command("grep", "-nr", "-F", "EnableSafeBrowsing", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_EnableSafeBrowsing, "")
                                 //fmt.Println("- EnableSafeBrowsing has not been observed")
                         }
                         cmd_and_pkg_EnableSafeBrowsing_output := string(cmd_and_pkg_EnableSafeBrowsing[:])
@@ -2284,6 +2408,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_urlLoading, err := exec.Command("grep", "-nr", "-e", "shouldOverrideUrlLoading(", "-e", "shouldInterceptRequest(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_urlLoading, "")
                                 //fmt.Println("- URL Loading in WebViews has not been observed")
                         }
                         cmd_and_pkg_urlLoading_output := string(cmd_and_pkg_urlLoading[:])
@@ -2317,6 +2442,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".xml" {
                         cmd_and_pkg_custUrlSchemes, err := exec.Command("grep", "-nr", "-e", "<intent-filter", "-e", "<data android:scheme", "-e", "<action android:name", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_custUrlSchemes, "")
                                 //fmt.Println("- Custom URL Schemes has not been observed")
                         }
                         cmd_and_pkg_custUrlSchemes_output := string(cmd_and_pkg_custUrlSchemes[:])
@@ -2352,6 +2478,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_impliIntBroad, err := exec.Command("grep", "-nr", "-e", "sendBroadcast(", "-e", "sendOrderedBroadcast(", "-e", "sendStickyBroadcast(", "-e", `new android.content.Intent`, "-e", `new Intent(`, "-e", "setData(", "-e", "putExtra(", "-e", "setFlags(", "-e", "setAction(", "-e", "addFlags(", "-e", "setDataAndType(", "-e", "addCategory(", "-e", "setClassName(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_impliIntBroad, "")
                                 //fmt.Println("- Implicit intents used for broadcast  has not been observed")
                         }
                         cmd_and_pkg_impliIntBroad_output := string(cmd_and_pkg_impliIntBroad[:])
@@ -2387,6 +2514,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_impliIntAct, err := exec.Command("grep", "-nr", "-e", "startActivity(", "-e", "startActivityForResult(", "-e", `new android.content.Intent`, "-e", `new Intent(`, "-e", "setData(", "-e", "putExtra(", "-e", "setFlags(", "-e", "setAction(", "-e", "addFlags(", "-e", "setDataAndType(", "-e", "addCategory(", "-e", "setClassName(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_impliIntAct, "")
                                 //fmt.Println("- Implicit intents used for activity  has not been observed")
                         }
                         cmd_and_pkg_impliIntAct_output := string(cmd_and_pkg_impliIntAct[:])
@@ -2457,6 +2585,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_loadUrl, err := exec.Command("grep", "-nr", "-e", `.loadUrl(`, "-e", `.loadDataWithBaseURL(`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_loadUrl, "")
                                 //fmt.Println("- Remote/Local URL load in WebViews has not been observed")
                         }
                         cmd_and_pkg_loadUrl_output := string(cmd_and_pkg_loadUrl[:])
@@ -2491,6 +2620,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_extLinks, err := exec.Command("grep", "-nr", "-e", "://", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_extLinks, "")
                                 //fmt.Println("- Hard-coded links have not been observed")
                         }
                         cmd_and_pkg_extLinks_output := string(cmd_and_pkg_extLinks[:])
@@ -2526,6 +2656,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_fileAccessPerm, err := exec.Command("grep", "-nr", "-e", "setAllowFileAccess(", "-e", "setAllowFileAccessFromFileURLs(", "-e", "setAllowUniversalAccessFromFileURLs(", "-e", "setAllowContentAccess(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_fileAccessPerm, "")
                                 //fmt.Println("- File/Content Access permissions has not been observed")
                         }
                         cmd_and_pkg_fileAccessPerm_output := string(cmd_and_pkg_fileAccessPerm[:])
@@ -2559,6 +2690,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_webConDebug, err := exec.Command("grep", "-nr", "-e", `setWebContentsDebuggingEnabled(`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_webConDebug, "")
                                 //fmt.Println("- Remote WebView Debugging has not been observed")
                         }
                         cmd_and_pkg_webConDebug_output := string(cmd_and_pkg_webConDebug[:])
@@ -2592,6 +2724,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_addJavascriptInterface, err := exec.Command("grep", "-nr", "-F", "addJavascriptInterface(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_addJavascriptInterface, "")
                                 //fmt.Println("- Java Objects Are Exposed Through WebViews has not been observed")
                         }
                         cmd_and_pkg_addJavascriptInterface_output := string(cmd_and_pkg_addJavascriptInterface[:])
@@ -2625,6 +2758,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_serializable, err := exec.Command("grep", "-nr", "-e", `.getSerializable(`, "-e", `.getSerializableExtra(`, "-e", "new Gson()", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_serializable, "")
                                 //fmt.Println("- Object Persistence has not been observed")
                         }
                         cmd_and_pkg_serializable_output := string(cmd_and_pkg_serializable[:])
@@ -2658,6 +2792,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_webViewClean, err := exec.Command("grep", "-nr", "-e", `\.clearCache(`, "-e", `\.deleteAllData(`, "-e", `\.removeAllCookies(`, "-e", `\.deleteRecursively(`, "-e", `\.clearFormData(`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_webViewClean, "")
                                 //fmt.Println("- WebViews Cleanup implementation has not been observed")
                         }
                         cmd_and_pkg_webViewClean_output := string(cmd_and_pkg_webViewClean[:])
@@ -2702,6 +2837,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_AppUpdateManager, err := exec.Command("grep", "-nr", "-e", " AppUpdateManager", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_AppUpdateManager, "")
                                 //fmt.Println("- AppUpdateManager has not been observed")
                         }
                         cmd_and_pkg_AppUpdateManager_output := string(cmd_and_pkg_AppUpdateManager[:])
@@ -2735,6 +2871,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_AppInstall, err := exec.Command("grep", "-nr", "-e", `\.setDataAndType(`, "-e", `application/vnd.android.package-archive`, "-e", "FileProvider", "-e", "getFileDirPath(", "-e", "installApp(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_AppInstall, "")
                                 //fmt.Println("- potential third-party application installation has not been observed")
                         }
                         cmd_and_pkg_AppInstall_output := string(cmd_and_pkg_AppInstall[:])
@@ -2775,6 +2912,7 @@ func main() {
         fmt.Printf(string(colorReset))
         cmd_and_pkg_debug, err := exec.Command("grep", "-i", "android:debuggable", and_manifest_path).CombinedOutput()
         if err != nil {
+		control_grep_error (err, cmd_and_pkg_debug, "")
                 //fmt.Println("[-] android:debuggable has not been observed")
         }
         cmd_and_pkg_debug_output := string(cmd_and_pkg_debug[:])
@@ -2807,6 +2945,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_StrictMode, err := exec.Command("grep", "-nr", "-e", "StrictMode.setThreadPolicy", "-e", "StrictMode.setVmPolicy", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_StrictMode, "")
                                 //fmt.Println("- StrictMode instances have not been observed");
                         }
                         cmd_and_pkg_StrictMode_output := string(cmd_and_pkg_StrictMode[:])
@@ -2840,6 +2979,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_StrictMode, err := exec.Command("grep", "-nr", "-e", ` RuntimeException("`, "-e", "UncaughtExceptionHandler(", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_StrictMode, "")
                                 //fmt.Println("- Exception Handling has not been observed")
                         }
                         cmd_and_pkg_Exception_output := string(cmd_and_pkg_StrictMode[:])
@@ -2872,13 +3012,13 @@ func main() {
         for _, sources_file := range files {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_packageObfuscate, err := exec.Command("grep", "-nr", "-F","package com.a." , sources_file).CombinedOutput()
-                        if err != nil { //fmt.Println("- Obfuscated Code blocks have not been observed") 
+                        if err != nil { control_grep_error (err, cmd_and_pkg_packageObfuscate, ""); //fmt.Println("- Obfuscated Code blocks have not been observed") 
                         }
                         cmd_and_pkg_importObfuscate, err := exec.Command("grep", "-nr", "-F","import com.a." , sources_file).CombinedOutput()
-                        if err != nil { //fmt.Println("- Obfuscated Code blocks have not been observed") 
+                        if err != nil { control_grep_error (err, cmd_and_pkg_importObfuscate, ""); //fmt.Println("- Obfuscated Code blocks have not been observed") 
                         }
                         cmd_and_pkg_classObfuscate, err := exec.Command("grep", "-nr", "-F","class a$b" , sources_file).CombinedOutput()
-                        if err != nil { //fmt.Println("- Obfuscated Code blocks have not been observed") 
+                        if err != nil { control_grep_error (err, cmd_and_pkg_classObfuscate, ""); //fmt.Println("- Obfuscated Code blocks have not been observed") 
                         }
                         cmd_and_pkg_packageObfuscate_output := string(cmd_and_pkg_packageObfuscate[:])
                         if (strings.Contains(cmd_and_pkg_packageObfuscate_output,"package")) {
@@ -2946,6 +3086,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_rootDetect, err := exec.Command("grep", "-nr", "-e", "supersu", "-e", "superuser", "-e", "/xbin/", "-e", "/sbin/", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_rootDetect, "")
                                 //fmt.Println("- Root Detection has not been observed")
                         }
                         cmd_and_pkg_rootDetect_output := string(cmd_and_pkg_rootDetect[:])
@@ -2990,6 +3131,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_debugDetect, err := exec.Command("grep", "-nr", "-e", " isDebuggable", "-e", "isDebuggerConnected", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_debugDetect, "")
                                 //fmt.Println("- Anti-Debugging Detection has not been observed")
                         }
                         cmd_and_pkg_debugDetect_output := string(cmd_and_pkg_debugDetect[:])
@@ -3034,6 +3176,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_intCheck, err := exec.Command("grep", "-nr", "-e", `.getEntry("classes`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_intCheck, "")
                                 //fmt.Println("- Anti-Debugging Detection has not been observed")
                         }
                         cmd_and_pkg_intCheck_output := string(cmd_and_pkg_intCheck[:])
@@ -3078,6 +3221,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_emulatorDetect, err := exec.Command("grep", "-nr", "-E", `Build.MODEL.contains\(|Build.MANUFACTURER.contains\(|Build.HARDWARE.contains\(|Build.PRODUCT.contains\(|/genyd`, sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_emulatorDetect, "")
                                 //fmt.Println("- Anti-Debugging Detection has not been observed")
                         }
                         cmd_and_pkg_emulatorDetect_output := string(cmd_and_pkg_emulatorDetect[:])
@@ -3122,6 +3266,7 @@ func main() {
                 if filepath.Ext(sources_file) == ".java" {
                         cmd_and_pkg_defenceMech, err := exec.Command("grep", "-nr", "-e", "SafetyNetClient ", sources_file).CombinedOutput()
                         if err != nil {
+				control_grep_error (err, cmd_and_pkg_defenceMech, "")
                                 //fmt.Println("- Defence Mechanisms has not been observed")
                         }
                         cmd_and_pkg_defenceMech_output := string(cmd_and_pkg_defenceMech[:])
