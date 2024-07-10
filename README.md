@@ -64,6 +64,16 @@ https://www.blackhat.com/asia-23/arsenal/schedule/#apkhunt--owasp-masvs-static-a
              APKHunt.go -m /Downloads/android_apps/
              APKHunt.go -m /Downloads/android_apps/ -l
 
+## :gear: Docker
+
+- Build image
+  - `docker build -t apkhunt .`
+
+- scan for single apk
+  - `docker run -v /Downloads/android_apps/android_app.apk:/apk/android_app.apk apkhunt go run apkhunt.go -p /apk/android_app.apk`
+- scan by folder
+  - `docker run -v /Downloads/android_apps/:/apk apkhunt go run apkhunt.go -m /apk`
+
 ## :iphone: Security test-case coverage
 The OWASP MASVS (Mobile Application Security Verification Standard) is the industry standard for mobile app security. It can be used by mobile software architects and developers seeking to develop secure mobile applications, as well as security testers to ensure completeness and consistency of test results.
 
