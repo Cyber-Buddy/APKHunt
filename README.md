@@ -26,15 +26,23 @@ https://www.blackhat.com/asia-23/arsenal/schedule/#apkhunt--owasp-masvs-static-a
 - **Output format:** Results are provided in a TXT file format for easy readability for end-users.
 
 ## :spider_web: Installation
-   1. git clone https://github.com/Cyber-Buddy/APKHunt.git 
-   2. cd APKHunt
-   3. go run apkhunt.go 
+   1. `git clone https://github.com/Cyber-Buddy/APKHunt.git`
+   2. `cd APKHunt`
+   3. `go run apkhunt.go`
   
    Requirements:
-- Install Git: sudo apt-get install git
-- Install Golang: sudo apt install golang-go
-- Install JADX: sudo apt-get install jadx
-- Install Dex2jar: sudo apt-get install dex2jar
+- Install Git:
+     - Linux: `sudo apt-get install git`
+     - macOS: `brew install go`
+- Install Golang:
+     - `sudo apt install golang-go`
+     - macOS: `brew install go`
+- Install JADX:
+     - Linux: `sudo apt-get install jadx`
+     - macOS: `brew install jadx`
+- Install Dex2jar:
+     - Linux: `sudo apt-get install dex2jar`
+     - macOS: `brew install dex2jar`
 
  Limitation:
 - Only supported on Linux environments
