@@ -36,6 +36,13 @@ https://www.blackhat.com/asia-23/arsenal/schedule/#apkhunt--owasp-masvs-static-a
 - Install JADX: sudo apt-get install jadx
 - Install Dex2jar: sudo apt-get install dex2jar
 
+ macOS Requirements:
+- Install [Homebrew](https://brew.sh/) 
+- Install Git: brew install git
+- Install Golang: brew install go
+- Install JADX: brew install jadx
+- Install Dex2jar: brew install dex2jar
+
  Limitation:
 - Only supported on Linux environments
 
