@@ -1,3 +1,5 @@
+![Apkhunt: OWASP MASVS mapped Android security analysis](docs/apkhunt-social-preview.png)
+
 # Apkhunt
 
 Apkhunt is a local Android APK static-analysis workbench. It extracts manifest and code signals, maps static checks to OWASP MASVS groups, captures a CycloneDX SBOM, and enriches versioned package identities through OSV when that service is available. It does not verify MASVS compliance.
@@ -14,22 +16,41 @@ Static matches are investigation targets, not proof of runtime reachability or e
 
 ![Apkhunt saved report overview for the InsecureBankv2 sample APK](docs/screenshots/apkhunt-report.png)
 
-**Additional evidence workbenches** — select a preview to see the full screenshot.
+### Coverage ledger
 
-<table>
-  <tr>
-    <td width="50%"><strong>Coverage ledger</strong><br>Scanned files, rule events, and unknown work.<br><a href="docs/screenshots/apkhunt-coverage-ledger.png"><img src="docs/screenshots/apkhunt-coverage-ledger.png" alt="Apkhunt coverage ledger showing archive members, recovered files, rule evaluations, and decompiler attempts"></a></td>
-    <td width="50%"><strong>Entry point graph</strong><br>Components, handlers, and nearby calls.<br><a href="docs/screenshots/apkhunt-entry-point-graph.png"><img src="docs/screenshots/apkhunt-entry-point-graph.png" alt="Apkhunt entry point graph showing an exported activity and nearby code evidence"></a></td>
-  </tr>
-  <tr>
-    <td><strong>Threat model</strong><br>Trust boundaries and review questions.<br><a href="docs/screenshots/apkhunt-threat-model.png"><img src="docs/screenshots/apkhunt-threat-model.png" alt="Apkhunt threat model showing a receiver, its handler, and a nearby SMS call"></a></td>
-    <td><strong>Runtime tests</strong><br>ADB readiness and component-specific tests.<br><a href="docs/screenshots/apkhunt-runtime-tests.png"><img src="docs/screenshots/apkhunt-runtime-tests.png" alt="Apkhunt proof workbench showing device readiness and activity launch tests"></a></td>
-  </tr>
-  <tr>
-    <td><strong>API route evidence</strong><br>Saved routes and scoped request controls.<br><a href="docs/screenshots/apkhunt-api-route-evidence.png"><img src="docs/screenshots/apkhunt-api-route-evidence.png" alt="Apkhunt API route evidence with no hostname enabled for live tests"></a></td>
-    <td><strong>Secret review</strong><br>TruffleHog candidates and verification state.<br><a href="docs/screenshots/apkhunt-secret-review.png"><img src="docs/screenshots/apkhunt-secret-review.png" alt="Apkhunt secret review showing unverified candidates with values collapsed"></a></td>
-  </tr>
-</table>
+Scanned files, rule events, and unknown work.
+
+![Apkhunt coverage ledger showing archive members, recovered files, rule evaluations, and decompiler attempts](docs/screenshots/apkhunt-coverage-ledger.png)
+
+### Entry point graph
+
+Components, handlers, and nearby calls.
+
+![Apkhunt entry point graph showing an exported activity and nearby code evidence](docs/screenshots/apkhunt-entry-point-graph.png)
+
+### Threat model
+
+Trust boundaries and review questions.
+
+![Apkhunt threat model showing a receiver, its handler, and a nearby SMS call](docs/screenshots/apkhunt-threat-model.png)
+
+### Runtime tests
+
+ADB readiness and component-specific tests.
+
+![Apkhunt proof workbench showing device readiness and activity launch tests](docs/screenshots/apkhunt-runtime-tests.png)
+
+### API route evidence
+
+Saved routes and scoped request controls.
+
+![Apkhunt API route evidence with no hostname enabled for live tests](docs/screenshots/apkhunt-api-route-evidence.png)
+
+### Secret review
+
+TruffleHog candidates and verification state.
+
+![Apkhunt secret review showing unverified candidates with values collapsed](docs/screenshots/apkhunt-secret-review.png)
 
 The screenshots use a local InsecureBankv2 sample scan. Secret values remain collapsed, no API host is enabled for live tests, and static signals are not validated vulnerabilities.
 

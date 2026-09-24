@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">Apkhunt — OWASP MASVS mapped Android security analysis</title>
+  <desc id="desc">Apkhunt's angular A mark beside a clear OWASP MASVS mapping message and an APK-to-evidence path.</desc>
+  <defs>
+    <linearGradient id="field" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#075C53"/>
+      <stop offset="1" stop-color="#063E39"/>
+    </linearGradient>
+    <clipPath id="left-panel"><path d="M0 0H464L412 640H0Z"/></clipPath>
+  </defs>
+
+  <rect width="1280" height="640" fill="#F5F7F6"/>
+  <path d="M0 0H464L412 640H0Z" fill="url(#field)"/>
+  <g clip-path="url(#left-panel)" fill="none" stroke="#8EC1B8" opacity=".18">
+    <circle cx="190" cy="317" r="175" stroke-width="1.5"/>
+    <circle cx="190" cy="317" r="222" stroke-width="1"/>
+    <circle cx="190" cy="317" r="278" stroke-width="1"/>
+    <path d="M-10 483 154 319 319 430 470 282" stroke-width="1.5"/>
+  </g>
+  <g clip-path="url(#left-panel)">
+    <circle cx="154" cy="319" r="5" fill="#C76A3C"/>
+    <circle cx="319" cy="430" r="5" fill="#C76A3C"/>
+    <circle cx="399" cy="352" r="5" fill="#C76A3C"/>
+  </g>
+
+  <g transform="translate(79 166) scale(4.95)">
+    <path d="M10 49 26 15h9L20 49H10Z" fill="#FFFFFF"/>
+    <path d="m35 15 19 34H43L31 27l4-12Z" fill="#FFFFFF"/>
+    <circle cx="32" cy="42" r="5.5" fill="#C76A3C"/>
+  </g>
+  <text x="88" y="560" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="3.6" fill="#C3DFD9">STATIC FIRST</text>
+  <text x="88" y="586" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="3.6" fill="#C3DFD9">EVIDENCE LED</text>
+
+  <path d="M450 0h7l-52 640h-7Z" fill="#C76A3C"/>
+  <text x="508" y="116" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="3.8" fill="#075C53">ANDROID SECURITY WORKBENCH</text>
+  <text x="502" y="253" font-family="Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="-6" fill="#142725">Apkhunt</text>
+  <rect x="509" y="292" width="116" height="6" rx="3" fill="#C76A3C"/>
+  <text x="506" y="378" font-family="Arial, sans-serif" font-size="54" font-weight="800" letter-spacing="-1.8" fill="#075C53">OWASP MASVS</text>
+  <text x="508" y="425" font-family="Arial, sans-serif" font-size="27" font-weight="400" fill="#425A56">mapped Android security analysis</text>
+
+  <path d="M510 503h676" stroke="#D7E0DD" stroke-width="2"/>
+  <circle cx="524" cy="549" r="8" fill="#C76A3C"/>
+  <path d="M532 549h124" stroke="#9DAFAA" stroke-width="2"/>
+  <circle cx="672" cy="549" r="8" fill="#075C53"/>
+  <path d="M680 549h124" stroke="#9DAFAA" stroke-width="2"/>
+  <circle cx="820" cy="549" r="8" fill="#075C53"/>
+  <text x="510" y="596" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="2.3" fill="#506761">APK</text>
+  <text x="657" y="596" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="2.3" fill="#506761">SOURCE</text>
+  <text x="804" y="596" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="2.3" fill="#506761">EVIDENCE</text>
+</svg>
