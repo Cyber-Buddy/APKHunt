@@ -1,10 +1,12 @@
 ![Apkhunt: OWASP MASVS mapped Android security analysis](docs/apkhunt-social-preview.png)
 
-# Apkhunt
+# APKHunt | OWASP MASVS Android Static Analyzer
 
 Apkhunt is a local Android APK static-analysis workbench. It extracts manifest and code signals, maps static checks to OWASP MASVS groups, captures a CycloneDX SBOM, and enriches versioned package identities through OSV when that service is available. It does not verify MASVS compliance.
 
 Static matches are investigation targets, not proof of runtime reachability or exploitation.
+
+**Latest release:** [See the new web workbench and Go CLI migration notes](https://github.com/Cyber-Buddy/APKHunt/releases/latest).
 
 ## Screenshots
 
