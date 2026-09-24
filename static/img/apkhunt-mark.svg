@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Apkhunt</title>
+  <rect width="64" height="64" rx="15" fill="#075C53"/>
+  <path d="M10 49 26 15h9L20 49H10Z" fill="#F8FAF9"/>
+  <path d="m35 15 19 34H43L31 27l4-12Z" fill="#F8FAF9"/>
+  <circle cx="32" cy="42" r="5.5" fill="#C76A3C"/>
+</svg>

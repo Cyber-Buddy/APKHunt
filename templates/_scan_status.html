@@ -1,0 +1,11 @@
+<aside class="ah-job-dock d-none" id="scanJobDock" aria-label="Scan worker status" aria-live="polite">
+    <div class="ah-job-dock__head">
+        <span class="ah-overline">Scan worker <span id="scanJobCount" class="ah-job-dock__count"></span></span>
+        <div class="ah-job-dock__actions">
+            <a href="{{ url_for('scan_history_list') }}">Open history <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            <button id="scanJobToggle" class="ah-job-dock__toggle" type="button" aria-controls="scanJobList" aria-expanded="true" aria-label="Minimize scan worker" title="Minimize scan worker" onclick="window.apkhuntToggleScanDock()"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <div id="scanJobList"></div>
+</aside>
+<script src="{{ url_for('static', filename='js/scan-status.js') }}" defer></script>

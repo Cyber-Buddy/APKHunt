@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt Security Report - {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/prism.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===== Report-Specific Styles ===== */
+        :root {
+            --sev-critical: #DC2626;
+            --sev-high: #EA580C;
+            --sev-medium: #D97706;
+            --sev-low: #16A34A;
+            --sev-info: #3B82F6;
+            --sev-critical-bg: #FEF2F2;
+            --sev-high-bg: #FFF7ED;
+            --sev-medium-bg: #FFFBEB;
+            --sev-low-bg: #F0FDF4;
+            --sev-info-bg: #EFF6FF;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            background: #fff !important;
+            border-right: 1px solid #E2E8F0;
+            min-height: calc(100vh - 80px);
+            padding-top: 1rem;
+        }
+        #sidebar .nav-link {
+            color: #475569 !important;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin: 0 0.5rem 2px;
+            transition: all 0.15s ease;
+        }
+        #sidebar .nav-link:hover {
+            background: #F1F5F9;
+            color: #1E293B !important;
+        }
+        #sidebar .nav-link i { color: #94A3B8; }
+        #sidebar .nav-link:hover i { color: #3B82F6; }
+        .sidebar-heading {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94A3B8 !important;
+        }
+
+        /* Stat cards top accent */
+        .stat-card-critical { border-top: 3px solid var(--sev-critical); }
+        .stat-card-high     { border-top: 3px solid var(--sev-high); }
+        .stat-card-medium   { border-top: 3px solid var(--sev-medium); }
+        .stat-card-low      { border-top: 3px solid var(--sev-low); }
+        .stat-card-info     { border-top: 3px solid var(--sev-info); }
+        .stat-card-primary  { border-top: 3px solid #3B82F6; }
+        .stat-card-total    { border-top: 3px solid #6366F1; }
+
+        /* Finding cards - left border severity indicator */
+        .finding-card .card { border-left: 4px solid #E2E8F0; }
+        .finding-card[data-severity="Critical"] .card { border-left-color: var(--sev-critical); }
+        .finding-card[data-severity="High"] .card { border-left-color: var(--sev-high); }
+        .finding-card[data-severity="Medium"] .card { border-left-color: var(--sev-medium); }
+        .finding-card[data-severity="Low"] .card { border-left-color: var(--sev-low); }
+        .finding-card[data-severity="Info"] .card { border-left-color: var(--sev-info); }
+
+        /* Finding card header */
+        .finding-header {
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 0.75rem 1rem;
+        }
+        .finding-header h6 { font-size: 0.925rem; font-weight: 600; color: #1E293B; }
+
+        /* Severity badges */
+        .badge-severity-critical { background: var(--sev-critical-bg); color: var(--sev-critical); font-weight: 600; border: 1px solid rgba(220,38,38,0.2); }
+        .badge-severity-high { background: var(--sev-high-bg); color: var(--sev-high); font-weight: 600; border: 1px solid rgba(234,88,12,0.2); }
+        .badge-severity-medium { background: var(--sev-medium-bg); color: var(--sev-medium); font-weight: 600; border: 1px solid rgba(217,119,6,0.2); }
+        .badge-severity-low { background: var(--sev-low-bg); color: var(--sev-low); font-weight: 600; border: 1px solid rgba(22,163,74,0.2); }
+        .badge-severity-info { background: var(--sev-info-bg); color: var(--sev-info); font-weight: 600; border: 1px solid rgba(59,130,246,0.2); }
+
+        /* Risk meter */
+        .risk-meter { position: relative; display: inline-block; }
+        .risk-meter-text { font-size: 1.5rem; color: #1E293B; }
+
+        /* Page header */
+        .page-header { border-bottom: 2px solid #E2E8F0; }
+
+        /* Context & severity condition alerts */
+        .context-checks-alert { background: #FFFBEB; border: 1px solid #FDE68A; }
+        .severity-conditions-alert { background: #EFF6FF; border: 1px solid #BFDBFE; }
+
+        /* Responsive sidebar */
+        @media (max-width: 767.98px) {
+            #sidebar {
+                position: fixed;
+                top: 64px;
+                left: -280px;
+                width: 260px;
+                height: calc(100vh - 64px);
+                z-index: 999;
+                transition: left 0.3s ease;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+                overflow-y: auto;
+            }
+            #sidebar.show { left: 0; }
+            main.col-md-9 { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; flex: 0 0 100%; }
+        }
+
+        /* Section headings */
+        section h2 i { font-size: 1.2rem;
+        }
+
+        /* Print styles */
+        @media print {
+            #sidebar { display: none !important; }
+            .navbar { display: none !important; }
+            .btn-toolbar { display: none !important; }
+            body { background: #fff; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+            main { margin-left: 0 !important; }
+        }
+    </style>
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell ah-report-shell">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32">
+                <span>Apkhunt</span>
+            </a>
+            <div class="navbar-nav ms-auto flex-row gap-1">
+                <a class="nav-link" href="{{ url_for('scan_history_list') }}">
+                    History
+                </a>
+                <a class="nav-link" href="{{ url_for('index') }}">
+                    New scan
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid" style="padding-top: 80px;">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar" aria-label="Report sections and severity filters">
+                <div class="position-sticky pt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm ah-close-sidebar" id="closeReportFilters" aria-label="Close report navigation" onclick="window.apkhuntCloseReportSidebar()"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-1">
+                        <span>Report Sections</span>
+                    </h6>
+                    <ul class="nav flex-column" id="tocCategoryList">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#executive-summary">
+                                <i class="bi bi-clipboard-data me-2"></i>Executive Summary
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#dependency-analysis">
+                                <i class="bi bi-puzzle me-2"></i>Dependency Analysis
+                                {% if dependency_summary.total_components > 0 %}
+                                    <span class="badge bg-info ms-2">{{ dependency_summary.total_components }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% if total_findings > 0 %}<li class="nav-item">
+                            <a class="nav-link" href="#security-findings">
+                                <i class="bi bi-shield-exclamation me-2"></i>Security Findings
+                                    <span class="badge bg-warning ms-2">{{ total_findings }}</span>
+                            </a>
+                        </li>{% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#scan-details">
+                                <i class="bi bi-info-circle me-2"></i>Scan Details
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Severity Filter -->
+                    {% if total_findings > 0 %}<div class="px-3 mt-4">
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center mb-2">
+                            <span>Filter by Severity</span>
+                        </h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input severity-filter" type="checkbox" value="Critical" id="filter-critical" checked>
+                            <label class="form-check-label d-flex align-items-center gap-2" for="filter-critical">
+                                <span class="badge badge-severity-critical">Critical</span>
+                                <span class="text-muted small">{{ severity_counts.get('Critical', 0) }}</span>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input severity-filter" type="checkbox" value="High" id="filter-high" checked>
+                            <label class="form-check-label d-flex align-items-center gap-2" for="filter-high">
+                                <span class="badge badge-severity-high">High</span>
+                                <span class="text-muted small">{{ severity_counts.get('High', 0) }}</span>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input severity-filter" type="checkbox" value="Medium" id="filter-medium" checked>
+                            <label class="form-check-label d-flex align-items-center gap-2" for="filter-medium">
+                                <span class="badge badge-severity-medium">Medium</span>
+                                <span class="text-muted small">{{ severity_counts.get('Medium', 0) }}</span>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input severity-filter" type="checkbox" value="Low" id="filter-low" checked>
+                            <label class="form-check-label d-flex align-items-center gap-2" for="filter-low">
+                                <span class="badge badge-severity-low">Low</span>
+                                <span class="text-muted small">{{ severity_counts.get('Low', 0) }}</span>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input severity-filter" type="checkbox" value="Info" id="filter-info" checked>
+                            <label class="form-check-label d-flex align-items-center gap-2" for="filter-info">
+                                <span class="badge badge-severity-info">Info</span>
+                                <span class="text-muted small">{{ severity_counts.get('Info', 0) }}</span>
+                            </label>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-primary w-100" id="select-all-severities" onclick="window.apkhuntSelectAllSeverities()">Select All</button>
+                            <button class="btn btn-sm btn-outline-secondary w-100 mt-1" id="deselect-all-severities" onclick="window.apkhuntDeselectAllSeverities()">Deselect All</button>
+                        </div>
+                    </div>{% endif %}
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 page-header">
+                    <h1 class="h2 fw-bold">
+                        <i class="bi bi-shield-check me-2" style="color: #3B82F6;"></i>
+                        Security Report: {{ apk_name }}
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-outline-primary ah-report-filter-toggle" id="reportFiltersToggle" aria-controls="sidebar" aria-expanded="false" onclick="window.apkhuntToggleReportSidebar()"><i class="bi bi-sliders" aria-hidden="true"></i> Sections &amp; filters</button>
+                        <div class="btn-group me-2">
+                            <a href="/history/report/{{ scan_id }}/pdf" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                                <i class="bi bi-printer me-1"></i>Print
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="expandAllBtn" onclick="window.apkhuntExpandAllFindings()">
+                                <i class="bi bi-arrows-expand me-1"></i>Expand All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="collapseAllBtn" onclick="window.apkhuntCollapseAllFindings()">
+                                <i class="bi bi-arrows-collapse me-1"></i>Collapse All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <section class="evidence-strip mb-4" data-state="complete" aria-labelledby="static-evidence-status">
+                    <div class="evidence-strip__mark"><i class="bi bi-journal-code" aria-hidden="true"></i></div>
+                    <div>
+                        <span class="evidence-strip__eyebrow" id="static-evidence-status">Scan completed &middot; {{ timestamp }}</span>
+                        <p class="evidence-strip__body">Report ready for review. <a href="{{ url_for('coverage_ledger_view', scan_id=scan_id) }}">View source coverage and scan details</a></p>
+                    </div>
+                </section>
+
+                <!-- Executive Summary -->
+                <section id="executive-summary" class="mb-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2 class="h3 mb-4">
+                                <i class="bi bi-clipboard-data me-2" style="color: #3B82F6;"></i>Executive Summary
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 ah-summary-metrics">
+                        <div class="col-6 col-md-6 col-lg-3 mb-3">
+                            <div class="card text-center h-100 stat-card-total">
+                                <div class="card-body py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">Static signals</h6>
+                                    <h2 class="display-6 fw-bold" style="color: #6366F1;">{{ total_findings }}</h2>
+                                    <p class="mb-0">
+                                        <small class="text-muted">Context checks determine next steps</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-6 col-lg-3 mb-3">
+                            <div class="card text-center h-100 stat-card-critical">
+                                <div class="card-body py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">Critical priority</h6>
+                                    <h2 class="display-6 fw-bold" style="color: var(--sev-critical);">
+                                        {{ severity_counts.get('Critical', 0) }}
+                                    </h2>
+                                    <p class="mb-0">
+                                        <small class="text-muted">Validate context before final classification</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-6 col-lg-3 mb-3">
+                            <div class="card text-center h-100 stat-card-high">
+                                <div class="card-body py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">High priority</h6>
+                                    <h2 class="display-6 fw-bold" style="color: var(--sev-high);">
+                                        {{ severity_counts.get('High', 0) }}
+                                    </h2>
+                                    <p class="mb-0">
+                                        <small class="text-muted">Review source-to-sink reachability</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-md-6 col-lg-3 mb-3">
+                            <div class="card text-center h-100 stat-card-primary">
+                                <div class="card-body py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">MASVS groups</h6>
+                                    <h2 class="display-6 fw-bold" style="color: #075E4A;">{{ masvs_categories|length }}</h2>
+                                    <small class="text-muted">Categories with static review signals</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if total_findings > 0 %}
+                    <!-- Charts Row -->
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0 fw-semibold">
+                                        <i class="bi bi-pie-chart me-2" style="color: #3B82F6;"></i>Security Findings by Severity
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="severityChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    {% else %}
+                    <div class="ah-no-signals"><i class="bi bi-check2-circle" aria-hidden="true"></i><div><strong>No static rule signals in this scan</strong><p>Review scan coverage above before drawing a security conclusion.</p></div></div>
+                    {% endif %}
+                </section>
+
+                <!-- Third-Party & Dependency Analysis Health Card -->
+                <section id="dependency-analysis" class="mb-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2 class="h3 mb-4">
+                                <i class="bi bi-puzzle me-2" style="color: #0EA5E9;"></i>Third-Party & Dependency Analysis
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card h-100 stat-card-primary">
+                                <div class="card-body text-center py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">Components Scanned</h6>
+                                    <h3 class="fw-bold" style="color: #3B82F6;">{{ dependency_summary.total_components }}</h3>
+                                    <p class="mb-0">
+                                        <small class="text-muted">Total dependencies</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card h-100 stat-card-medium">
+                                <div class="card-body text-center py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">Vulnerable Components</h6>
+                                    <h3 class="fw-bold" style="color: var(--sev-medium);">{{ dependency_summary.vulnerable_components }}</h3>
+                                    <p class="mb-0">
+                                        <small class="text-muted">With known CVEs</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card h-100 stat-card-critical">
+                                <div class="card-body text-center py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">Critical Vulnerabilities</h6>
+                                    <h3 class="fw-bold" style="color: var(--sev-critical);">{{ dependency_summary.critical_vulnerabilities }}</h3>
+                                    <p class="mb-0">
+                                        <small class="text-muted">CVSS 9.0+</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card h-100 stat-card-info">
+                                <div class="card-body text-center py-4">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-2">License reviews</h6>
+                                    <h3 class="fw-bold" style="color: var(--sev-info);">{{ dependency_summary.license_issues }}</h3>
+                                    <p class="mb-0">
+                                        <small class="text-muted">Declared reciprocal-license evidence</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body text-center py-4">
+                                    <h5 class="fw-semibold mb-3">
+                                        <i class="bi bi-journal-check me-2" style="color: #075E4A;"></i>Dependency evidence status
+                                    </h5>
+                                    {% if dependency_summary.critical_vulnerabilities > 0 %}
+                                        <div class="alert alert-danger" role="alert">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            <strong>Critical advisory matches:</strong> {{ dependency_summary.critical_vulnerabilities }} saved OSV records need priority validation
+                                        </div>
+                                    {% elif dependency_summary.vulnerable_components > 0 %}
+                                        <div class="alert alert-warning" role="alert">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            <strong>Advisory matches found:</strong> {{ dependency_summary.vulnerable_components }} components have High or Critical saved matches
+                                        </div>
+                                    {% else %}
+                                        {% if dependencies.get('analysis', {}).get('vulnerability_status') == 'complete' %}
+                                        <div class="alert alert-success" role="alert"><i class="bi bi-check-circle-fill me-2"></i><strong>No advisory match was saved:</strong> OSV returned no High or Critical match for the versioned identities queried during this scan.</div>
+                                        {% else %}
+                                        <div class="alert alert-warning" role="alert"><i class="bi bi-exclamation-circle me-2"></i><strong>No vulnerability conclusion:</strong> dependency enrichment was unavailable or incomplete for this saved scan.</div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <a href="{{ url_for('dependency_analysis', scan_id=scan_id) }}" class="btn btn-primary mt-2">
+                                        <i class="bi bi-search me-2"></i>Inspect dependency snapshot
+                                    </a>
+                                    {% if dependencies.get('sbom') %}
+                                    <a href="{{ url_for('export_sbom', scan_id=scan_id) }}" class="btn btn-outline-primary mt-2"><i class="bi bi-download me-2"></i>Download SBOM</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="ah-followup-evidence mb-5" aria-labelledby="followup-evidence-title">
+                    <p class="apkhunt-kicker">Additional evidence</p>
+                    <h2 class="h3 mb-3" id="followup-evidence-title">Explore the recovered surface</h2>
+                    <div class="ah-followup-grid">
+                        <a class="ah-followup-link" href="{{ url_for('coverage_ledger_view', scan_id=scan_id) }}"><i class="bi bi-list-check" aria-hidden="true"></i><span><strong>Coverage ledger</strong><small>APK members, evaluated files and rules, and skipped work.</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                        <a class="ah-followup-link" href="{{ url_for('attack_graph_view', scan_id=scan_id) }}"><i class="bi bi-bezier2" aria-hidden="true"></i><span><strong>Entry point graph</strong><small>Components, handlers, nearby effects, and unresolved links.</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                        <a class="ah-followup-link" href="{{ url_for('threat_model_view', scan_id=scan_id) }}"><i class="bi bi-diagram-2" aria-hidden="true"></i><span><strong>Threat model</strong><small>Explore trust boundaries, potential flows, and exact review questions.</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                        <a class="ah-followup-link" href="{{ url_for('runtime_proof_view', scan_id=scan_id) }}"><i class="bi bi-record-circle" aria-hidden="true"></i><span><strong>Runtime tests</strong><small>Check device readiness and launch tests for saved entry points.</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                        <a class="ah-followup-link" href="{{ url_for('api_explorer', scan_id=scan_id) }}"><i class="bi bi-diagram-3" aria-hidden="true"></i><span><strong>API route evidence</strong><small>Review routes and run scoped anonymous GET checks in place.</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                        <a class="ah-followup-link" href="{{ url_for('secrets_workbench', scan_id=scan_id) }}"><i class="bi bi-key" aria-hidden="true"></i><span><strong>Secret review</strong><small>TruffleHog candidates, verification state, and full-value reveal.</small></span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                    </div>
+                </section>
+
+                <!-- Security Findings Section -->
+                {% if total_findings > 0 %}
+                <section id="security-findings" class="mb-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2 class="h3 mb-4">
+                                <i class="bi bi-shield-exclamation me-2" style="color: var(--sev-medium);"></i>Security Findings
+                                <span class="badge bg-warning ms-2">{{ total_findings }}</span>
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- Security Summary Cards -->
+                    <div class="row mb-4">
+                        {% for severity, count in severity_counts.items() %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100
+                                {% if severity == 'Critical' %} stat-card-critical
+                                {% elif severity == 'High' %} stat-card-high
+                                {% elif severity == 'Medium' %} stat-card-medium
+                                {% elif severity == 'Low' %} stat-card-low
+                                {% else %} stat-card-info{% endif %}">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="text-muted text-uppercase small fw-semibold mb-1">{{ severity }}</h6>
+                                    <h3 class="fw-bold" style="color: {% if severity == 'Critical' %}var(--sev-critical){% elif severity == 'High' %}var(--sev-high){% elif severity == 'Medium' %}var(--sev-medium){% elif severity == 'Low' %}var(--sev-low){% else %}var(--sev-info){% endif %};">
+                                        {{ count }}
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Security Findings by Category -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0 fw-semibold">
+                                        <i class="bi bi-tags me-2" style="color: #3B82F6;"></i>Security Findings by Category
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Category</th>
+                                                    <th>Count</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for category, count in category_counts.items() %}
+                                                <tr>
+                                                    <td>
+                                                        <i class="bi bi-folder me-2 text-muted"></i>{{ category }}
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge" style="background: #EFF6FF; color: #3B82F6; border: 1px solid #BFDBFE;">{{ count }}</span>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Individual Security Findings -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <h5 class="mb-0 fw-semibold">
+                                        <i class="bi bi-list-ul me-2" style="color: #3B82F6;"></i>Detailed Security Analysis
+                                    </h5>
+                                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                                        <input type="text" class="form-control form-control-sm" id="searchInput"
+                                               placeholder="Search findings..." style="width: 250px;">
+                                        <button class="btn btn-sm btn-outline-secondary" id="clearFiltersBtn" style="display: none;" onclick="window.apkhuntClearFindingFilters()">
+                                            <i class="bi bi-x-circle me-1"></i>Clear Filters
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="findingsContainer">
+                                        {% for finding in findings %}
+                                        <div class="finding-card mb-3" id="finding-{{ loop.index0 }}"
+                                             data-severity="{{ finding.severity }}"
+                                             data-title="{{ finding.rule_title }}"
+                                             data-desc="{{ finding.desc }}"
+                                             data-file="{{ finding.file }}"
+                                             data-id="{{ finding.id }}">
+                                            <div class="card shadow-sm">
+                                                <div class="finding-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <h6 class="mb-0">
+                                                        <i class="bi bi-exclamation-triangle me-2" style="color: {% if finding.severity == 'Critical' %}var(--sev-critical){% elif finding.severity == 'High' %}var(--sev-high){% elif finding.severity == 'Medium' %}var(--sev-medium){% elif finding.severity == 'Low' %}var(--sev-low){% else %}var(--sev-info){% endif %};"></i>
+                                                        {{ finding.rule_title }}
+                                                    </h6>
+                                                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                        <span class="badge
+                                                            {% if finding.severity == 'Critical' %} badge-severity-critical
+                                                            {% elif finding.severity == 'High' %} badge-severity-high
+                                                            {% elif finding.severity == 'Medium' %} badge-severity-medium
+                                                            {% elif finding.severity == 'Low' %} badge-severity-low
+                                                            {% else %} badge-severity-info{% endif %}">
+                                                            {{ finding.severity }}
+                                                        </span>
+                                                        <span class="badge" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">{{ finding.masvs }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text text-secondary">{{ finding.desc }}</p>
+                                                    {% if finding.threat_model_path is defined %}<a class="btn btn-outline-primary btn-sm mb-3 me-2" href="{{ url_for('threat_model_view', scan_id=scan_id, path=finding.threat_model_path) }}">Map this finding</a>{% endif %}
+                                                    {% if finding.runtime_test_path is defined %}<a class="btn btn-outline-primary btn-sm mb-3" href="{{ url_for('runtime_proof_view', scan_id=scan_id, path=finding.runtime_test_path) }}#path-{{ finding.runtime_test_path }}">Test this activity on a device</a>{% endif %}
+
+                                                    <div class="row g-3 mb-3">
+                                                        <div class="col-md-6">
+                                                            <span class="fw-semibold text-muted small">File:</span>
+                                                            <code class="small" style="background: #F1F5F9; padding: 2px 6px; border-radius: 4px; color: #475569;">{{ finding.file }}</code>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <span class="fw-semibold text-muted small">Line:</span>
+                                                            <span class="badge" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">{{ finding.line }}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {% if finding.code and finding.code != 'N/A' %}
+                                                    <div class="mb-3">
+                                                        <span class="fw-semibold text-muted small d-block mb-1">Code:</span>
+                                                        <pre><code class="language-{{ finding.code_language }}">{{ finding.code }}</code></pre>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    <!-- Context Checks Section -->
+                                                    {% if finding.contextChecks and finding.contextChecks|length > 0 %}
+                                                    <div class="mb-4">
+                                                        <div class="alert alert-warning border-warning context-checks-alert">
+                                                            <h6 class="alert-heading mb-2 fw-semibold">
+                                                                <i class="bi bi-search me-2"></i>Context Checks Required
+                                                                <span class="badge bg-warning text-dark ms-2">{{ finding.contextChecks|length }}</span>
+                                                            </h6>
+                                                            <p class="mb-2 small text-muted">These items need manual verification to confirm the security issue:</p>
+                                                            <ul class="mb-0">
+                                                                {% for check in finding.contextChecks %}
+                                                                <li class="context-check-item">
+                                                                    <i class="bi bi-check-circle text-warning me-1"></i>
+                                                                    <strong>{{ check }}</strong>
+                                                                </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    <!-- Severity Conditions Section -->
+                                                    {% if finding.severityConditions and finding.severityConditions|length > 0 %}
+                                                    <div class="mb-4">
+                                                        <div class="alert alert-info border-info severity-conditions-alert">
+                                                            <h6 class="alert-heading mb-2 fw-semibold">
+                                                                <i class="bi bi-info-circle me-2"></i>Severity Conditions
+                                                                <span class="badge bg-info text-dark ms-2">{{ finding.severityConditions|length }}</span>
+                                                            </h6>
+                                                            <p class="mb-2 small text-muted">These conditions determine the severity level of this finding:</p>
+                                                            <ul class="mb-0">
+                                                                {% for condition in finding.severityConditions %}
+                                                                <li class="severity-condition-item">
+                                                                    <i class="bi bi-arrow-right text-info me-1"></i>
+                                                                    <strong>{{ condition }}</strong>
+                                                                </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    <div class="row g-3 pt-2" style="border-top: 1px solid #F1F5F9;">
+                                                        <div class="col-md-6">
+                                                            <span class="fw-semibold text-muted small">CWE:</span>
+                                                            <span class="badge" style="background: #EFF6FF; color: #3B82F6; border: 1px solid #BFDBFE;">{{ finding.cwe }}</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <span class="fw-semibold text-muted small">Reference:</span>
+                                                            <a href="{{ finding.reference }}" target="_blank" class="text-decoration-none" style="color: #3B82F6;">
+                                                                <i class="bi bi-box-arrow-up-right me-1"></i>View
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Scan Details -->
+                <section id="scan-details" class="mb-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2 class="h3 mb-4">
+                                <i class="bi bi-info-circle me-2" style="color: #3B82F6;"></i>Scan Details
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0 fw-semibold">
+                                        <i class="bi bi-file-earmark-text me-2 text-muted"></i>Scan Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <td class="fw-semibold text-muted" style="width: 140px;">APK Name:</td>
+                                            <td>{{ apk_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-semibold text-muted">Scan ID:</td>
+                                            <td><code style="background: #F1F5F9; padding: 2px 8px; border-radius: 4px; color: #475569; font-size: 0.85rem;">{{ scan_id }}</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-semibold text-muted">Timestamp:</td>
+                                            <td>{{ timestamp }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-semibold text-muted">Total Issues:</td>
+                                            <td>{{ total_findings }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0 fw-semibold">
+                                        <i class="bi bi-shield-check me-2 text-muted"></i>Recommendations
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+
+                                        {% if severity_counts.get('Critical', 0) > 0 %}
+                                        <li class="mb-3 d-flex align-items-start">
+                                            <i class="bi bi-exclamation-triangle-fill me-2 mt-1" style="color: var(--sev-critical);"></i>
+                                            <div>
+                                                <strong>Critical Issues:</strong>
+                                                <span class="text-secondary"> Address all critical security vulnerabilities immediately</span>
+                                            </div>
+                                        </li>
+                                        {% endif %}
+                                        {% if severity_counts.get('High', 0) > 0 %}
+                                        <li class="mb-3 d-flex align-items-start">
+                                            <i class="bi bi-exclamation-triangle-fill me-2 mt-1" style="color: var(--sev-high);"></i>
+                                            <div>
+                                                <strong>High Priority:</strong>
+                                                <span class="text-secondary"> Fix high-severity issues within 30 days</span>
+                                            </div>
+                                        </li>
+                                        {% endif %}
+                                        <li class="mb-3 d-flex align-items-start">
+                                            <i class="bi bi-info-circle me-2 mt-1" style="color: var(--sev-info);"></i>
+                                            <div>
+                                                <strong>Regular Scans:</strong>
+                                                <span class="text-secondary"> Perform security scans before each release</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% if scan_metadata.decompilers %}
+                        <div class="col-12 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0 fw-semibold"><i class="bi bi-terminal me-2 text-muted"></i>Decompiler runs</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="ah-decompiler-runs">
+                                        {% for run in scan_metadata.decompilers %}
+                                        <div class="ah-decompiler-run">
+                                            <strong>{{ run.tool }}</strong>
+                                            <span class="ah-coverage" data-state="{{ 'complete' if run.status == 'completed' else 'partial' }}">{{ run.status|replace('_', ' ') }}</span>
+                                            <span class="text-secondary">Exit {{ run.exit_code }}{% if run.duration_ms is not none %} · {{ '%.1f'|format(run.duration_ms / 1000) }}s{% endif %}</span>
+                                            {% if run.error_count is not none %}<span class="text-secondary">{{ run.error_count }} code errors</span>{% endif %}
+                                            {% if run.source_files_written is defined %}<span class="text-secondary">{{ run.source_files_written }} source files written</span>{% endif %}
+                                            {% if run.smali_files_written is defined %}<span class="text-secondary">{{ run.smali_files_written }} Smali files decoded; no Smali rules</span>{% endif %}
+                                            {% if run.work_units and run.work_units.total %}<span class="text-secondary">{{ run.work_units.done }} / {{ run.work_units.total }} work units observed</span>{% endif %}
+                                            {% if run.diagnostic and run.diagnostic not in ['none', 'decompilation_errors'] %}<span class="text-secondary">{{ run.diagnostic|replace('_', ' ') }}</span>{% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if scan_metadata.jadx_show_bad_code is defined %}<p class="small text-secondary mt-2 mb-0">JADX <code>--show-bad-code</code> for APK attempts: {{ 'enabled' if scan_metadata.jadx_show_bad_code else 'disabled' }}. Individual DEX rescue uses it when needed.</p>{% endif %}
+                                    {% if scan_metadata.jadx_per_dex and (scan_metadata.jadx_per_dex.attempted or scan_metadata.jadx_per_dex.skipped) %}
+                                    <p class="small text-secondary mt-2 mb-0">Per-DEX recovery: {{ scan_metadata.jadx_per_dex.attempted }} attempted · {{ scan_metadata.jadx_per_dex.skipped }} skipped · {{ scan_metadata.jadx_per_dex.source_files_recovered }} source files added. {{ scan_metadata.jadx_per_dex.reason }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/prism.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script>
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const filtersToggle = document.getElementById('reportFiltersToggle');
+            const closeFilters = document.getElementById('closeReportFilters');
+            function setSidebarOpen(open) {
+                sidebar.classList.toggle('show', open);
+                filtersToggle.setAttribute('aria-expanded', String(open));
+                if (open) closeFilters.focus();
+                else filtersToggle.focus();
+            }
+            window.apkhuntToggleReportSidebar = function() { setSidebarOpen(!sidebar.classList.contains('show')); };
+            window.apkhuntCloseReportSidebar = function() { setSidebarOpen(false); };
+            sidebar.querySelectorAll('a[href^="#"]').forEach(function(link) {
+                link.addEventListener('click', function() { if (window.innerWidth < 768) setSidebarOpen(false); });
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && sidebar.classList.contains('show')) setSidebarOpen(false);
+            });
+            // Security Findings Chart
+            const ctx1 = document.getElementById('severityChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: {{ chart_data.labels | tojson }},
+                        datasets: [{
+                            data: {{ chart_data.data | tojson }},
+                            backgroundColor: ['#DC2626', '#EA580C', '#D97706', '#16A34A', '#3B82F6'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#475569',
+                                    font: {
+                                        family: 'Inter',
+                                        size: 12
+                                    },
+                                    padding: 16,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+
+            // Severity Filtering
+            const severityFilters = document.querySelectorAll('.severity-filter');
+            const selectAllBtn = document.getElementById('select-all-severities');
+            const deselectAllBtn = document.getElementById('deselect-all-severities');
+
+            function filterFindings() {
+                const selectedSeverities = Array.from(severityFilters)
+                    .filter(filter => filter.checked)
+                    .map(filter => filter.value);
+
+                const findingCards = document.querySelectorAll('.finding-card');
+                let visibleCount = 0;
+
+                findingCards.forEach(card => {
+                    const severity = card.dataset.severity || (card.querySelector('.badge') ? card.querySelector('.badge').textContent.trim() : '');
+
+                    if (selectedSeverities.includes(severity)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Update the findings count in the header
+                const findingsHeader = document.querySelector('#security-findings h2 .badge');
+                if (findingsHeader) {
+                    findingsHeader.textContent = visibleCount;
+                }
+            }
+
+            // Add event listeners to severity filters
+            severityFilters.forEach(filter => {
+                filter.addEventListener('change', filterFindings);
+            });
+
+            function setAllSeverities(checked) {
+                severityFilters.forEach(filter => {
+                    filter.checked = checked;
+                });
+                filterFindings();
+            }
+
+            window.apkhuntSelectAllSeverities = function() { setAllSeverities(true); };
+            window.apkhuntDeselectAllSeverities = function() { setAllSeverities(false); };
+
+            // Initialize filtering
+            filterFindings();
+
+            // Override navbar scroll behavior for white theme
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > 50) {
+                        navbar.style.background = '#fff';
+                        navbar.style.boxShadow = '0 1px 8px rgba(0,0,0,0.08)';
+                    } else {
+                        navbar.style.background = '#fff';
+                        navbar.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+                    }
+                });
+            }
+
+            // Override risk meter colors for white theme
+            document.querySelectorAll('.risk-meter').forEach(function(meter) {
+                var circle = meter.querySelector('.risk-meter-value');
+                if (circle) {
+                    var value = parseFloat(meter.dataset.value) || 0;
+                    var maxValue = parseFloat(meter.dataset.max) || 100;
+                    var percentage = (value / maxValue) * 100;
+                    if (percentage >= 75) {
+                        circle.style.stroke = '#DC2626';
+                    } else if (percentage >= 50) {
+                        circle.style.stroke = '#EA580C';
+                    } else if (percentage >= 25) {
+                        circle.style.stroke = '#D97706';
+                    } else {
+                        circle.style.stroke = '#16A34A';
+                    }
+                }
+            });
+
+            // Override copy button styling for white theme
+            document.querySelectorAll('pre code').forEach(function(codeBlock) {
+                var container = codeBlock.parentNode;
+                var existingBtn = container.querySelector('.copy-button');
+                if (existingBtn) {
+                    existingBtn.style.background = '#EFF6FF';
+                    existingBtn.style.color = '#3B82F6';
+                    existingBtn.style.border = '1px solid #BFDBFE';
+                }
+            });
+        });
+    </script>
+    {% include '_scan_status.html' %}
+</body>
+</html>

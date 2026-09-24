@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt - Scan History</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <style>
+        /* White Theme Overrides for Scan History Page */
+        body.white-theme {
+            background: #f8f9fc !important;
+            color: #1e293b !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body.white-theme .navbar {
+            background: #ffffff !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        body.white-theme .navbar-brand {
+            color: #0f172a !important;
+        }
+
+        body.white-theme .navbar-brand i {
+            color: #2563eb !important;
+        }
+
+        body.white-theme .nav-link {
+            color: #475569 !important;
+        }
+
+        body.white-theme .nav-link.active {
+            color: #2563eb !important;
+            font-weight: 600;
+        }
+
+        body.white-theme .nav-link:hover {
+            color: #2563eb !important;
+        }
+
+        body.white-theme .navbar-toggler {
+            border-color: #cbd5e1;
+        }
+
+        body.white-theme .navbar-toggler-icon {
+            filter: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2851, 65, 85, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        body.white-theme .page-header-icon {
+            color: #2563eb;
+        }
+
+        body.white-theme .page-header h1 {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        body.white-theme .btn-primary {
+            background: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #ffffff !important;
+            box-shadow: none !important;
+        }
+
+        body.white-theme .btn-primary:hover {
+            background: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
+        }
+
+        body.white-theme .btn-outline-primary {
+            color: #2563eb !important;
+            border-color: #2563eb !important;
+            background: transparent !important;
+        }
+
+        body.white-theme .btn-outline-primary:hover {
+            background: #2563eb !important;
+            color: #ffffff !important;
+        }
+
+        body.white-theme .btn-outline-danger {
+            color: #dc2626 !important;
+            border-color: #dc2626 !important;
+            background: transparent !important;
+        }
+
+        body.white-theme .btn-outline-danger:hover {
+            background: #dc2626 !important;
+            color: #ffffff !important;
+        }
+
+        /* Running Scans Alert */
+        body.white-theme .running-scans-alert {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+        }
+
+        body.white-theme .running-scans-alert .alert-heading {
+            color: #1e40af;
+        }
+
+        body.white-theme .running-scans-alert .alert-text {
+            color: #475569;
+        }
+
+        /* Storage Info Alert */
+        body.white-theme .storage-alert {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            color: #0c4a6e;
+        }
+
+        body.white-theme .storage-alert .storage-title {
+            color: #0369a1;
+            font-weight: 600;
+        }
+
+        body.white-theme .storage-alert .storage-text {
+            color: #475569;
+        }
+
+        body.white-theme .storage-alert .storage-note {
+            color: #64748b;
+        }
+
+        /* Stat Cards */
+        body.white-theme .stat-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.white-theme .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        body.white-theme .stat-card .stat-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        body.white-theme .stat-card .stat-value {
+            font-weight: 800;
+            font-size: 2.25rem;
+            line-height: 1.2;
+        }
+
+        body.white-theme .stat-card .stat-icon {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            font-size: 3rem;
+            opacity: 0.08;
+        }
+
+        body.white-theme .stat-value-primary { color: #2563eb; }
+        body.white-theme .stat-icon-primary { color: #2563eb; }
+        body.white-theme .stat-value-critical { color: #dc2626; }
+        body.white-theme .stat-icon-critical { color: #dc2626; }
+        body.white-theme .stat-value-high { color: #ea580c; }
+        body.white-theme .stat-icon-high { color: #ea580c; }
+
+        /* Table Card */
+        body.white-theme .table-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        body.white-theme .table-card-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+        }
+
+        body.white-theme .table-card-header h5 {
+            color: #0f172a;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        body.white-theme .table-card-header .header-icon {
+            color: #2563eb;
+        }
+
+        body.white-theme .table-card-body {
+            padding: 0;
+        }
+
+        body.white-theme .table-card-body .table-padded {
+            padding: 1.25rem;
+        }
+
+        body.white-theme .scan-table {
+            margin-bottom: 0;
+        }
+
+        body.white-theme .scan-table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 0.85rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        body.white-theme .scan-table tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s ease;
+        }
+
+        body.white-theme .scan-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        body.white-theme .scan-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        body.white-theme .scan-table tbody td {
+            padding: 0.85rem 0.75rem;
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        body.white-theme .scan-table .row-number {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        body.white-theme .scan-table .apk-name {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        body.white-theme .scan-table .apk-original {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        body.white-theme .scan-table .timestamp {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Badge styles for severity counts */
+        body.white-theme .badge-total {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        body.white-theme .badge-critical {
+            background: #dc2626;
+            color: #ffffff;
+        }
+
+        body.white-theme .badge-high {
+            background: #ea580c;
+            color: #ffffff;
+        }
+
+        body.white-theme .badge-warning {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        body.white-theme .badge-info-count {
+            background: #0891b2;
+            color: #ffffff;
+        }
+
+        body.white-theme .badge-zero {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        /* Action buttons in table */
+        body.white-theme .btn-group .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        /* Empty State */
+        body.white-theme .empty-state {
+            padding: 4rem 1rem;
+            text-align: center;
+        }
+
+        body.white-theme .empty-state .empty-icon {
+            font-size: 4rem;
+            color: #cbd5e1;
+        }
+
+        body.white-theme .empty-state h4 {
+            color: #475569;
+            margin-top: 1rem;
+        }
+
+        body.white-theme .empty-state p {
+            color: #94a3b8;
+        }
+
+        /* Footer */
+        body.white-theme .page-footer {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.25rem 0;
+            margin-top: 3rem;
+        }
+
+        body.white-theme .page-footer .footer-brand {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        body.white-theme .page-footer .footer-brand i {
+            color: #2563eb;
+        }
+
+        body.white-theme .page-footer .footer-tech {
+            color: #94a3b8;
+            margin: 0;
+            font-size: 0.8rem;
+        }
+
+        /* Running scan items in JS */
+        body.white-theme .running-scan-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        body.white-theme .running-scan-item .scan-filename {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        body.white-theme .running-scan-item .scan-message {
+            color: #475569;
+            font-size: 0.85rem;
+        }
+
+        body.white-theme .completed-scan-item {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        body.white-theme .completed-scan-item .scan-filename {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        body.white-theme .completed-scan-item .scan-message {
+            color: #16a34a;
+            font-size: 0.85rem;
+        }
+
+        body.white-theme .error-scan-item {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        body.white-theme .error-scan-item .scan-filename {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        body.white-theme .error-scan-item .scan-message {
+            color: #dc2626;
+            font-size: 0.85rem;
+        }
+
+        /* Flash alert styling */
+        body.white-theme .alert {
+            border-radius: 10px;
+        }
+
+        body.white-theme .alert-success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        body.white-theme .alert-danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        body.white-theme .alert-warning {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
+        body.white-theme .alert-info {
+            background: #f0f9ff;
+            border-color: #bae6fd;
+            color: #0c4a6e;
+        }
+
+        /* Progress bar override */
+        body.white-theme .progress {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        body.white-theme .progress-bar {
+            background: #2563eb;
+        }
+
+        /* Border bottom on page header */
+        body.white-theme .page-header {
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        /* Scrollbar for white theme */
+        body.white-theme::-webkit-scrollbar { width: 8px; height: 8px; }
+        body.white-theme::-webkit-scrollbar-track { background: #f1f5f9; }
+        body.white-theme::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        body.white-theme::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        body.white-theme ::selection {
+            background: #2563eb;
+            color: #ffffff;
+        }
+    </style>
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="white-theme apkhunt-shell ah-history-shell">
+    <nav class="navbar navbar-expand-lg fixed-top" aria-label="Primary navigation">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+            <div class="navbar-nav ms-auto flex-row gap-1">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('scan_history_list') }}">History</a>
+                <a class="nav-link" href="{{ url_for('index') }}">New scan</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container ah-history-main">
+        <header class="ah-page-intro">
+            <div><p class="apkhunt-kicker">Saved work / Local snapshots</p><h1>Scan history</h1><p>Open a stored report or remove a scan when you no longer need its evidence.</p></div>
+            <a href="{{ url_for('index') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> New scan</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="ah-flashes" role="status">
+                    {% for category, message in messages %}<div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">{{ message }}</div>{% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% set total_signals = namespace(value=0) %}
+        {% set priority_signals = namespace(value=0) %}
+        {% for scan in history %}
+            {% set total_signals.value = total_signals.value + scan.total_findings %}
+            {% set priority_signals.value = priority_signals.value + scan.severity_counts.get('Critical', 0) + scan.severity_counts.get('High', 0) %}
+        {% endfor %}
+        {% if history %}
+        <div class="ah-history-summary" aria-label="Saved scan summary">
+            <span><strong>{{ history|length }}</strong> saved scans</span>
+            <span><strong>{{ total_signals.value }}</strong> review signals</span>
+            <span><strong>{{ priority_signals.value }}</strong> high or critical priority</span>
+        </div>
+        {% endif %}
+
+        <section class="ah-history-table" aria-labelledby="history-heading">
+            <div class="ah-history-table-head">
+                <div><p class="ah-overline">Reports</p><h2 id="history-heading">Saved analysis</h2></div>
+                {% if history %}<form method="POST" action="{{ url_for('clear_all_scan_data') }}" data-delete-form data-delete-name="all saved scans" novalidate><button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3" aria-hidden="true"></i> Delete all</button></form>{% endif %}
+            </div>
+            {% if history %}
+            <p class="ah-table-hint">Scroll across the table to view scan status and report actions <i class="bi bi-arrow-right" aria-hidden="true"></i></p>
+            <div class="table-responsive" tabindex="0" role="region" aria-label="Saved scans table, scroll horizontally for more columns">
+                <table class="table table-hover align-middle mb-0 ah-scan-table">
+                    <caption class="visually-hidden">Saved APK security analysis reports</caption>
+                    <thead><tr><th scope="col">APK</th><th scope="col">Scanned</th><th scope="col">Review signals</th><th scope="col">Priority</th><th scope="col">Status</th><th scope="col" aria-label="Actions"></th></tr></thead>
+                    <tbody>
+                    {% for scan in history %}
+                        <tr>
+                            <td><strong class="ah-apk-name">{{ scan.apk_name }}</strong>{% if scan.original_filename %}<small class="ah-original-name">{{ scan.original_filename }}</small>{% endif %}</td>
+                            <td class="ah-date">{{ scan.timestamp or 'Unavailable' }}</td>
+                            <td><span class="ah-count">{{ scan.total_findings }}</span></td>
+                            <td><span class="ah-priority">{{ scan.severity_counts.get('Critical', 0) + scan.severity_counts.get('High', 0) }} high / critical</span></td>
+                            <td><span class="ah-coverage" data-state="complete">Completed</span></td>
+                            <td><div class="ah-row-actions"><a class="btn btn-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan.scan_id) }}">Open report</a><a class="btn btn-outline-primary btn-sm" href="{{ url_for('export_report_pdf', scan_id=scan.scan_id) }}" aria-label="Export PDF for {{ scan.apk_name }}" title="Export PDF"><i class="bi bi-download" aria-hidden="true"></i></a><form method="POST" action="{{ url_for('delete_scan_report', scan_id=scan.scan_id) }}" data-delete-form data-delete-name="{{ scan.apk_name }}" novalidate><button type="submit" class="btn btn-outline-danger btn-sm" aria-label="Delete {{ scan.apk_name }}" title="Delete saved scan"><i class="bi bi-trash3" aria-hidden="true"></i></button></form></div></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="ah-history-empty"><i class="bi bi-folder2-open" aria-hidden="true"></i><h3>{{ 'Scan in progress' if has_active_scans else 'No saved scans yet' }}</h3><p>{{ 'The report will appear here when the worker saves it. You can keep using Apkhunt.' if has_active_scans else 'Create a static report to start a review history.' }}</p>{% if not has_active_scans %}<a class="btn btn-primary" href="{{ url_for('index') }}">Analyze an APK</a>{% endif %}</div>
+            {% endif %}
+        </section>
+        <p class="ah-storage-note"><i class="bi bi-info-circle" aria-hidden="true"></i> Reports and decompiled files use local storage. Deleting a scan removes its saved analysis.</p>
+    </main>
+
+    <footer class="ah-footer"><span>Apkhunt / Local Android analysis</span><span>Static evidence requires validation</span></footer>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalTitle" aria-describedby="deleteModalDescription">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="deleteModalTitle">Delete saved scan?</h2>
+                    <button type="button" class="btn-close" onclick="bootstrap.Modal.getOrCreateInstance(this.closest('.modal')).hide()" aria-label="Keep saved scan"></button>
+                </div>
+                <div class="modal-body" id="deleteModalDescription"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" onclick="bootstrap.Modal.getOrCreateInstance(this.closest('.modal')).hide()">Keep saved scan</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete" onclick="window.apkhuntConfirmDelete()">Delete saved scan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let pendingDeleteForm = null;
+        const deleteModalElement = document.getElementById('deleteModal');
+        const deleteModal = new bootstrap.Modal(deleteModalElement);
+        const deleteDescription = document.getElementById('deleteModalDescription');
+        const confirmDelete = document.getElementById('confirmDelete');
+
+        document.querySelectorAll('[data-delete-form]').forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                pendingDeleteForm = form;
+                const name = form.dataset.deleteName || 'this saved scan';
+                deleteDescription.textContent = 'Delete ' + name + '? The stored report and local decompiled analysis files will be removed and cannot be recovered.';
+                confirmDelete.textContent = name === 'all saved scans' ? 'Delete all saved scans' : 'Delete saved scan';
+                deleteModal.show();
+            });
+        });
+
+        window.apkhuntConfirmDelete = function() {
+            if (!pendingDeleteForm) return;
+            confirmDelete.disabled = true;
+            confirmDelete.setAttribute('aria-busy', 'true');
+            HTMLFormElement.prototype.submit.call(pendingDeleteForm);
+        };
+
+        deleteModalElement.addEventListener('hidden.bs.modal', function() {
+            pendingDeleteForm = null;
+            confirmDelete.disabled = false;
+            confirmDelete.removeAttribute('aria-busy');
+        });
+
+    });
+    </script>
+    {% include '_scan_status.html' %}
+</body>
+</html>

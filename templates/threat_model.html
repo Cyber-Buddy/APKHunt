@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt threat model · {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/threat-model.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell">
+    <nav class="navbar navbar-expand-lg fixed-top"><div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+        <div class="ms-auto d-flex gap-2"><a class="btn btn-outline-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan_id) }}">Back to report</a><a class="btn btn-primary btn-sm" href="{{ url_for('scan_history_list') }}">History</a></div>
+    </div></nav>
+    <main class="apkhunt-workbench tm-page" data-scan-id="{{ scan_id }}" data-selected="{{ selected }}">
+        <header class="apkhunt-workbench__head tm-head">
+            <div><p class="apkhunt-kicker">Evidence-led system map</p><h1>Threat model</h1><p class="apkhunt-workbench__meta">{{ apk_name }} · {{ scan_id }}</p></div>
+            <div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-primary" href="{{ url_for('attack_graph_view', scan_id=scan_id) }}">Entry point evidence</a><a class="btn btn-outline-primary" href="{{ url_for('threat_model_export', scan_id=scan_id) }}"><i class="bi bi-download" aria-hidden="true"></i> Export model JSON</a></div>
+        </header>
+        <section class="evidence-strip" data-state="{{ model.status }}"><div class="evidence-strip__mark"><i class="bi bi-diagram-3" aria-hidden="true"></i></div><div>
+            <span class="evidence-strip__eyebrow">Potential flows · {{ model.metrics.source_coverage }} source coverage</span>
+            <p class="evidence-strip__body">{{ model.method }} {{ model.limitation }}</p>
+            {% if model.metrics.path_limit_reached %}<p class="evidence-strip__body mt-1">The model reached its {{ model.metrics.modeled_paths }}-path display limit. Review the coverage ledger for work outside this view.</p>{% endif %}
+        </div></section>
+        <div class="tm-metrics" aria-label="Threat model inventory">
+            <div><strong>{{ model.metrics.modeled_paths }}</strong><span>entry paths modeled</span></div>
+            <div><strong>{{ model.metrics.linked_static_signals }}</strong><span>linked static signals</span></div>
+            <div><strong>{{ model.metrics.unlinked_static_signals }}</strong><span>signals without a path link</span></div>
+            <div><strong>{{ model.metrics.components.get('activity', 0) + model.metrics.components.get('activity-alias', 0) }}</strong><span>activities and aliases</span></div>
+        </div>
+        {% if model.paths %}
+        <div class="tm-board">
+            <aside class="tm-paths" aria-labelledby="tmPathsTitle">
+                <div class="tm-panel-head"><p class="apkhunt-kicker mb-1">Choose a path</p><h2 id="tmPathsTitle">External entry points</h2><p id="tmPathCount" class="tm-subtle">{{ model.paths|length }} paths</p></div>
+                <div class="tm-search"><label for="tmPathSearch">Find component or effect</label><input class="form-control" type="search" id="tmPathSearch" placeholder="Receiver, WebView, database…" autocomplete="off"></div>
+                <div class="tm-path-list" id="tmPathList">
+                    {% for path in model.paths %}<a href="{{ url_for('threat_model_view', scan_id=scan_id, path=path.index) }}" class="tm-path{% if path.index == selected %} is-active{% endif %}" data-path="{{ path.index }}" {% if path.index == selected %}aria-current="true"{% endif %}>
+                        <span class="tm-path__type">{{ path.kind }} <span>· {{ path.evidence_level }}</span></span>
+                        <strong>{{ path.short_name }}</strong><small>{{ path.headline.split('→')[-1]|trim }}</small>
+                        <span class="tm-path__foot"><span>{{ path.findings|length }} linked signal{{ '' if path.findings|length == 1 else 's' }}</span><span>Review {{ path.review_score }}/7</span></span>
+                    </a>{% endfor %}
+                </div>
+                <p class="tm-no-results" id="tmNoResults" hidden>No paths match this search.</p>
+            </aside>
+            <section class="tm-map" aria-labelledby="tmMapTitle">
+                <div class="tm-map__toolbar"><div><p class="apkhunt-kicker mb-1">Trust boundary map</p><h2 id="tmMapTitle">Possible entry to effect</h2></div><div class="tm-map__actions"><button type="button" class="btn btn-outline-primary btn-sm" id="tmFit" onclick="window.apkhuntThreatModel?.fit()">Fit view</button><button type="button" class="btn btn-outline-primary btn-sm" id="tmFullscreen" onclick="window.apkhuntThreatModel?.toggleFullscreen()">Full screen</button></div></div>
+                <div class="tm-map__zones" aria-hidden="true"><span>Outside app</span><span>Android boundary</span><span>App process</span></div>
+                <div class="tm-canvas-wrap" id="tmCanvasWrap"><div id="tmCanvas" role="img" aria-label="Interactive potential-flow graph. Select a path to inspect its nodes and evidence."></div></div>
+                <div class="tm-legend"><span><i class="tm-key tm-key--solid"></i> Manifest or class identity</span><span><i class="tm-key tm-key--dashed"></i> Entry-method lexical</span><span><i class="tm-key tm-key--dotted"></i> Same class or unresolved</span></div>
+                <p class="tm-node-note" id="tmNodeNote" role="status" aria-live="polite">Select a graph node to inspect its exact role.</p>
+            </section>
+            <aside class="tm-inspector" aria-labelledby="tmInspectorTitle">
+                <div class="tm-panel-head"><p class="apkhunt-kicker mb-1">Selected path</p><h2 id="tmInspectorTitle">Review hypothesis</h2><p class="tm-subtle">Ranked for review, never a severity verdict</p></div>
+                <div class="tm-inspector__body">
+                    <div class="tm-lenses" id="tmLenses"></div>
+                    <h3 id="tmHeadline"></h3><p class="tm-boundary" id="tmBoundary"></p>
+                    <section><h4>What the scan observed</h4><p id="tmObserved"></p></section>
+                    <section><h4>Strongest alternative</h4><p id="tmCounter"></p></section>
+                    <section><h4>Questions to resolve</h4><ol id="tmQuestions"></ol></section>
+                    <section><h4>Proof step</h4><p id="tmVerification"></p></section>
+                    <section><h4>Source and linked signals</h4><div id="tmEvidence"></div></section>
+                    <section><h4>Unknowns</h4><ul id="tmUnknowns"></ul></section>
+                    <div class="tm-inspector__actions"><a id="tmAttackLink" class="btn btn-outline-primary btn-sm" href="{{ url_for('attack_graph_view', scan_id=scan_id) }}">Open source evidence</a><a id="tmRuntimeLink" class="btn btn-primary btn-sm" href="{{ url_for('runtime_proof_view', scan_id=scan_id) }}">Open device test</a></div>
+                </div>
+            </aside>
+        </div>
+        {% else %}<section class="card"><div class="card-body p-4"><h2 class="h4">No entry paths can be modeled from this report</h2><p class="mb-2">{{ (model.metrics.graph_coverage or 'unavailable')|capitalize }} entry point evidence. A missing or unreadable manifest and unrecovered classes remain unknown.</p><a class="btn btn-outline-primary" href="{{ url_for('coverage_ledger_view', scan_id=scan_id) }}">Inspect coverage</a></div></section>{% endif %}
+        {% if model.global_findings %}<details class="tm-global"><summary>{{ model.metrics.unlinked_static_signals }} static signals have no justified entry-path connection</summary><p>These findings stay separate from the flow diagram. Proximity or shared APK membership does not establish a data path.</p><ol>{% for finding in model.global_findings %}<li><a href="{{ url_for('view_specific_report', scan_id=scan_id) }}#finding-{{ finding.index }}">{{ finding.title }}</a> <span class="tm-subtle">· {{ finding.severity }}</span></li>{% endfor %}</ol>{% if model.metrics.unlinked_static_signals > model.global_findings|length %}<p>Showing the first {{ model.global_findings|length }}; review the report for the rest.</p>{% endif %}</details>{% endif %}
+        <p class="tm-attribution">Graph rendering: Cytoscape.js 3.34.3, MIT license. Threat questions are deterministic rules applied to saved APK evidence.</p>
+    </main>
+    <script id="tmModelData" type="application/json">{{ model|tojson }}</script>
+    <script src="{{ url_for('static', filename='vendor/cytoscape/cytoscape.min.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/threat-model.js') }}"></script>
+    {% include '_scan_status.html' %}
+</body>
+</html>

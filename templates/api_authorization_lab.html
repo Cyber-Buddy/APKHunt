@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Apkhunt API authorization lab · {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell">
+    <nav class="navbar navbar-expand-lg fixed-top"><div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+        <div class="ms-auto d-flex gap-2"><a class="btn btn-outline-primary btn-sm" href="{{ url_for('api_explorer', scan_id=scan_id) }}">API evidence</a><a class="btn btn-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan_id) }}">Report</a></div>
+    </div></nav>
+    <main class="apkhunt-workbench">
+        <header class="apkhunt-workbench__head"><div><p class="apkhunt-kicker">Authorization evidence</p><h1>API authorization lab</h1><p class="apkhunt-workbench__meta">{{ apk_name }} · {{ scan_id }}</p></div></header>
+        <section class="evidence-strip" data-state="partial" aria-labelledby="labBoundary"><div class="evidence-strip__mark"><i class="bi bi-shield-check" aria-hidden="true"></i></div><div>
+            <span class="evidence-strip__eyebrow" id="labBoundary">Manual comparison · no outbound requests</span>
+            <p class="evidence-strip__body">Select one saved HTTPS route, name its authorized host, and paste four GET responses captured in your test setup. Apkhunt compares them locally. Pasted headers and bodies are not saved; a matching marker is a candidate until independently replayed and reviewed.</p>
+        </div></section>
+
+        {% if error %}<div class="alert alert-danger mt-3" role="alert">{{ error }}</div>{% endif %}
+        {% if result %}<section class="card mt-3" aria-labelledby="comparisonResult"><div class="card-body">
+            <p class="apkhunt-kicker">Comparison saved</p><h2 id="comparisonResult" class="h5">{{ result.decision | replace('_', ' ') | title }}</h2>
+            <p>{{ result.summary }}</p>
+            {% if result.unauthenticated_candidate %}<p class="mb-1"><strong>Anonymous access candidate:</strong> the pasted anonymous response contains the owner marker. This is not a confirmed unauthenticated finding.</p>{% endif %}
+            {% if result.object_authorization_candidate %}<p class="mb-1"><strong>Other-user object access candidate:</strong> the pasted other-user response contains the owner marker. This is not a confirmed object authorization finding.</p>{% endif %}
+            <p class="mb-0">Anonymous marker: <strong>{{ 'present' if result.comparison.anonymous.owner_marker_present else 'absent' }}</strong> · Other-user marker: <strong>{{ 'present' if result.comparison.other.owner_marker_present else 'absent' }}</strong> · Negative control: <strong>{{ 'passed' if result.negative_control_passed else 'failed' }}</strong> · Confirmed findings: <strong>0</strong></p>
+        </div></section>{% endif %}
+
+        {% if routes %}
+        <form class="mt-4" method="post" action="{{ url_for('api_authorization_lab', scan_id=scan_id) }}" autocomplete="off" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <section class="card mb-3" aria-labelledby="scopeHeading"><div class="card-body">
+                <p class="apkhunt-kicker">01 · Choose a route</p><h2 id="scopeHeading" class="h5">Scope and protected data</h2>
+                <div class="row g-3">
+                    <div class="col-lg-6"><label for="labRoute" class="form-label">Saved HTTPS route</label><select class="form-select" id="labRoute" name="route_id" required>
+                        <option value="">Select a route</option>{% for route in routes %}<option value="{{ route.id }}">GET {{ route.host }}{{ route.path }} · {{ route.source }}{% if route.line %}:{{ route.line }}{% endif %}</option>{% endfor %}
+                    </select><div class="form-text">The inventory is a lead; confirm the live request separately.</div></div>
+                    <div class="col-lg-6"><label for="labHosts" class="form-label">Exact authorized hostnames</label><input class="form-control" id="labHosts" name="scope_hosts" type="text" maxlength="1024" placeholder="api.example.com" spellcheck="false" required><div class="form-text">Separate multiple names with commas. Wildcards are not accepted.</div></div>
+                    <div class="col-lg-6"><label for="labDataClass" class="form-label">Protected data shown in owner response</label><select class="form-select" id="labDataClass" name="data_class" required><option value="">Select data class</option><option value="account_data">Account data</option><option value="private_document">Private document</option><option value="other_protected_data">Other protected data</option></select></div>
+                    <div class="col-lg-6"><label for="ownerMarker" class="form-label">Owner-specific response marker</label><input class="form-control" id="ownerMarker" name="owner_marker" type="password" minlength="8" maxlength="512" autocomplete="off" required aria-describedby="markerHelp"><div class="form-text" id="markerHelp">Use a unique value present in the owner's private response. Its SHA-256 digest is saved; the value is discarded.</div></div>
+                </div>
+                <div class="form-check mt-3"><input class="form-check-input" id="labAuthorized" type="checkbox" name="authorization_attested" value="yes" required><label class="form-check-label" for="labAuthorized">I am authorized to test the exact selected hostname and these accounts.</label></div>
+            </div></section>
+
+            <section aria-labelledby="captureHeading"><p class="apkhunt-kicker">02 · Compare the same resource</p><h2 id="captureHeading" class="h5">Paste captured GET requests and responses</h2><p class="text-secondary small">Owner, other-user, and anonymous URLs must be identical. Use an invalid or inaccessible resource on the same host as the negative control. Enter only authentication headers; leave anonymous headers blank. Response bodies are limited to 128 KiB each.</p>
+                <div class="row g-3">
+                    {% for role, label, help_text in [('owner', 'Owner', 'Authorized account for the target resource.'), ('other', 'Other user', 'A different signed-in account requesting the owner resource.'), ('anonymous', 'Anonymous', 'The same URL without any credential.'), ('control', 'Negative control', 'A different resource URL using the owner credentials; the owner marker must be absent.')] %}
+                    <div class="col-xl-6"><fieldset class="card h-100"><div class="card-body"><legend class="h6 mb-1">{{ label }}</legend><p class="text-secondary small">{{ help_text }}</p>
+                        <div class="mb-3"><label class="form-label" for="{{ role }}Url">Full GET URL</label><input class="form-control font-monospace" id="{{ role }}Url" name="{{ role }}_url" type="url" maxlength="2048" placeholder="https://api.example.com/v1/resource/123" spellcheck="false" required></div>
+                        {% if role != 'anonymous' %}<div class="mb-3"><label class="form-label" for="{{ role }}Headers">Authentication headers</label><textarea class="form-control font-monospace resize-none" id="{{ role }}Headers" name="{{ role }}_headers" rows="2" autocomplete="off" spellcheck="false" required></textarea></div>{% else %}<input type="hidden" name="anonymous_headers" value="">{% endif %}
+                        <div class="row g-2"><div class="col-4"><label class="form-label" for="{{ role }}Status">HTTP status</label><input class="form-control font-monospace" id="{{ role }}Status" name="{{ role }}_status" type="text" inputmode="numeric" pattern="[1-5][0-9]{2}" maxlength="3" placeholder="200" required></div><div class="col-8"><label class="form-label" for="{{ role }}Body">Full response body</label><textarea class="form-control font-monospace resize-none" id="{{ role }}Body" name="{{ role }}_body" rows="4" autocomplete="off" spellcheck="false" required></textarea></div></div>
+                    </div></fieldset></div>
+                    {% endfor %}
+                </div>
+            </section>
+            <div class="d-flex flex-wrap align-items-center gap-3 my-4"><button class="btn btn-primary" type="submit">Compare captured responses</button><span class="text-secondary small">Pasted credentials and bodies are discarded after comparison.</span></div>
+        </form>
+        {% else %}<section class="card mt-4"><div class="card-body"><h2 class="h5">No eligible HTTPS route</h2><p class="mb-0">This scan has no saved absolute HTTPS URL to select. Retrofit paths without a host need a confirmed deployment host before comparison. Return to <a href="{{ url_for('api_explorer', scan_id=scan_id) }}">API evidence</a>.</p></div></section>{% endif %}
+
+        <section class="card mt-4" aria-labelledby="caseHistory"><div class="card-body"><h2 id="caseHistory" class="h5">Saved comparisons</h2><p class="text-secondary small">The most recent 100 comparisons are retained per scan.</p>
+            {% if cases %}<ol class="mb-0">{% for case in cases %}<li class="mb-2"><strong>{{ case.route_path }}</strong> · {{ case.decision | replace('_', ' ') }} · {{ case.created_at }} <span class="text-secondary">(manual evidence; confirmed findings: 0)</span></li>{% endfor %}</ol>
+            {% else %}<p class="text-secondary mb-0">No comparison has been saved for this scan.</p>{% endif %}
+        </div></section>
+    </main>
+    {% include '_scan_status.html' %}
+</body>
+</html>

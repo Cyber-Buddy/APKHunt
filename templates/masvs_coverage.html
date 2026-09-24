@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP MASVS Coverage | Apkhunt Android APK Scanner</title>
+    <meta name="description" content="Explore Apkhunt's Android APK scanner coverage across all 24 OWASP MASVS controls. See static signals, inventory, and checks that still need runtime or backend evidence.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="OWASP MASVS Coverage | Apkhunt">
+    <meta property="og:description" content="A control-by-control view of Apkhunt's Android static analysis capabilities and their validation limits.">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell ah-home-shell">
+    <nav class="navbar ah-navbar" aria-label="Primary navigation">
+        <div class="container-fluid ah-nav-inner">
+            <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+            <span class="ah-nav-context">Android security workbench</span>
+            <div class="navbar-nav ms-auto flex-row align-items-center gap-1">
+                <a class="nav-link" href="{{ url_for('index') }}#upload">New scan</a>
+                <a class="nav-link" href="{{ url_for('scan_history_list') }}">History</a>
+                <a class="nav-link active" href="{{ url_for('masvs_coverage') }}" aria-current="page">MASVS coverage</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="ah-home-main ah-coverage-main">
+        <header class="ah-coverage-hero">
+            <div>
+                <p class="apkhunt-kicker">Android security / Standards coverage</p>
+                <h1>OWASP MASVS coverage<br><span>with the evidence visible.</span></h1>
+                <p>Apkhunt is an Android APK scanner that maps its static security signals to the Mobile Application Security Verification Standard. This page names what the scanner can observe for each control and what remains untested.</p>
+                <a class="ah-masvs-link" href="{{ url_for('index') }}#upload">Scan an APK <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+            <aside class="ah-coverage-summary" aria-label="Coverage summary">
+                <strong>{{ control_count }} controls</strong>
+                <span>{{ groups|length }} security groups</span>
+                <p>Zero controls are automatically verified end to end. Static matches start an investigation; they do not certify an app or prove a vulnerability.</p>
+            </aside>
+        </header>
+
+        <section class="ah-coverage-explainer" aria-labelledby="states-title">
+            <h2 id="states-title">How to read the map</h2>
+            <p><strong>Static signals</strong> identify a configuration or code lead. <strong>Inventory</strong> records relevant package facts without a security verdict. <strong>No control check</strong> means the scanner cannot assess that control's main property. Runtime, backend, or human evidence is needed before deciding whether an app meets a control.</p>
+        </section>
+
+        <div class="ah-coverage-grid">
+            {% for group in groups %}
+                <section class="ah-coverage-group" id="{{ group.slug }}" aria-labelledby="{{ group.slug }}-title">
+                    <div class="ah-coverage-group-head">
+                        <div><p class="ah-overline">MASVS-{{ group.slug|upper }}</p><h2 id="{{ group.slug }}-title">{{ group.name }}</h2></div>
+                        <span>{{ group.controls|length }} controls</span>
+                    </div>
+                    <p class="ah-coverage-group-summary">{{ group.summary }}</p>
+                    <ol class="ah-coverage-controls">
+                        {% for control_id, state, detail in group.controls %}
+                            <li>
+                                <div class="ah-coverage-control-top">
+                                    <a href="https://mas.owasp.org/MASVS/controls/{{ control_id }}/" rel="noopener noreferrer">{{ control_id }} <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                                    <span class="ah-coverage-state" data-state="{{ state|lower|replace(' ', '-') }}">{{ state }}</span>
+                                </div>
+                                <p>{{ detail }}</p>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </section>
+            {% endfor %}
+        </div>
+
+        <p class="ah-coverage-source">Framework: <a href="https://mas.owasp.org/MASVS/" rel="noopener noreferrer">OWASP Mobile Application Security Verification Standard</a>. Apkhunt is an independent tool and is not affiliated with OWASP.</p>
+    </main>
+
+    <footer class="ah-footer"><span>Apkhunt / Local Android analysis</span><span>Static evidence requires validation</span></footer>
+    {% include '_scan_status.html' %}
+</body>
+</html>

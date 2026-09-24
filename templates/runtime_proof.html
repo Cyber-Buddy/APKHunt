@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt runtime proof · {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell">
+    <nav class="navbar navbar-expand-lg fixed-top"><div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+        <div class="ms-auto d-flex gap-2"><a class="btn btn-outline-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan_id) }}">Back to report</a><a class="btn btn-primary btn-sm" href="{{ url_for('scan_history_list') }}">History</a></div>
+    </div></nav>
+    <main class="apkhunt-workbench">
+        <header class="apkhunt-workbench__head"><div><p class="apkhunt-kicker">Runtime observation</p><h1>Proof workbench</h1><p class="apkhunt-workbench__meta">{{ apk_name }} · {{ scan_id }}</p></div></header>
+        <section class="evidence-strip" data-state="partial"><div class="evidence-strip__mark"><i class="bi bi-record-circle" aria-hidden="true"></i></div><div>
+            <span class="evidence-strip__eyebrow">Local evidence · review required</span>
+            <p class="evidence-strip__body">Choose a test generated from this scan's entry points. ADB checks the installed APK hash before launch. A successful launch is reachability evidence under the ADB shell identity, not proof of a sensitive effect or an app-to-app authorization failure.</p>
+            <p class="evidence-strip__body mt-1">APK SHA-256: <code>{{ apk_hash or 'Unavailable in this report; re-scan required' }}</code>{% if package_name %} · Package: <code>{{ package_name }}</code>{% endif %}</p>
+        </div></section>
+
+        {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+        {% if message %}<div class="alert alert-success" role="status">{{ message }}</div>{% endif %}
+        <section class="card mb-4" aria-labelledby="deviceHeading"><div class="card-body p-4">
+            <p class="apkhunt-kicker">Device readiness</p><h2 class="h4" id="deviceHeading">{{ device_status.message }}</h2>
+            <p class="small text-muted mb-0">{% if device_status.state == 'ready' %}Select a device on a test below. USB debugging must remain authorized during the test.{% else %}Connect and authorize an Android device, then reload this page. The tests remain visible so you can review what will run.{% endif %}</p>
+            <a class="btn btn-outline-primary btn-sm mt-3" href="{{ url_for('runtime_proof_view', scan_id=scan_id) }}">Refresh device status</a>
+        </div></section>
+        <section class="mb-4" aria-labelledby="readyTestsHeading"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h4 mb-0" id="readyTestsHeading">Tests from this APK</h2><span class="evidence-tag">{{ graph_paths|length }} entry points</span></div>
+            {% for path in graph_paths %}<article class="card mb-3{% if selected_path == loop.index0 %} border-primary{% endif %}" id="path-{{ loop.index0 }}"><div class="card-body p-4">
+                <p class="apkhunt-kicker">{{ path.component_type }} · {{ path.exported }}</p><h3 class="h5 text-break">{{ path.component }}</h3>
+                {% if path.component_type in ['activity', 'activity-alias'] and path.exported == 'explicit true' and not path.manifest_permission.name %}
+                <p>Test whether the explicitly exported activity launches through ADB. The result will be attached to this component and the saved APK hash.</p>
+                <form method="post" action="{{ url_for('runtime_proof_view', scan_id=scan_id) }}" class="d-flex flex-wrap gap-2 align-items-end" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="operation" value="launch_activity"><input type="hidden" name="graph_path" value="path-{{ loop.index0 }}">
+                    {% if devices|length > 1 %}<div><label class="form-label" for="launch-device-{{ loop.index0 }}">Android device</label><select class="form-select" id="launch-device-{{ loop.index0 }}" name="device">{% for serial in devices %}<option value="{{ serial }}">{{ serial }}</option>{% endfor %}</select></div>{% elif devices %}<input type="hidden" name="device" value="{{ devices[0] }}"><span class="small text-muted">{{ devices[0] }}</span>{% endif %}
+                    <button class="btn btn-primary" type="submit" {% if not devices or not apk_hash %}disabled{% endif %}>Launch this activity</button>
+                </form>
+                {% else %}<p class="mb-0 text-muted">No safe automatic test is defined for this path yet. Its inputs and expected security effect need a specific test design.</p>{% endif %}
+            </div></article>{% else %}<div class="dependency-empty"><p>No testable entry point was saved. Re-scan the APK if this report predates the entry point graph.</p></div>{% endfor %}
+        </section>
+
+        <section aria-labelledby="proofSessionsHeading"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h4 mb-0" id="proofSessionsHeading">Saved sessions</h2><span class="evidence-tag">{{ sessions|length }} sessions</span></div>
+            {% if not sessions %}<div class="dependency-empty"><i class="bi bi-record-circle" aria-hidden="true"></i><p>No runtime observations have been saved for this APK.</p></div>{% endif %}
+            {% for session in sessions %}<article class="card mb-3"><div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between gap-2"><div><p class="apkhunt-kicker">{{ session.graph_path_label }}</p><h3 class="h5 mb-1">{{ session.action }}</h3><p class="small text-muted mb-0">{{ session.id }} · {{ session.status|replace('_', ' ') }}</p></div><span class="evidence-tag">{{ 'Paired for review' if session.positive and session.negative else 'Control pending' }}</span></div>
+                {% if session.launch_result %}<div class="mt-3"><p class="mb-1"><strong>ADB result:</strong> {{ 'Activity launched' if session.launch_result.launched else 'Launch failed' }}</p><p class="small text-muted">{{ session.launch_result.conclusion }}</p><code class="d-block text-break">{{ session.launch_result.command }}</code><pre class="ah-proof-log mt-2">{{ session.launch_result.output }}</pre></div>{% else %}
+                <div class="row g-3 mt-2">
+                    {% for phase in ['positive', 'negative'] %}<div class="col-lg-6"><div class="ah-proof-phase"><h4 class="h6">{{ 'Action run' if phase == 'positive' else 'Negative control' }}</h4>
+                        {% set observation = session[phase] %}
+                        {% if observation %}<p class="mb-1"><strong>Observed:</strong> {{ observation.observation }}</p>{% if observation.control_change %}<p class="mb-1"><strong>Changed condition:</strong> {{ observation.control_change }}</p>{% endif %}
+                        {% if observation.device_capture %}<p class="small mb-1">Device {{ observation.device_capture.device }} · process {{ observation.device_capture.package_pid or 'not running' }}</p><pre class="ah-proof-log">{{ observation.device_capture.foreground_activity }}{% if observation.device_capture.log_excerpt %}
+{{ observation.device_capture.log_excerpt }}{% endif %}</pre>{% if observation.device_capture.capture_error %}<p class="small text-warning">{{ observation.device_capture.capture_error }}</p>{% endif %}{% else %}<p class="small text-muted">Manual observation only; no device capture.</p>{% endif %}
+                        {% else %}<p class="small text-muted">Perform the named app action{% if phase == 'negative' %} with one changed input or condition{% endif %}, then capture what happened.</p>{% endif %}
+                        {% if phase != 'negative' or session.positive %}<form method="post" action="{{ url_for('runtime_proof_view', scan_id=scan_id) }}" novalidate>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <input type="hidden" name="operation" value="record"><input type="hidden" name="session_id" value="{{ session.id }}"><input type="hidden" name="phase" value="{{ phase }}">
+                            {% if phase == 'negative' %}<div class="mb-2"><label class="form-label" for="change-{{ session.id }}">One changed condition</label><input class="form-control" id="change-{{ session.id }}" name="control_change" maxlength="500" required placeholder="Remove the deep-link parameter"></div>{% endif %}
+                            <div class="mb-2"><label class="form-label" for="effect-{{ phase }}-{{ session.id }}">Visible effect</label><textarea class="form-control resize-none" id="effect-{{ phase }}-{{ session.id }}" name="observation" rows="3" maxlength="4000" required placeholder="State exactly what changed on screen or in the app"></textarea></div>
+                            <div class="mb-2"><label class="form-label" for="device-{{ phase }}-{{ session.id }}">Connected device (optional)</label><select class="form-select" id="device-{{ phase }}-{{ session.id }}" name="device"><option value="">Manual observation only</option>{% for device in devices %}<option value="{{ device }}">{{ device }}</option>{% endfor %}</select><div class="form-text">Run the action first. Capture reads device state; it does not launch or modify the app.</div></div>
+                            <button class="btn btn-outline-primary btn-sm" type="submit">Save {{ 'action' if phase == 'positive' else 'control' }} observation</button>
+                        </form>{% else %}<p class="small text-muted mb-0">Save the action run before recording its control.</p>{% endif %}
+                    </div></div>{% endfor %}
+                </div>
+                {% if session.positive and session.negative %}<p class="small mt-3 mb-0"><strong>Review state:</strong> Both runs are recorded. Compare the observed consumer effect and decide whether the changed condition caused the difference; Apkhunt has not independently validated impact.</p>{% endif %}
+                {% endif %}
+            </div></article>{% endfor %}
+        </section>
+    </main>
+    {% include '_scan_status.html' %}
+</body>
+</html>

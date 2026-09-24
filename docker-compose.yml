@@ -1,0 +1,26 @@
+name: apkhunt
+
+services:
+  apkhunt:
+    build: .
+    image: apkhunt:latest
+    ports:
+      - "127.0.0.1:5005:5005"
+    volumes:
+      - apk_uploads:/app/uploads
+      - apk_decompiled:/app/decompiled_apks
+      - apk_reports:/app/reports
+      - apk_state:/app/state
+    environment:
+      - SECRET_KEY=${SECRET_KEY:?Set a unique SECRET_KEY before starting Apkhunt}
+      - DEBUG_MODE=false
+      - JADX_THREADS=4
+      - MAX_CONTENT_LENGTH=209715200
+      - APKHUNT_STATE_DIR=/app/state
+    restart: unless-stopped
+
+volumes:
+  apk_uploads:
+  apk_decompiled:
+  apk_reports:
+  apk_state:

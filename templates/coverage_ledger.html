@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt coverage ledger · {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell">
+    <nav class="navbar navbar-expand-lg fixed-top"><div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+        <div class="ms-auto d-flex gap-2"><a class="btn btn-outline-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan_id) }}">Back to report</a><a class="btn btn-primary btn-sm" href="{{ url_for('scan_history_list') }}">History</a></div>
+    </div></nav>
+    <main class="apkhunt-workbench">
+        <header class="apkhunt-workbench__head"><div><p class="apkhunt-kicker">Saved scan evidence</p><h1>Coverage ledger</h1><p class="apkhunt-workbench__meta">{{ apk_name }} · {{ scan_id }}</p></div></header>
+        <section class="evidence-strip" data-state="{{ snapshot.status }}" aria-label="Source coverage details"><div class="evidence-strip__mark"><i class="bi bi-list-check" aria-hidden="true"></i></div><div>
+            <span class="evidence-strip__eyebrow">Scan completed · source coverage details</span>
+            <p class="evidence-strip__body">{{ snapshot.message }} APK members are discovered archive entries; extraction events show which were copied for secondary checks. Only rule-scan events prove a recovered file or rule was evaluated. This page does not rerun analysis.</p>
+            {% if snapshot.archive_error %}<p class="evidence-strip__body mt-1">APK inventory could not be read: {{ snapshot.archive_error }}.</p>{% endif %}
+            {% if snapshot.limits.apk_members_truncated or snapshot.limits.recovered_files_truncated %}<p class="evidence-strip__body mt-1">The saved listing stopped at {{ snapshot.limits.max_entries_per_inventory }} entries per inventory. Additional entries remain unlisted.</p>{% endif %}
+        </div></section>
+        <section class="row g-3 my-2" aria-label="Coverage counts">
+            <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body"><p class="apkhunt-kicker">Archive</p><strong class="h3 d-block mb-1">{{ snapshot.summary.apk_members_discovered }}</strong><span class="text-muted small">members discovered{% if snapshot.limits.apk_members_truncated %}; {{ snapshot.summary.apk_members_listed }} listed{% endif %}</span></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body"><p class="apkhunt-kicker">Recovered</p><strong class="h3 d-block mb-1">{{ snapshot.summary.recovered_files_listed }}</strong><span class="text-muted small">files listed{% if snapshot.limits.recovered_files_truncated %}; more unlisted{% endif %}</span></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body"><p class="apkhunt-kicker">Rule evaluation</p><strong class="h3 d-block mb-1">{{ snapshot.summary.files_evaluated }}</strong><span class="text-muted small">files with observed rule events</span></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body"><p class="apkhunt-kicker">Unknown</p><strong class="h3 d-block mb-1">{{ snapshot.summary.files_unknown }}</strong><span class="text-muted small">eligible files without an event</span></div></div></div>
+        </section>
+        <section class="card mb-4" aria-labelledby="toolRuns"><div class="card-header px-4 py-3"><h2 class="h5 mb-0" id="toolRuns">Decompiler attempts</h2></div><div class="card-body">
+            {% if snapshot.decompilers %}<ol class="mb-0">{% for run in snapshot.decompilers %}<li><strong>{{ run.tool }}</strong> — {{ run.status|replace('_', ' ') }}{% if run.exit_code is not none %}; exit {{ run.exit_code }}{% endif %}{% if run.duration_ms is not none %}; {{ run.duration_ms }} ms{% endif %}{% if run.error_count is not none %}; {{ run.error_count }} code errors{% endif %}{% if run.source_files_written is not none %}; {{ run.source_files_written }} source files written{% endif %}{% if run.smali_files_written is not none %}; {{ run.smali_files_written }} Smali files decoded; no Smali rules{% endif %}{% if run.work_units and run.work_units.total %}; {{ run.work_units.done }} / {{ run.work_units.total }} work units observed{% endif %}{% if run.diagnostic and run.diagnostic not in ['none', 'decompilation_errors'] %}; {{ run.diagnostic|replace('_', ' ') }}{% endif %}</li>{% endfor %}</ol>
+            {% else %}<p class="mb-0 text-muted">No decompiler telemetry was recorded for this scan.</p>{% endif %}
+            {% if snapshot.dex_recovery and (snapshot.dex_recovery.attempted or snapshot.dex_recovery.skipped) %}<p class="text-muted small mb-0 mt-2">Per-DEX recovery: {{ snapshot.dex_recovery.attempted }} attempted · {{ snapshot.dex_recovery.skipped }} skipped · {{ snapshot.dex_recovery.source_files_recovered }} source files added. {{ snapshot.dex_recovery.reason }}</p>{% endif %}
+            <p class="text-muted small mb-0 mt-2">A failed JADX attempt may leave partial recovered files. Its exit status does not measure the share of original code recovered.</p>
+        </div></section>
+        {% if snapshot.network_policy %}<section class="card mb-4" aria-labelledby="networkPolicy"><div class="card-header px-4 py-3"><h2 class="h5 mb-0" id="networkPolicy">Network policy evaluation</h2></div><div class="card-body"><p class="mb-1"><strong>{{ snapshot.network_policy.status|replace('_', ' ') }}</strong>{% if snapshot.network_policy.reference %} · {{ snapshot.network_policy.reference }}{% endif %}{% if snapshot.network_policy.evaluated_variants is defined %} · {{ snapshot.network_policy.evaluated_variants }} of {{ snapshot.network_policy.variant_count }} XML variants evaluated{% endif %}{% if snapshot.network_policy.signal_count is defined %} · {{ snapshot.network_policy.signal_count }} review signals{% endif %}</p>{% for limitation in snapshot.network_policy.limitations or [] %}<p class="small text-muted mb-1">{{ limitation }}</p>{% endfor %}</div></section>{% endif %}
+        <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Coverage inventory">
+            <a class="btn btn-sm {{ 'btn-primary' if kind == 'files' else 'btn-outline-primary' }}" href="{{ url_for('coverage_ledger_view', scan_id=scan_id, kind='files') }}"{% if kind == 'files' %} aria-current="page"{% endif %}>Recovered files</a>
+            <a class="btn btn-sm {{ 'btn-primary' if kind == 'members' else 'btn-outline-primary' }}" href="{{ url_for('coverage_ledger_view', scan_id=scan_id, kind='members') }}"{% if kind == 'members' %} aria-current="page"{% endif %}>APK members</a>
+            <a class="btn btn-sm {{ 'btn-primary' if kind == 'rules' else 'btn-outline-primary' }}" href="{{ url_for('coverage_ledger_view', scan_id=scan_id, kind='rules') }}"{% if kind == 'rules' %} aria-current="page"{% endif %}>Rules</a>
+        </nav>
+        <form class="ah-evidence-search" method="get" action="{{ url_for('coverage_ledger_view', scan_id=scan_id) }}" role="search" novalidate>
+            <input type="hidden" name="kind" value="{{ kind }}">
+            <label for="coverageQuery">Find a path, rule, or state</label><div class="ah-evidence-search__controls"><input class="form-control" id="coverageQuery" name="q" type="search" value="{{ query }}" maxlength="120"><button class="btn btn-primary" type="submit">Search</button>{% if query %}<a class="btn btn-outline-primary" href="{{ url_for('coverage_ledger_view', scan_id=scan_id, kind=kind) }}">Clear</a>{% endif %}</div>
+        </form>
+        <section class="card overflow-hidden" aria-labelledby="coverageEntries"><div class="card-header px-4 py-3 d-flex justify-content-between"><h2 id="coverageEntries" class="h5 mb-0">{{ 'Recovered files' if kind == 'files' else 'APK members' if kind == 'members' else 'Configured rules' }}</h2><span class="evidence-tag">{{ total }} match{{ '' if total == 1 else 'es' }}</span></div>
+            {% if rows %}<div class="table-responsive"><table class="table table-hover align-middle mb-0 ah-evidence-table"><caption class="visually-hidden">Saved {{ kind }} coverage inventory</caption>
+                {% if kind == 'files' %}<thead><tr><th scope="col">Recovered path</th><th scope="col">State</th><th scope="col">Rule evidence</th></tr></thead><tbody>{% for row in rows %}<tr><td class="ah-source-ref"><code>{{ row.path }}</code></td><td><span class="evidence-tag">{{ row.status|replace('_', ' ') }}</span>{% if row.reason %}<div class="small text-muted">{{ row.reason }}</div>{% endif %}</td><td><span class="small">{{ row.rule_ids|length }} evaluated · {{ row.applicable_rule_ids|length }} configured for extension</span>{% if row.rule_ids %}<div class="small text-muted">{{ row.rule_ids|join(', ') }}</div>{% endif %}</td></tr>{% endfor %}</tbody>
+                {% elif kind == 'members' %}<thead><tr><th scope="col">APK path</th><th scope="col">Kind</th><th scope="col">Uncompressed size</th><th scope="col">Raw extraction</th></tr></thead><tbody>{% for row in rows %}<tr><td class="ah-source-ref"><code>{{ row.path }}</code></td><td>{{ row.kind }}</td><td>{{ row.size_bytes }} bytes</td><td><span class="evidence-tag">{{ row.state|replace('_', ' ') }}</span>{% if row.reason %}<div class="small text-muted">{{ row.reason }}</div>{% endif %}</td></tr>{% endfor %}</tbody>
+                {% else %}<thead><tr><th scope="col">Rule</th><th scope="col">Target files seen</th><th scope="col">Evaluated files</th><th scope="col">State</th></tr></thead><tbody>{% for row in rows %}<tr><td><strong>{{ row.title }}</strong><div class="ah-source-ref">{{ row.id }} · {{ row.analysis_type }}</div></td><td>{{ row.applicable_files_discovered }}</td><td>{{ row.files_evaluated }}</td><td><span class="evidence-tag">{{ row.status|replace('_', ' ') }}</span>{% if row.reason %}<div class="small text-muted">{{ row.reason }}</div>{% endif %}</td></tr>{% endfor %}</tbody>{% endif %}
+            </table></div>{% else %}<div class="dependency-empty"><i class="bi bi-list-check" aria-hidden="true"></i><p>{{ 'No entry matched this search.' if query else 'No entries were saved in this inventory. Check the coverage state and decompiler attempts above.' }}</p></div>{% endif %}
+        </section>
+        {% if page_count > 1 %}<nav class="ah-evidence-pages" aria-label="Coverage pages"><span>Page {{ page }} of {{ page_count }}</span>{% if page > 1 %}<a class="btn btn-outline-primary btn-sm" href="{{ url_for('coverage_ledger_view', scan_id=scan_id, kind=kind, q=query, page=page-1) }}">Previous</a>{% endif %}{% if page < page_count %}<a class="btn btn-outline-primary btn-sm" href="{{ url_for('coverage_ledger_view', scan_id=scan_id, kind=kind, q=query, page=page+1) }}">Next</a>{% endif %}</nav>{% endif %}
+    </main>
+    {% include '_scan_status.html' %}
+</body>
+</html>

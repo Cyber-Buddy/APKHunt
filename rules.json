@@ -1,0 +1,985 @@
+[
+    {
+        "id": "MSTG-STORAGE-2",
+        "title": "Storage: Sensitive Data in World-Readable Storage",
+        "desc": "Sensitive data written to world-readable/writable locations. MODE_WORLD_READABLE and MODE_WORLD_WRITEABLE allow any app to read the data.",
+        "cwe": "CWE-922",
+        "patterns": [
+            "openFileOutput\\([^,]+,\\s*Context\\.MODE_WORLD_READABLE\\)",
+            "openFileOutput\\([^,]+,\\s*Context\\.MODE_WORLD_WRITEABLE\\)",
+            "getSharedPreferences\\([^,]+,\\s*(?:Context\\.)?MODE_WORLD_(?:READABLE|WRITEABLE)\\)",
+            "openOrCreateDatabase\\([^,]+,\\s*(?:Context\\.)?MODE_WORLD_(?:READABLE|WRITEABLE)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-STORAGE",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0001/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify if the data stored is indeed sensitive (e.g., credentials, PII, tokens).",
+            "MODE_WORLD_READABLE and MODE_WORLD_WRITEABLE are deprecated since API 17 and should never be used."
+        ],
+        "severityConditions": [
+            "If credentials, tokens, or PII are stored in world-readable locations, escalate to Critical."
+        ]
+    },
+    {
+        "id": "MSTG-STORAGE-3",
+        "title": "Storage: Sensitive Data in System Logs",
+        "desc": "A clearly named credential or personal-data value is passed as the message to an Android log sink. Static source cannot establish that this call runs in a release build or that the value is non-empty.",
+        "cwe": "CWE-532",
+        "patterns": [
+            "\\b(?:Log\\.(?:d|e|i|v|w|wtf|println)|System\\.(?:out|err)\\.print(?:ln)?)\\s*\\("
+        ],
+        "post_filter": "sensitive_log_payload",
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-STORAGE",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0003/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Trace the logged value to a real credential, session value, or personal-data source; a sensitive identifier is still only a static lead.",
+            "Confirm that the call executes in a release build and that the log message actually includes the value, rather than a redacted form."
+        ],
+        "severityConditions": [
+            "If actual user credentials, active session tokens, or PII are logged in production builds, escalate to High or Critical."
+        ]
+    },
+    {
+        "id": "MSTG-PLATFORM-1_extended_permissions",
+        "title": "Platform: Dangerous Permission Inventory",
+        "desc": "Dangerous permissions are an attack-surface and privacy inventory. A request alone is not proof of unnecessary access or data misuse.",
+        "cwe": "CWE-250",
+        "patterns": [
+            "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"",
+            "<uses-permission android:name=\"android.permission.READ_SMS\"",
+            "<uses-permission android:name=\"android.permission.CAMERA\"",
+            "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"",
+            "<uses-permission android:name=\"android.permission.CALL_PHONE\"",
+            "<uses-permission android:name=\"android.permission.READ_CONTACTS\"",
+            "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"",
+            "<uses-permission android:name=\"android.permission.READ_CALENDAR\"",
+            "<uses-permission android:name=\"android.permission.READ_CALL_LOG\""
+        ],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Info",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-PLATFORM/MASTG-TEST-0024/",
+        "analysis_type": "regex_manifest",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "For each permission, verify its use in the codebase.",
+            "Assess if the app's described functionality justifies the permission.",
+            "Ensure the app follows runtime permission request best practices."
+        ],
+        "severityConditions": [
+            "If a dangerous permission is requested but found to be unused or not justified by any legitimate app feature, escalate to High."
+        ]
+    },
+    {
+        "id": "MSTG-PLATFORM-4_specific_component_export",
+        "title": "Platform: Exported Component Inventory",
+        "desc": "Inventory marker for exported Activities, Services, and Receivers. It is retained for rule-catalog coverage but is not emitted as a security finding; structural rules identify missing manifest access controls.",
+        "cwe": "CWE-926",
+        "patterns": [
+            "<(activity|service|receiver)[^>]*android:exported=\"true\""
+        ],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-PLATFORM/MASTG-TEST-0029/",
+        "analysis_type": "regex_manifest",
+        "report_as_finding": false,
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Check for associated `android:permission` attribute and its `protectionLevel`.",
+            "Assess the functionality: does it handle sensitive data or perform critical actions?",
+            "If it has an `<intent-filter>`, it's more likely to be accessible by other apps."
+        ],
+        "severityConditions": [
+            "If a sensitive component is exported and lacks a restrictive permission, escalate to High or Critical."
+        ]
+    },
+    {
+        "id": "MSTG-CRYPTO-1.1_weak_symmetric_crypto",
+        "title": "Crypto: Weak Symmetric Encryption Algorithm or Mode",
+        "desc": "Use of weak symmetric encryption algorithms (DES, RC4) or insecure modes (ECB) detected. These are cryptographically broken.",
+        "cwe": "CWE-327",
+        "patterns": [
+            "Cipher\\.getInstance\\(\"DES\"",
+            "Cipher\\.getInstance\\(\"RC4\"",
+            "Cipher\\.getInstance\\(\"(?!AES/)[^/]+/ECB/[^/]+\"\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-CRYPTO",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-CRYPTO/MASTG-TEST-0013/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify if the weak algorithm/mode is used for encrypting sensitive data.",
+            "Check if secure alternatives like AES-GCM are feasible.",
+            "Investigate where the encrypted data is stored and how it is transmitted."
+        ],
+        "severityConditions": [
+            "If used for persistent storage or network transmission of sensitive data, escalate to Critical."
+        ]
+    },
+    {
+        "id": "MSTG-CRYPTO-4.1_weak_hashing_algo",
+        "title": "Crypto: Insecure Hashing Algorithm (MD5/SHA-1)",
+        "desc": "Use of cryptographically broken hashing algorithms (MD5, SHA-1) for security-sensitive operations. Both have known collision attacks.",
+        "cwe": "CWE-328",
+        "patterns": [
+            "MessageDigest\\.getInstance\\(\"MD5\"\\)",
+            "MessageDigest\\.getInstance\\(\"SHA-1\"\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-CRYPTO",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-CRYPTO/MASTG-TEST-0014/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Determine the purpose: password storage, integrity checks, digital signatures, or non-security features (checksums, ETags).",
+            "If used for non-security purposes (file checksums, cache keys), this is acceptable."
+        ],
+        "severityConditions": [
+            "If used for password hashing or integrity of sensitive data, escalate to High or Critical."
+        ]
+    },
+    {
+        "id": "MSTG-CRYPTO-5.1_hardcoded_crypto_keys",
+        "title": "Crypto: Hardcoded Cryptographic Keys",
+        "desc": "Cryptographic keys appear to be hardcoded within the application code, making them easily extractable by anyone who decompiles the APK.",
+        "cwe": "CWE-321",
+        "patterns": [
+            "new SecretKeySpec\\(\\s*\".*\"\\.getBytes\\(",
+            "byte\\[\\]\\s+\\w*key\\w*\\s*=\\s*\\{[^}]*\\};",
+            "String\\s+\\w*key\\w*\\s*=\\s*\"[a-zA-Z0-9/+]{16,}\";"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-CRYPTO",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-CRYPTO/MASTG-TEST-0015/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify if the hardcoded material is indeed a cryptographic key and not a generic string or test data.",
+            "Assess if this key protects sensitive data or access to sensitive functionality.",
+            "Check if Android Keystore or other secure key management could be used instead."
+        ],
+        "severityConditions": [
+            "If the key protects user data, application secrets, or is used for auth and is easily extractable, escalate to Critical."
+        ]
+    },
+    {
+        "id": "MSTG-AUTH-1.1_weak_client_password_policy",
+        "title": "Auth: Weak Client-Side Password Policy Enforcement",
+        "desc": "Client-side code enforces a weak password policy (e.g., minimum length < 8). This is a UX concern; server-side validation is the real control.",
+        "cwe": "CWE-521",
+        "patterns": [
+            "password\\.length\\(\\)\\s*<\\s*[0-7]",
+            "if\\s*\\(\\s*!password\\.matches\\(\".*[A-Z].*\"\\)\\s*\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Low",
+        "masvs": "MASVS-AUTH",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-AUTH/MASTG-TEST-0017/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Client-side password checks are primarily UX. Server-side validation is what matters.",
+            "Check if server-side enforces strong password policies."
+        ],
+        "severityConditions": [
+            "If there's no server-side password policy and client-side rules are the only enforcement, escalate to Medium."
+        ]
+    },
+    {
+        "id": "MSTG-AUTH-X.1_insecure_token_storage",
+        "title": "Auth: Insecure Storage of Session Tokens/API Keys",
+        "desc": "Session tokens or sensitive API keys stored in SharedPreferences without encryption. Accessible via ADB backup or on rooted devices.",
+        "cwe": "CWE-922",
+        "patterns": [
+            "getSharedPreferences\\([^)]+\\)\\.edit\\(\\)\\.putString\\([^,]*\"(?i:token|session|apikey|secret|auth|bearer)[^\"]*\"",
+            "PreferenceManager\\.getDefaultSharedPreferences\\([^)]+\\)\\.edit\\(\\)\\.putString\\([^,]*\"(?i:token|session|apikey|secret|auth|bearer)[^\"]*\""
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-AUTH",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0001/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify the stored value is indeed a sensitive token/key, not a UI preference.",
+            "Check if EncryptedSharedPreferences or Android Keystore is used.",
+            "Assess the privileges associated with the token if compromised."
+        ],
+        "severityConditions": [
+            "If a long-lived, high-privilege session token is stored in plaintext SharedPreferences, escalate to Critical."
+        ]
+    },
+    {
+        "id": "MSTG-NETWORK-3.1_improper_hostname_verification",
+        "title": "Network: Improper Hostname Verification (MitM)",
+        "desc": "Missing or improper hostname verification when establishing TLS connections. Allows Man-in-the-Middle attacks by accepting certificates for any host.",
+        "cwe": "CWE-297",
+        "patterns": [
+            "new HostnameVerifier\\(\\)\\s*\\{\\s*@Override\\s*public boolean verify\\(String hostname, SSLSession session\\)\\s*\\{\\s*return true;\\s*\\}\\s*\\}",
+            "setHostnameVerifier\\(SSLSocketFactory\\.ALLOW_ALL_HOSTNAME_VERIFIER\\)",
+            "hostnameVerifier\\s*=\\s*\\(\\s*hostname\\s*,\\s*session\\s*\\)\\s*->\\s*true"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-NETWORK",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-NETWORK/MASTG-TEST-0021/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify this all-trusting HostnameVerifier is used for connections handling sensitive data.",
+            "Check if this is a global setting or specific to certain connections.",
+            "Confirm this is not debug/test-only code stripped in release builds."
+        ],
+        "severityConditions": [
+            "If this allows MitM on connections transmitting credentials, tokens, or PII, escalate to Critical."
+        ]
+    },
+    {
+        "id": "MSTG-PLATFORM-JS-INT.1_webview_js_interface",
+        "title": "Platform: WebView JavaScript Interface Exposed",
+        "desc": "WebView exposes a JavaScript interface to web content. If the content is untrusted or attacker-controlled, this bridges JavaScript to native code execution.",
+        "cwe": "CWE-749",
+        "patterns": [
+            "@android\\.webkit\\.JavascriptInterface",
+            "addJavascriptInterface\\("
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-PLATFORM/MASTG-TEST-0033/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Identify which methods are exposed and what they can do (file access, native APIs, payments).",
+            "Determine the source of content loaded into the WebView (remote URLs vs. local trusted assets).",
+            "For apps targeting API < 17, ALL public methods of the bound class are exposed, not just @JavascriptInterface methods."
+        ],
+        "severityConditions": [
+            "If exposed methods allow code execution, data access, or sensitive actions with untrusted content, escalate to High or Critical."
+        ]
+    },
+    {
+        "id": "MANIFEST_EXPORTED_ACTIVITY_NO_PERMISSION_MEDIUM",
+        "title": "Manifest: Exported Activity Lacks a Declared Permission",
+        "desc": "An exported Activity does not declare android:permission. This is a review signal; exploitability depends on the Activity's reachable functionality and any authorization it performs.",
+        "cwe": "CWE-926",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/guide/topics/manifest/manifest-element#exported",
+        "analysis_type": "structural_manifest",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify if the component handles sensitive data or performs critical actions.",
+            "Check if an <intent-filter> is present, making it more likely to be targeted.",
+            "Assess what a malicious app could achieve by invoking this component."
+        ],
+        "severityConditions": [
+            "If the Activity provides sensitive functionality without authorization, validate the reachable action before escalating severity."
+        ]
+    },
+    {
+        "id": "MANIFEST_CUSTOM_PERMISSION_NORMAL_MEDIUM",
+        "title": "Manifest: Custom Permission Uses Normal Protection",
+        "desc": "Custom permission defined with android:protectionLevel='normal'. Normal permissions are auto-granted and offer zero protection for component access control.",
+        "cwe": "CWE-280",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "analysis_type": "structural_manifest",
+        "reference": "https://developer.android.com/guide/topics/manifest/permission-element#plevel",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Identify which components are protected by this custom permission.",
+            "Determine if the functionality protected is sensitive.",
+            "Consider if 'signature' or 'dangerous' would be more appropriate."
+        ],
+        "severityConditions": [
+            "If this permission protects sensitive functionality, verify reachability and impact before escalating severity."
+        ]
+    },
+    {
+        "id": "MANIFEST_BACKUP_POLICY_REVIEW_INFO",
+        "title": "Manifest: Backup Policy Requires Data Review",
+        "desc": "Backup is enabled by default; the security question is whether sensitive app data is included in cloud backup or device transfer under the release rules.",
+        "cwe": "CWE-312",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Info",
+        "masvs": "MASVS-STORAGE",
+        "reference": "https://developer.android.com/guide/topics/data/autobackup",
+        "analysis_type": "structural_manifest",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Check whether sensitive app data is actually included in cloud backup or device transfer.",
+            "For Android 12 and later, review android:dataExtractionRules separately from older fullBackupContent exclusions.",
+            "Account for device maker behavior where allowBackup=false may not disable device-to-device transfer."
+        ],
+        "severityConditions": [
+            "If confirmed in production with sensitive data included in a recoverable backup, validate the practical extraction path before escalating severity."
+        ]
+    },
+    {
+        "id": "MANIFEST_DEBUGGABLE_RELEASE_HIGH",
+        "title": "Manifest: App Is Debuggable",
+        "desc": "Application is debuggable (android:debuggable='true') in production. Allows full app access via ADB, Frida attachment, and memory inspection.",
+        "cwe": "CWE-489",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-RESILIENCE",
+        "reference": "https://developer.android.com/guide/topics/manifest/application-element#debug",
+        "analysis_type": "structural_manifest",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Determine if this is a production/release build.",
+            "Debug builds distributed to users represent a Critical issue."
+        ],
+        "severityConditions": [
+            "If confirmed in a production build, it's Critical."
+        ]
+    },
+    {
+        "id": "MANIFEST_TASK_AFFINITY_REVIEW_MEDIUM",
+        "title": "Manifest: Custom Task Affinity Requires Review",
+        "desc": "An Activity uses a custom android:taskAffinity. This configuration alone is not proof of task hijacking; verify reparenting, launch mode, and a sensitive UI flow.",
+        "cwe": "CWE-925",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/guide/components/activities/tasks-and-back-stack#Affinities",
+        "analysis_type": "structural_manifest",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Identify which Activities have a custom taskAffinity.",
+            "Verify if android:allowTaskReparenting is also true (increases risk).",
+            "Check if launchMode is singleInstance or singleTask."
+        ],
+        "severityConditions": [
+            "If a login/payment activity has custom taskAffinity and could be reparented, severity is High."
+        ]
+    },
+    {
+        "id": "MANIFEST_EXPORTED_SERVICE_RECEIVER_NO_PERMISSION_MEDIUM",
+        "title": "Manifest: Exported Service or Receiver Lacks a Declared Permission",
+        "desc": "An exported Service or BroadcastReceiver has no declared permission. Verify the reachable operation and in-component authorization before classifying this as exploitable.",
+        "cwe": "CWE-926",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "analysis_type": "structural_manifest",
+        "reference": "https://developer.android.com/guide/components/bound-services#Permissions",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Identify the functionality of the exported service or receiver.",
+            "Review if any permission is declared and check its protectionLevel.",
+            "Determine if the component can be triggered to perform privileged actions."
+        ],
+        "severityConditions": [
+            "If a service/receiver handling critical operations is exported without a strong permission, severity is High."
+        ]
+    },
+    {
+        "id": "MANIFEST_EXPORTED_CONTENT_PROVIDER_NO_PERMISSION_MEDIUM",
+        "title": "Manifest: Exported Content Provider Lacks Declared Access Controls",
+        "desc": "An exported Content Provider lacks declared read, write, or path permissions. Verify the provider's data, URI grants, and runtime checks before asserting cross-app access.",
+        "cwe": "CWE-732",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "analysis_type": "structural_manifest",
+        "reference": "https://developer.android.com/guide/topics/providers/content-provider-basics#Permissions",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Trace the exported provider authority and its read/write methods to sensitive data or actions.",
+            "Check application-level, provider-level, and path permissions and their protection levels.",
+            "grantUriPermissions permits temporary grants; it does not protect general access to an exported provider."
+        ],
+        "severityConditions": [
+            "If a provider exposing sensitive data is exported without robust permissions, severity is High."
+        ]
+    },
+    {
+        "id": "MANIFEST_USES_CLEARTEXT_TRAFFIC_MEDIUM",
+        "title": "Manifest: Cleartext Traffic Explicitly Allowed Without Network Policy",
+        "desc": "The manifest explicitly enables cleartext traffic and does not link a Network Security Configuration. This is an effective configuration lead, not proof of transmitted data.",
+        "cwe": "CWE-319",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-NETWORK",
+        "masvs_controls": ["MASVS-NETWORK-1"],
+        "maswe": ["MASWE-0026"],
+        "mastg_tests": ["MASTG-TEST-0235"],
+        "analysis_type": "structural_manifest",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-NETWORK/MASTG-TEST-0235/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Confirm the target platform honors this manifest flag; a linked Network Security Configuration takes precedence on Android 7 and newer.",
+            "Determine if the app transmits sensitive data (credentials, PII, tokens).",
+            "If cleartext is needed for legacy domains, ensure it's restricted only to those domains in NSC."
+        ],
+        "severityConditions": [
+            "If cleartext traffic is allowed globally and sensitive data is transmitted, escalate to High or Critical."
+        ]
+    },
+    {
+        "id": "MANIFEST_DEEPLINK_VALIDATION_INFO",
+        "title": "Manifest: Deep Link Handler Requires Validation Review",
+        "desc": "Deep link intent-filters are present. Security depends on robust validation and authorization in the handling component.",
+        "cwe": "CWE-20",
+        "patterns": [
+            "<intent-filter>\\s*<data android:scheme=\"[^\"]+\""
+        ],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Info",
+        "masvs": "MASVS-PLATFORM",
+        "analysis_type": "structural_manifest",
+        "reference": "https://developer.android.com/training/app-links/deep-linking#validation",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Review the target Activity/Service: Does it validate all parameters from the URI?",
+            "Does the handler perform authentication/authorization before acting on the deep link?"
+        ],
+        "severityConditions": [
+            "If the handler takes sensitive actions based on unvalidated URI parameters, escalate to High/Critical."
+        ]
+    },
+    {
+        "id": "MSTG-PLATFORM-6_webview_dangerous_file_access",
+        "title": "Platform: WebView Dangerous File Access Enabled",
+        "desc": "WebView allows JavaScript in file:// context to access other local files. Enables local file inclusion and data exfiltration if the WebView loads file:// URLs.",
+        "cwe": "CWE-829",
+        "patterns": [
+            "setAllowFileAccessFromFileURLs\\s*\\(\\s*true\\s*\\)",
+            "setAllowUniversalAccessFromFileURLs\\s*\\(\\s*true\\s*\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-PLATFORM/MASTG-TEST-0032/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify if WebView loads file:// URLs. If so, JavaScript can read arbitrary local files.",
+            "If only loading trusted HTTPS content, risk is lower but these settings should still be false."
+        ],
+        "severityConditions": [
+            "If the WebView loads file:// URLs or user-controlled content, escalate to Critical."
+        ]
+    },
+    {
+        "id": "MSTG-NETWORK-5_onreceivedsslerror_proceeds",
+        "title": "Network: SSL Error Handler Accepts Invalid Certificates",
+        "desc": "The WebViewClient's onReceivedSslError handler calls proceed(), accepting invalid SSL certificates. This completely disables TLS verification for WebView HTTPS connections.",
+        "cwe": "CWE-295",
+        "patterns": [
+            "onReceivedSslError[\\s\\S]*?\\.proceed\\s*\\("
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-NETWORK",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-NETWORK/MASTG-TEST-0021/",
+        "multiline_window": 25,
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Confirm the handler calls proceed() instead of cancel().",
+            "The correct behavior is handler.cancel() when certificate validation fails.",
+            "Google Play will reject apps with this pattern."
+        ],
+        "severityConditions": [
+            "This disables TLS verification for all WebView HTTPS connections — always High or Critical."
+        ]
+    },
+    {
+        "id": "MSTG-NETWORK-4_user_trust_anchors",
+        "title": "Network: Linked Release Policy Trusts User CAs",
+        "desc": "The manifest-linked Network Security Configuration explicitly trusts user-installed CAs outside debug-overrides. Identify an affected connection before claiming interception.",
+        "cwe": "CWE-295",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-NETWORK",
+        "masvs_controls": ["MASVS-NETWORK-1"],
+        "maswe": ["MASWE-0027"],
+        "mastg_tests": ["MASTG-TEST-0286"],
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-NETWORK/MASTG-TEST-0286/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Confirm the resolved XML is the resource selected on the tested device/API level.",
+            "Identify the affected base/domain configuration and the data sent to those hosts.",
+            "Check whether a user-installed CA is accepted during a controlled release-build connection; debug-overrides alone are not a release issue."
+        ],
+        "severityConditions": [
+            "Escalate only when a reachable release connection trusts an attacker-controlled user CA and exposes sensitive traffic."
+        ],
+        "analysis_type": "structural_network_policy"
+    },
+    {
+        "id": "MSTG-CRYPTO-6_weak_random_security_context",
+        "title": "Crypto: Insecure Random in Security Context",
+        "desc": "Use of java.util.Random for operations that appear security-sensitive (tokens, keys, nonces). java.util.Random is predictable and unsuitable for cryptography.",
+        "cwe": "CWE-330",
+        "patterns": [
+            "new\\s+Random\\s*\\(\\).*(?i:token|key|nonce|salt|iv|secret|password|session|otp|csrf)",
+            "Math\\.random\\s*\\(\\).*(?i:token|key|nonce|salt|iv|secret|password|session|otp|csrf)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-CRYPTO",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-CRYPTO/MASTG-TEST-0016/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify the random value is used for security: tokens, keys, IVs, nonces, OTPs.",
+            "Use SecureRandom instead of java.util.Random for any security context."
+        ],
+        "severityConditions": [
+            "If used for session tokens, encryption IVs, or cryptographic key derivation, this is High."
+        ]
+    },
+    {
+        "id": "MSTG-STORAGE-5_sensitive_input_missing_no_suggestions",
+        "title": "Storage: Sensitive Input Field Allows Keyboard Cache",
+        "desc": "Input field for sensitive data (password, PIN, card) uses TYPE_CLASS_TEXT, allowing keyboard to cache and suggest previously entered values.",
+        "cwe": "CWE-525",
+        "patterns": [
+            "(?i)(password|pin|passphrase|pwd|card|cvv|ssn|secret).*?\\.setInputType\\s*\\(\\s*InputType\\.TYPE_CLASS_TEXT\\s*\\)",
+            "(?i)(password|pin|passphrase|pwd|card|cvv|ssn|secret).*?\\.setInputType\\s*\\(\\s*0x00000001\\s*\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-STORAGE",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0005/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify the field is used for passwords, PINs, or other sensitive data.",
+            "Use textPassword or textNoSuggestions input type to prevent keyboard caching."
+        ],
+        "severityConditions": [
+            "If the field handles credentials or payment data, escalate to High."
+        ]
+    },
+    {
+        "id": "MSTG-PLATFORM-4_pendingintent_mutable",
+        "title": "Platform: Mutable PendingIntent (Intent Hijacking)",
+        "desc": "PendingIntent created with FLAG_MUTABLE allows the recipient to modify the Intent contents. Use FLAG_IMMUTABLE unless the PendingIntent must be modified by the receiver.",
+        "cwe": "CWE-94",
+        "patterns": [
+            "PendingIntent\\.(getActivity|getService|getBroadcast|getForegroundService)\\s*\\([^)]*FLAG_MUTABLE",
+            "PendingIntent\\.(getActivity|getService|getBroadcast)\\s*\\([^)]*0x02000000"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-PLATFORM/MASTG-TEST-0030/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "FLAG_MUTABLE allows the recipient to modify the Intent extras and target.",
+            "Use FLAG_IMMUTABLE when the PendingIntent does not need modification.",
+            "For notification updates, FLAG_MUTABLE may be required but the base Intent must be explicit."
+        ],
+        "severityConditions": [
+            "If the PendingIntent carries sensitive extras or targets a privileged component, escalate to High."
+        ]
+    },
+    {
+        "id": "NETWORK_SECURITY_CLEARTEXT_DOMAIN_MEDIUM",
+        "title": "Network Security Config: Linked Policy Permits Cleartext",
+        "desc": "The manifest-linked Network Security Configuration explicitly permits cleartext globally or for a named domain. Static configuration does not prove that traffic is sent.",
+        "cwe": "CWE-319",
+        "patterns": [],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-NETWORK",
+        "masvs_controls": ["MASVS-NETWORK-1"],
+        "maswe": ["MASWE-0026"],
+        "mastg_tests": ["MASTG-TEST-0235"],
+        "analysis_type": "structural_network_policy",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-NETWORK/MASTG-TEST-0235/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Identify the affected domain and whether the configuration applies to production traffic.",
+            "Capture a controlled network trace to establish whether cleartext traffic is actually sent.",
+            "Confirm whether credentials, tokens, or personal data can reach the cleartext channel."
+        ],
+        "severityConditions": [
+            "Escalate only after a controlled observation shows sensitive production traffic sent in cleartext."
+        ]
+    },
+    {
+        "id": "NETWORK_SECURITY_EXPIRED_PIN_SET_REVIEW",
+        "title": "Network Security Config: Linked Certificate Pins Have Expired",
+        "desc": "A manifest-linked domain pin-set contains pins whose expiration date has passed, so that pin-set no longer enforces identity pinning. First-party ownership and active use of the domain still require validation.",
+        "cwe": "CWE-295",
+        "patterns": [],
+        "extensions": [".xml"],
+        "severity": "Medium",
+        "masvs": "MASVS-NETWORK",
+        "masvs_controls": ["MASVS-NETWORK-2"],
+        "maswe": ["MASWE-0028"],
+        "mastg_tests": ["MASTG-TEST-0243"],
+        "analysis_type": "structural_network_policy",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-NETWORK/MASTG-TEST-0243/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Confirm the affected domain is first-party and the app still connects to it.",
+            "Verify the tested device selects this Network Security Configuration resource variant.",
+            "Observe whether a controlled release connection accepts a valid but unpinned certificate."
+        ],
+        "severityConditions": [
+            "Escalate only after a relevant first-party connection is shown to rely on expired pins."
+        ]
+    },
+    {
+        "id": "WEBVIEW_MIXED_CONTENT_ALWAYS_ALLOW_MEDIUM",
+        "title": "WebView: Mixed Content Is Explicitly Allowed",
+        "desc": "WebView is configured to allow active or passive mixed content. This is a static exposure signal; confirm that HTTPS content is loaded and that HTTP subresources are reachable before claiming an impact.",
+        "cwe": "CWE-319",
+        "patterns": [
+            "setMixedContentMode\\s*\\(\\s*WebSettings\\.MIXED_CONTENT_ALWAYS_ALLOW\\s*\\)",
+            "setMixedContentMode\\s*\\(\\s*0\\s*\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-NETWORK",
+        "reference": "https://developer.android.com/reference/android/webkit/WebSettings#setMixedContentMode(int)",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify the affected WebView loads HTTPS content in the release build.",
+            "Confirm whether an attacker can influence an HTTP subresource or redirect.",
+            "Prefer MIXED_CONTENT_NEVER_ALLOW unless a documented compatibility requirement exists."
+        ],
+        "severityConditions": [
+            "Escalate after demonstrating attacker-controlled mixed content in a security-sensitive WebView flow."
+        ]
+    },
+    {
+        "id": "WEBVIEW_SAFE_BROWSING_DISABLED_MEDIUM",
+        "title": "WebView: Safe Browsing Is Disabled",
+        "desc": "The manifest disables Android WebView Safe Browsing. This reduces a defense-in-depth control but does not by itself establish a malicious navigation path.",
+        "cwe": "CWE-693",
+        "patterns": [
+            "<meta-data[^>]+android:name=[\"']android\\.webkit\\.WebView\\.EnableSafeBrowsing[\"'][^>]+android:value=[\"']false[\"']"
+        ],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/reference/android/webkit/WebSettings#setSafeBrowsingEnabled(boolean)",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Verify the metadata is present in the release manifest.",
+            "Identify whether the app permits attacker-controlled WebView destinations.",
+            "Re-enable Safe Browsing unless the product has a documented exception and compensating control."
+        ],
+        "severityConditions": [
+            "Combine with an independently validated untrusted WebView navigation path before escalating severity."
+        ]
+    },
+    {
+        "id": "FILEPROVIDER_ROOT_PATH_MEDIUM",
+        "title": "FileProvider: Root Path Is Broadly Shared",
+        "desc": "A FileProvider paths configuration uses root-path, which can expose a broad filesystem subtree when a URI is granted. Verify exported state, grant scope, and reachable URI construction before asserting file disclosure.",
+        "cwe": "CWE-22",
+        "patterns": [
+            "<root-path(?:\\s|>)"
+        ],
+        "extensions": [
+            ".xml"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/reference/androidx/core/content/FileProvider",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Map the root-path XML resource to its FileProvider declaration.",
+            "Verify which URIs can be generated and which receiving apps receive a grant.",
+            "Replace broad roots with the narrowest named path required by the sharing flow."
+        ],
+        "severityConditions": [
+            "Escalate after a controlled second-app test reads a file outside the intended sharing scope."
+        ]
+    },
+    {
+        "id": "INTENT_REDIRECTION_PARCELABLE_MEDIUM",
+        "title": "Intent: Nested Parcelable Intent Is Forwarded",
+        "desc": "Code reads a Parcelable or Serializable extra and forwards it with startActivity. This can be intent redirection when the nested Intent originates from an untrusted caller, so source and destination authorization must be traced.",
+        "cwe": "CWE-939",
+        "patterns": [
+            "get(?:Parcelable|Serializable)Extra[\\s\\S]{0,1500}startActivity\\s*\\("
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/privacy-and-security/risks/intent-redirection",
+        "multiline_window": 30,
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Determine whether the extra can originate from another application or an attacker-controlled deep link.",
+            "Trace the nested Intent target and extras to the final component.",
+            "Use explicit intents or validate the component and extras before forwarding."
+        ],
+        "severityConditions": [
+            "Escalate after a distinct attacker application reaches an unauthorized internal component or action."
+        ]
+    },
+    {
+        "id": "CRYPTO_AES_ECB_MEDIUM",
+        "title": "Crypto: AES ECB Mode Is Requested",
+        "desc": "Cipher configuration requests AES in ECB mode. ECB leaks block patterns and is unsuitable for sensitive application data, but validate the call path and protected data before assigning a final impact.",
+        "cwe": "CWE-327",
+        "patterns": [
+            "getInstance\\s*\\(\\s*[\"']AES/ECB(?:/[^\"']*)?[\"']"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-CRYPTO",
+        "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-CRYPTO/MASTG-TEST-0013/",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Trace the Cipher instance to the data it encrypts and the mode used in the release path.",
+            "Verify whether repeated plaintext blocks can be attacker-observed or chosen.",
+            "Use an authenticated mode such as AES-GCM with a unique nonce where the data model permits."
+        ],
+        "severityConditions": [
+            "Escalate only after confirming sensitive data is encrypted with ECB in a reachable release flow."
+        ]
+    },
+    {
+        "id": "NETWORK_EMPTY_TRUST_MANAGER_HIGH",
+        "title": "Network: Empty Server Certificate Validation Method",
+        "desc": "An empty checkServerTrusted implementation is a static signal that a custom TLS trust manager may accept arbitrary server certificates if used by the release network client.",
+        "cwe": "CWE-295",
+        "patterns": [
+            "(?s)checkServerTrusted\\s*\\([^)]*\\)\\s*(?:throws\\s+[\\w.,\\s]+)?\\{\\s*\\}"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "High",
+        "masvs": "MASVS-NETWORK",
+        "reference": "https://developer.android.com/privacy-and-security/risks/unsafe-trustmanager",
+        "multiline_window": 12,
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Confirm the implementation is bound to a release TLS client, not only a test fixture.",
+            "Use a controlled connection with an invalid certificate and a valid-certificate negative control to verify behavior.",
+            "Use the platform trust manager or a release Network Security Configuration instead of an empty check."
+        ],
+        "severityConditions": [
+            "Escalate only when a reachable release connection accepts an invalid certificate and carries sensitive data."
+        ]
+    },
+    {
+        "id": "WEBVIEW_DEBUGGING_ENABLED_MEDIUM",
+        "title": "WebView: Web Contents Debugging Explicitly Enabled",
+        "desc": "An explicit WebView debugging enable call can expose page state through adb when executed in a release build.",
+        "cwe": "CWE-489",
+        "patterns": [
+            "\\b(?:WebView\\.)?setWebContentsDebuggingEnabled\\s*\\(\\s*true\\s*\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-RESILIENCE",
+        "reference": "https://developer.android.com/reference/android/webkit/WebView#setWebContentsDebuggingEnabled(boolean)",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Determine whether this call executes in the release build and is guarded by the debuggable flag.",
+            "Identify whether WebViews handle sessions, credentials, or private content.",
+            "Verify the setting on the exact installed APK before assigning impact."
+        ],
+        "severityConditions": [
+            "Raise impact only when production WebViews with sensitive state are actually debuggable."
+        ]
+    },
+    {
+        "id": "WEBVIEW_FILE_ACCESS_ENABLED_MEDIUM",
+        "title": "WebView: Local File Access Explicitly Enabled",
+        "desc": "A WebView that explicitly enables local file access needs a source review when it also loads untrusted content or URLs.",
+        "cwe": "CWE-200",
+        "patterns": [
+            "\\bsetAllowFileAccess\\s*\\(\\s*true\\s*\\)"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/reference/android/webkit/WebSettings#setAllowFileAccess(boolean)",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Trace the same WebView instance to its loaded origins and any JavaScript bridges.",
+            "Check whether attacker-controlled navigation can reach file URLs or content URIs.",
+            "Disable file access if the WebView does not need local files."
+        ],
+        "severityConditions": [
+            "Escalate only after a reachable untrusted-content path reads a sensitive local resource."
+        ]
+    },
+    {
+        "id": "CODE_DEX_CLASS_LOADING_REVIEW",
+        "title": "Code: Dynamic DEX Loading Requires Provenance Review",
+        "desc": "A dynamic DEX loader can execute code outside the base APK; the loaded path and integrity controls determine whether this is a security issue.",
+        "cwe": "CWE-494",
+        "patterns": [
+            "\\b(?:DexClassLoader|PathClassLoader|InMemoryDexClassLoader)\\s*\\("
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Low",
+        "masvs": "MASVS-CODE",
+        "reference": "https://developer.android.com/privacy-and-security/risks/dynamic-code-loading",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Trace the actual DEX source and whether another app or network party can alter it.",
+            "Check integrity verification and update trust before execution.",
+            "Distinguish packaged plugins from writable external code paths."
+        ],
+        "severityConditions": [
+            "Escalate only when attacker-controlled bytes can be loaded into a production process."
+        ]
+    },
+    {
+        "id": "PENDINGINTENT_UNSAFE_IMPLICIT_OVERRIDE_MEDIUM",
+        "title": "PendingIntent: Unsafe Implicit Intent Override Requested",
+        "desc": "FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT bypasses Android 14 protection for mutable PendingIntents; the underlying intent and recipient need review.",
+        "cwe": "CWE-926",
+        "patterns": [
+            "\\b(?:PendingIntent\\.)?FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT\\b"
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Medium",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/reference/android/app/PendingIntent#FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Trace the flag to a created mutable PendingIntent and determine whether the base Intent is implicit.",
+            "Identify who receives the PendingIntent and which fields they can fill in.",
+            "Use an explicit Intent or immutable PendingIntent when the caller need not modify it."
+        ],
+        "severityConditions": [
+            "Escalate only after a distinct recipient can redirect a sensitive action through the reachable PendingIntent."
+        ]
+    },
+    {
+        "id": "INTENT_LAUNCH_PROTECTION_OPT_OUT_REVIEW",
+        "title": "Intent: Android 16 Launch Protection Explicitly Removed",
+        "desc": "A call to removeLaunchSecurityProtection opts an Intent out of Android 16 redirection hardening; its origin and destination need review.",
+        "cwe": "CWE-926",
+        "patterns": [
+            "\\bremoveLaunchSecurityProtection\\s*\\("
+        ],
+        "extensions": [
+            ".java",
+            ".kt"
+        ],
+        "severity": "Low",
+        "masvs": "MASVS-PLATFORM",
+        "reference": "https://developer.android.com/privacy-and-security/risks/intent-redirection",
+        "ignorePatterns": [],
+        "contextChecks": [
+            "Determine whether the Intent came from an exported component or attacker-controlled extra.",
+            "Check the destination, URI grant flags, and other fields before launch.",
+            "Keep the platform protection unless a specific compatibility requirement justifies the opt-out."
+        ],
+        "severityConditions": [
+            "Escalate only when attacker-controlled input can reach an unauthorized destination or action in a tested Android 16 flow."
+        ]
+    }
+]

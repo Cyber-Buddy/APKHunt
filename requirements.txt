@@ -1,0 +1,5 @@
+flask>=2.0
+requests>=2.28
+lxml>=4.9
+weasyprint>=60.0
+pytest>=7.0

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt | OWASP MASVS-Mapped Android APK Security Scanner</title>
+    <meta name="description" content="Scan Android APKs with Apkhunt. Review static security signals mapped to OWASP MASVS, recovered code coverage, network policy, secrets, and dependencies in one saved report.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Apkhunt | OWASP MASVS-Mapped Android APK Scanner">
+    <meta property="og:description" content="Inspect Android APK security signals and see exactly which OWASP MASVS controls have static evidence or still need validation.">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell ah-home-shell">
+    <nav class="navbar ah-navbar" aria-label="Primary navigation">
+        <div class="container-fluid ah-nav-inner">
+            <a class="navbar-brand" href="{{ url_for('index') }}" aria-current="page">
+                <img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span>
+            </a>
+            <span class="ah-nav-context">Android security workbench</span>
+            <div class="navbar-nav ms-auto flex-row align-items-center gap-1">
+                <a class="nav-link active" href="#upload" aria-current="page">New scan</a>
+                <a class="nav-link" href="{{ url_for('scan_history_list') }}">History</a>
+                <a class="nav-link" href="{{ url_for('masvs_coverage') }}">MASVS coverage</a>
+                <a class="nav-link ah-nav-method" href="#method">How it works <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="ah-home-main">
+        <header class="ah-intro">
+            <div>
+                <p class="apkhunt-kicker">Android APK scanner / OWASP MASVS mapped</p>
+                <h1>Scan an Android APK.<br><span>Review MASVS evidence.</span></h1>
+            </div>
+            <p>Inspect the manifest, recovered code, and dependency inventory in one saved report. Each security signal shows its source and what still needs validation.</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="ah-flashes" role="status">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="ah-workspace-grid">
+            <section id="upload" class="ah-intake" aria-labelledby="intake-title">
+                <div class="ah-panel-head">
+                    <div>
+                        <p class="ah-overline">01 / Intake</p>
+                        <h2 id="intake-title">Create a static report</h2>
+                    </div>
+                    <span class="ah-panel-meta">APK · up to {{ (max_upload_bytes / (1024 * 1024))|round|int }} MB</span>
+                </div>
+                <p class="ah-panel-copy">Choose one APK from this device. The archive is checked before decompilation begins.</p>
+
+                <form method="POST" enctype="multipart/form-data" id="uploadForm" novalidate>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="ah-drop-icon"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i></div>
+                        <p class="upload-title">Drop an APK here</p>
+                        <p class="upload-subtitle">or select a file to inspect its static evidence</p>
+                        <label for="apk_file" class="btn btn-outline-primary ah-picker">Choose APK
+                            <input class="ah-picker-input" type="file" id="apk_file" name="apk_file" accept=".apk,application/vnd.android.package-archive" aria-describedby="fileName uploadError" required>
+                        </label>
+                        <p class="file-name" id="fileName" aria-live="polite">No file selected</p>
+                    </div>
+                    <p id="uploadError" class="ah-upload-error d-none" role="alert"></p>
+                    <label class="ah-verification-choice" for="verify_secrets">
+                        <input type="checkbox" id="verify_secrets" name="verify_secrets" value="yes">
+                        <span><strong>Verify detected credentials with their providers</strong><small>Optional. TruffleHog may send candidate credentials to the matching provider. Leave off for local detection only.</small></span>
+                    </label>
+                    <div class="ah-submit-row">
+                        <p><i class="bi bi-shield-check" aria-hidden="true"></i> Static review signal, not runtime proof</p>
+                        <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>Create static report <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div id="scanProgress" class="ah-scan-progress d-none" role="status" aria-live="polite">
+                        <span class="ah-pulse" aria-hidden="true"></span>
+                        <span>Static analysis is running. Decompilation, rule checks, and dependency capture finish at different times.</span>
+                    </div>
+                </form>
+            </section>
+
+            <aside class="ah-method" id="method" aria-labelledby="method-title">
+                <div class="ah-method-top">
+                    <p class="ah-overline">The evidence path</p>
+                    <span class="ah-method-mark"><i class="bi bi-fingerprint" aria-hidden="true"></i></span>
+                </div>
+                <h2 id="method-title">One report.<br>Three evidence layers.</h2>
+                <ol class="ah-method-steps">
+                    <li><span class="ah-step-index">01</span><div><strong>Inspect the package</strong><p>Manifest and recovered Java, Kotlin, and XML receive static checks.</p></div></li>
+                    <li><span class="ah-step-index">02</span><div><strong>Record dependencies</strong><p>A saved CycloneDX inventory tracks versioned packages and available OSV results.</p></div></li>
+                    <li><span class="ah-step-index">03</span><div><strong>Review the signal</strong><p>Source snippets, scan coverage, and context checks stay attached to the report.</p></div></li>
+                </ol>
+                <p class="ah-method-foot">Runtime reachability and impact require separate validation.</p>
+            </aside>
+        </div>
+
+        <section class="ah-masvs" id="masvs" aria-labelledby="masvs-title">
+            <div class="ah-masvs-intro">
+                <div>
+                    <p class="ah-overline">Standards map / OWASP MASVS</p>
+                    <h2 id="masvs-title">See the coverage behind the scan.</h2>
+                    <p>Apkhunt maps Android static analysis to the {{ masvs_control_count }} OWASP MASVS controls across eight security groups. The map shows where the APK provides a review signal and where runtime, backend, or human evidence is still needed.</p>
+                    <a class="ah-masvs-link" href="{{ url_for('masvs_coverage') }}">Explore control-by-control coverage <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="ah-masvs-facts" aria-label="MASVS framework size">
+                    <div><strong>{{ masvs_control_count }}</strong><span>controls in the standard</span></div>
+                    <div><strong>{{ masvs_groups|length }}</strong><span>security groups</span></div>
+                </div>
+            </div>
+            <ul class="ah-masvs-groups" aria-label="MASVS security groups">
+                {% for group in masvs_groups %}
+                    <li><strong>{{ group.name }}</strong><span>{{ group.summary }}</span></li>
+                {% endfor %}
+            </ul>
+            <p class="ah-masvs-note">Static matches are review signals, not proof that a MASVS control passed or failed. Apkhunt is an independent tool and is not affiliated with OWASP. <a href="https://mas.owasp.org/MASVS/" rel="noopener noreferrer">Read the official standard</a>.</p>
+        </section>
+
+        <section class="ah-recent" aria-labelledby="recent-title">
+            <div class="ah-section-head">
+                <div><p class="ah-overline">Saved work</p><h2 id="recent-title">Recent scans</h2></div>
+                <a href="{{ url_for('scan_history_list') }}">View history <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            </div>
+            {% if heatmap_data.recent_scans %}
+                <div class="ah-recent-list">
+                    {% for scan in heatmap_data.recent_scans[:4] %}
+                        <a class="ah-recent-item" href="{{ url_for('view_specific_report', scan_id=scan.scan_id) }}">
+                            <span class="ah-recent-file"><i class="bi bi-file-earmark-binary" aria-hidden="true"></i><span>{{ scan.apk_name }}</span></span>
+                            <span class="ah-recent-date">{{ scan.timestamp.split(' ')[0] if scan.timestamp else 'Date unavailable' }}</span>
+                            <span class="ah-recent-count">{{ scan.total_findings }} review signals</span>
+                            <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="ah-empty-work"><i class="bi bi-folder2-open" aria-hidden="true"></i><div><strong>{{ 'A scan is in progress' if has_active_scans else 'No saved scans yet' }}</strong><p>{{ 'The report will appear here when the worker saves it.' if has_active_scans else 'Your first report will appear here after you analyze an APK.' }}</p></div></div>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer class="ah-footer"><span>Apkhunt / Local Android analysis</span><span>Static evidence requires validation</span></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('uploadForm');
+            const area = document.getElementById('uploadArea');
+            const input = document.getElementById('apk_file');
+            const error = document.getElementById('uploadError');
+            const fileName = document.getElementById('fileName');
+            const submit = document.getElementById('uploadBtn');
+            const progress = document.getElementById('scanProgress');
+            const maxSize = {{ max_upload_bytes|tojson }};
+
+            function setError(message) {
+                error.textContent = message || '';
+                error.classList.toggle('d-none', !message);
+                input.setAttribute('aria-invalid', message ? 'true' : 'false');
+            }
+            function validate(file) {
+                if (!file) { setError('Choose an APK file to continue.'); return false; }
+                if (!file.name.toLowerCase().endsWith('.apk')) { setError('Choose an APK file. Other archive types are not accepted.'); return false; }
+                if (file.size === 0) { setError('This APK is empty. Choose a complete APK archive.'); return false; }
+                if (file.size > maxSize) { setError('This APK exceeds the ' + Math.round(maxSize / (1024 * 1024)) + ' MB upload limit.'); return false; }
+                setError(''); return true;
+            }
+            function update(file) {
+                const valid = file ? validate(file) : false;
+                if (!file) setError('');
+                if (file && !valid) input.value = '';
+                fileName.textContent = valid ? file.name : 'No file selected';
+                area.classList.toggle('has-file', valid);
+                submit.disabled = !valid;
+            }
+            input.addEventListener('change', function () { update(input.files[0]); });
+            ['dragenter', 'dragover'].forEach(name => area.addEventListener(name, function (event) {
+                event.preventDefault(); area.classList.add('dragover');
+            }));
+            ['dragleave', 'drop'].forEach(name => area.addEventListener(name, function (event) {
+                event.preventDefault(); area.classList.remove('dragover');
+            }));
+            area.addEventListener('drop', function (event) {
+                const file = event.dataTransfer.files[0];
+                if (!file) return;
+                const transfer = new DataTransfer();
+                transfer.items.add(file); input.files = transfer.files; update(file);
+            });
+            form.addEventListener('submit', function (event) {
+                if (!validate(input.files[0])) { event.preventDefault(); input.focus(); return; }
+                submit.disabled = true;
+                submit.setAttribute('aria-busy', 'true');
+                progress.classList.remove('d-none');
+            });
+        });
+    </script>
+    {% include '_scan_status.html' %}
+</body>
+</html>

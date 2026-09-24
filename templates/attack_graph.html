@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt attack surface · {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell">
+    <nav class="navbar navbar-expand-lg fixed-top"><div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+        <div class="ms-auto d-flex gap-2"><a class="btn btn-outline-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan_id) }}">Back to report</a><a class="btn btn-primary btn-sm" href="{{ url_for('scan_history_list') }}">History</a></div>
+    </div></nav>
+    <main class="apkhunt-workbench">
+        <header class="apkhunt-workbench__head"><div><p class="apkhunt-kicker">Static attack surface</p><h1>Entry point graph</h1><p class="apkhunt-workbench__meta">{{ apk_name }} · {{ scan_id }}</p></div>
+            <div class="d-flex flex-wrap gap-2"><a class="btn btn-primary" href="{{ url_for('threat_model_view', scan_id=scan_id) }}">Explore threat model <i class="bi bi-arrow-up-right ms-1" aria-hidden="true"></i></a><a class="btn btn-outline-primary" href="{{ url_for('runtime_proof_view', scan_id=scan_id) }}">Open proof workbench</a><a class="btn btn-outline-primary" href="{{ url_for('api_explorer', scan_id=scan_id) }}">API route evidence</a></div>
+        </header>
+        <section class="evidence-strip" data-state="{{ snapshot.status }}"><div class="evidence-strip__mark"><i class="bi bi-diagram-3" aria-hidden="true"></i></div><div>
+            <span class="evidence-strip__eyebrow">{{ snapshot.status }} · saved static snapshot</span>
+            <p class="evidence-strip__body">{{ snapshot.message }} An exported component or a nearby sensitive API call is a review lead, not a confirmed vulnerability.</p>
+            {% if snapshot.metrics %}<p class="evidence-strip__body mt-1">{{ snapshot.metrics.entry_points_saved or 0 }} entry points saved · {{ snapshot.metrics.source_files_read or 0 }} recovered source files read{% if snapshot.metrics.handler_identities_uncertain %} · {{ snapshot.metrics.handler_identities_uncertain }} handler identities unresolved{% endif %}{% if snapshot.metrics.oversize_skipped %} · {{ snapshot.metrics.oversize_skipped }} oversized files skipped{% endif %}{% if snapshot.metrics.path_limit_reached %} · entry point limit reached{% endif %}</p>{% endif %}
+        </div></section>
+        <section class="card overflow-hidden" aria-labelledby="entryPoints"><div class="card-header px-4 py-3 d-flex justify-content-between align-items-center"><h2 id="entryPoints" class="h5 mb-0">Declared entry points and nearby code</h2><span class="evidence-tag">{{ snapshot.paths|length }} paths</span></div>
+            {% if snapshot.paths %}<div class="card-body p-0">
+                {% for path in snapshot.paths %}<article class="border-bottom px-4 py-4" aria-labelledby="entry-{{ loop.index }}">
+                    <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start"><div><p class="apkhunt-kicker mb-1">{{ path.component_type }} · review priority {{ path.review_priority }}</p><h3 class="h5 mb-1 text-break" id="entry-{{ loop.index }}">{{ path.component }}</h3><p class="apkhunt-workbench__meta mb-0">{{ path.exported }} · {{ path.manifest_evidence.source }}{% if path.manifest_evidence.line %}:{{ path.manifest_evidence.line }}{% endif %} · {{ path.link_strength }}</p></div><span class="evidence-tag">Static lead</span></div>
+                    {% if path.deep_links %}<div class="mt-3"><h4 class="h6">Deep link declarations</h4><ol class="mb-0">{% for link in path.deep_links %}<li><code class="text-break">{{ link.scheme or 'scheme unspecified' }}://{{ link.host or 'host unspecified' }}{{ link.path }}</code></li>{% endfor %}</ol></div>{% endif %}
+                    <div class="row g-3 mt-1"><div class="col-lg-4"><h4 class="h6">Handler</h4>{% if path.handler_source %}<p class="mb-1 ah-source-ref text-break">{{ path.handler_source }}</p>{% for item in path.handler_methods %}<div class="ah-source-ref"><code>{{ item.symbol }}()</code> · line {{ item.line }}</div>{% endfor %}{% if not path.handler_methods %}<p class="text-muted mb-0">No recognized entry method.</p>{% endif %}{% else %}<p class="text-muted mb-0">Recovered class unresolved.</p>{% endif %}</div>
+                    <div class="col-lg-4"><h4 class="h6">Permission evidence</h4><p class="mb-1">Manifest: {% if path.manifest_permission.name %}<code>{{ path.manifest_permission.name }}</code> ({{ path.manifest_permission.declared_at }}){% else %}none declared{% endif %}</p>{% for item in path.permission_checks %}<div class="ah-source-ref text-break"><code>{{ item.symbol }}</code> · {{ item.source }}:{{ item.line }}</div>{% endfor %}<p class="text-muted small mb-0">A call in this class does not prove enforcement on this entry path.</p></div>
+                    <div class="col-lg-4"><h4 class="h6">Nearby effect evidence</h4>{% for item in path.effects %}<div class="ah-source-ref text-break"><span class="evidence-tag">{{ item.kind }}</span> <code>{{ item.symbol }}</code> · {{ item.source }}:{{ item.line }}<small class="d-block text-muted">{{ item.relationship }}</small></div>{% else %}<p class="text-muted mb-0">No selected API pattern observed in this class.</p>{% endfor %}</div></div>
+                    {% if path.unresolved %}<div class="mt-3"><h4 class="h6">Unresolved links</h4><ol class="mb-0">{% for gap in path.unresolved %}<li>{{ gap }}</li>{% endfor %}</ol></div>{% endif %}
+                    <div class="d-flex flex-wrap gap-2 mt-3"><a class="btn btn-outline-primary btn-sm" href="{{ url_for('threat_model_view', scan_id=scan_id, path=loop.index0) }}">Map this path</a><a class="btn btn-outline-primary btn-sm" href="{{ url_for('runtime_proof_view', scan_id=scan_id, path=loop.index0) }}#path-{{ loop.index0 }}">{{ 'Test this activity' if path.component_type in ['activity', 'activity-alias'] and path.exported == 'explicit true' and not path.manifest_permission.name else 'Review test options' }}</a></div>
+                </article>{% endfor %}
+            </div>{% else %}<div class="dependency-empty"><i class="bi bi-diagram-3" aria-hidden="true"></i><p>No externally relevant entry point was saved from this manifest. This does not establish absence of reachable app behavior.</p></div>{% endif %}
+        </section>
+    </main>
+    {% include '_scan_status.html' %}
+</body>
+</html>

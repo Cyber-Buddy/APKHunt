@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apkhunt Security Report — {{ apk_name }}</title>
+    <style>
+        /* ── Reset & Base ─────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        @page {
+            size: A4;
+            margin: 18mm 16mm 20mm 16mm;
+            @bottom-center {
+                content: "Apkhunt Security Report — " "{{ apk_name }}" " — Page " counter(page) " of " counter(pages);
+                font-size: 7.5pt; color: #94a3b8; font-family: 'Segoe UI', system-ui, sans-serif;
+            }
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-size: 9.5pt; line-height: 1.5; color: #1e293b;
+        }
+        h1, h2, h3, h4, h5 { font-weight: 700; color: #0f172a; }
+        a { color: #2563eb; text-decoration: none; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; font-size: 8.5pt; }
+        pre { font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; font-size: 8pt; }
+
+        /* ── Cover Page ───────────────────────────────────────── */
+        .cover {
+            page-break-after: always;
+            display: flex; flex-direction: column; justify-content: center;
+            min-height: 100vh; text-align: center; padding: 60px 40px;
+        }
+        .cover-logo {
+            width: 72px; height: 72px; margin: 0 auto 24px;
+            display: block;
+        }
+        .cover-logo img { display: block; width: 72px; height: 72px; }
+        .cover h1 { font-size: 28pt; margin-bottom: 6px; color: #075C53; }
+        .cover .subtitle { font-size: 13pt; color: #64748b; margin-bottom: 40px; }
+        .cover-meta { border-top: 2px solid #e2e8f0; padding-top: 24px; margin-top: 24px; }
+        .cover-meta table { margin: 0 auto; text-align: left; border-spacing: 8px 6px; }
+        .cover-meta td:first-child { color: #64748b; font-size: 9pt; padding-right: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cover-meta td:last-child { font-weight: 600; font-size: 10pt; }
+        .cover-classification {
+            margin-top: 36px; display: inline-block;
+            padding: 6px 24px; border: 2px solid #ef4444; border-radius: 4px;
+            color: #ef4444; font-weight: 700; font-size: 10pt; letter-spacing: 1px;
+        }
+
+        /* ── Section Headers ──────────────────────────────────── */
+        .section { margin-bottom: 28px; }
+        .section-title {
+            font-size: 14pt; padding-bottom: 6px; margin-bottom: 14px;
+            border-bottom: 3px solid #2563eb; display: flex; align-items: center; gap: 8px;
+        }
+        .section-title .num {
+            background: #2563eb; color: #fff; width: 24px; height: 24px;
+            border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 10pt; flex-shrink: 0;
+        }
+
+        /* ── Risk Score Banner ────────────────────────────────── */
+        .risk-banner {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #fff; border-radius: 10px; padding: 20px 28px;
+            display: flex; align-items: center; gap: 24px; margin-bottom: 24px;
+        }
+        .risk-score-circle {
+            width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22pt; font-weight: 800;
+        }
+        .risk-critical { background: linear-gradient(135deg, #dc2626, #991b1b); }
+        .risk-high { background: linear-gradient(135deg, #ea580c, #c2410c); }
+        .risk-medium { background: linear-gradient(135deg, #d97706, #b45309); }
+        .risk-low { background: linear-gradient(135deg, #16a34a, #15803d); }
+        .risk-info { background: linear-gradient(135deg, #64748b, #475569); }
+        .risk-details h3 { font-size: 13pt; color: #fff; margin-bottom: 4px; }
+        .risk-details p { color: #94a3b8; font-size: 9pt; margin: 0; }
+
+        /* ── Stats Grid ───────────────────────────────────────── */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px;
+        }
+        .stat-card {
+            border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;
+            background: #fff;
+        }
+        .stat-card .stat-value { font-size: 20pt; font-weight: 800; line-height: 1.1; }
+        .stat-card .stat-label { font-size: 7.5pt; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .sev-critical .stat-value { color: #dc2626; }
+        .sev-high .stat-value { color: #ea580c; }
+        .sev-medium .stat-value { color: #d97706; }
+        .sev-low .stat-value { color: #2563eb; }
+        .sev-info .stat-value { color: #64748b; }
+
+        /* ── Severity Bar ─────────────────────────────────────── */
+        .severity-bar {
+            display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 20px;
+            background: #f1f5f9;
+        }
+        .severity-bar div { height: 100%; }
+        .bar-critical { background: #dc2626; }
+        .bar-high { background: #ea580c; }
+        .bar-medium { background: #d97706; }
+        .bar-low { background: #2563eb; }
+        .bar-info { background: #94a3b8; }
+
+        /* ── Tables ───────────────────────────────────────────── */
+        table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+        th {
+            background: #f8fafc; color: #475569; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; font-size: 7.5pt;
+            padding: 8px 10px; text-align: left; border-bottom: 2px solid #e2e8f0;
+        }
+        td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        tr:nth-child(even) td { background: #fafbfc; }
+
+        /* ── Severity Badges ──────────────────────────────────── */
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 4px;
+            font-size: 7.5pt; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+        }
+        .badge-critical { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .badge-high { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+        .badge-medium { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .badge-low { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .badge-info { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+        .badge-masvs { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .badge-cwe { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+        /* ── Finding Cards ────────────────────────────────────── */
+        .finding {
+            border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px;
+            page-break-inside: avoid; overflow: hidden;
+        }
+        .finding-header {
+            padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .finding-critical .finding-header { background: #fef2f2; border-left: 4px solid #dc2626; }
+        .finding-high .finding-header { background: #fff7ed; border-left: 4px solid #ea580c; }
+        .finding-medium .finding-header { background: #fffbeb; border-left: 4px solid #d97706; }
+        .finding-low .finding-header { background: #eff6ff; border-left: 4px solid #2563eb; }
+        .finding-info .finding-header { background: #f8fafc; border-left: 4px solid #94a3b8; }
+        .finding-title { font-weight: 700; font-size: 9.5pt; flex: 1; }
+        .finding-body { padding: 10px 14px; }
+        .finding-desc { color: #475569; margin-bottom: 8px; font-size: 9pt; }
+        .finding-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 8pt; color: #64748b; margin-bottom: 6px; }
+        .finding-meta strong { color: #334155; }
+        .finding-code {
+            background: #1e293b; color: #e2e8f0; padding: 8px 12px; border-radius: 6px;
+            font-size: 8pt; line-height: 1.4; white-space: pre-wrap; word-break: break-all;
+            max-height: 72px; overflow: hidden; margin-top: 6px;
+        }
+        .finding-context {
+            margin-top: 6px; padding: 6px 10px; background: #f0f9ff; border-radius: 4px;
+            border-left: 3px solid #38bdf8; font-size: 8pt; color: #0369a1;
+        }
+
+        /* ── MASVS Summary Table ──────────────────────────────── */
+        .masvs-row td:first-child { font-weight: 600; white-space: nowrap; }
+        .masvs-count {
+            display: inline-block; min-width: 22px; text-align: center;
+            padding: 1px 6px; border-radius: 10px; font-weight: 700; font-size: 8pt;
+        }
+        .masvs-count-high { background: #fef2f2; color: #dc2626; }
+        .masvs-count-med { background: #fffbeb; color: #d97706; }
+        .masvs-count-low { background: #f0fdf4; color: #16a34a; }
+
+        /* ── Dependency Section ────────────────────────────────── */
+        .dep-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+        .dep-card {
+            border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px;
+            text-align: center; background: #fff;
+        }
+        .dep-card .dep-value { font-size: 16pt; font-weight: 800; color: #0f172a; }
+        .dep-card .dep-label { font-size: 7.5pt; color: #64748b; text-transform: uppercase; }
+
+        /* ── Disclaimer / Footer ──────────────────────────────── */
+        .disclaimer {
+            margin-top: 32px; padding: 14px 18px; background: #fffbeb; border: 1px solid #fde68a;
+            border-radius: 8px; font-size: 8pt; color: #92400e; page-break-inside: avoid;
+        }
+        .disclaimer strong { color: #78350f; }
+
+        /* ── Page Break Utility ───────────────────────────────── */
+        .page-break { page-break-before: always; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COVER PAGE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="cover">
+    <div class="cover-logo"><img src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt=""></div>
+    <h1>Apkhunt</h1>
+    <div class="subtitle">Android Application Security Report</div>
+
+    <div style="margin: 24px auto; max-width: 420px;">
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+            <div style="font-size: 11pt; font-weight: 700; color: #0f172a; margin-bottom: 4px;">{{ apk_name }}</div>
+            <div style="font-size: 9pt; color: #64748b;">Static Application Security Testing (SAST) Report</div>
+        </div>
+    </div>
+
+    <div class="cover-meta">
+        <table>
+            <tr><td>Scan ID</td><td>{{ scan_id }}</td></tr>
+            <tr><td>Date</td><td>{{ timestamp }}</td></tr>
+            <tr><td>Static Review Signals</td><td>{{ total_findings }}</td></tr>
+            <tr><td>Mapping</td><td>OWASP MASVS groups; partial static checks</td></tr>
+            <tr><td>Tool</td><td>Apkhunt — Android Static Security Analysis</td></tr>
+        </table>
+    </div>
+
+    <div class="cover-classification">CONFIDENTIAL</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════════════════════ -->
+<div class="section">
+    <div class="section-title"><span class="num">1</span> Executive Summary</div>
+
+    {% set crit = severity_counts.get('Critical', 0) %}
+    {% set high = severity_counts.get('High', 0) %}
+    {% set med = severity_counts.get('Medium', 0) %}
+    {% set low = severity_counts.get('Low', 0) %}
+    {% set info = severity_counts.get('Info', 0) %}
+    {% set total = total_findings if total_findings > 0 else 1 %}
+
+    <!-- Risk Score Banner -->
+    <div class="risk-banner">
+        <div class="risk-score-circle risk-info">
+            {{ total_findings }}
+        </div>
+        <div class="risk-details">
+            <h3>
+                {% if crit > 0 %}Critical-priority signals — validate first
+                {% elif high > 0 %}High-priority signals — validate next
+                {% elif med > 0 %}Medium-priority signals — review context
+                {% elif low > 0 %}Low-priority signals — review context
+                {% else %}No high-priority static signals
+                {% endif %}
+            </h3>
+            <p>{{ total_findings }} static review signal{{ 's' if total_findings != 1 else '' }} mapped to {{ masvs_categories|length }} MASVS group{{ 's' if masvs_categories|length != 1 else '' }} in <strong>{{ apk_name }}</strong>. No MASVS control is verified by this count.</p>
+        </div>
+    </div>
+
+    <!-- Severity Stats -->
+    <div class="stats-grid">
+        <div class="stat-card sev-critical"><div class="stat-value">{{ crit }}</div><div class="stat-label">Critical</div></div>
+        <div class="stat-card sev-high"><div class="stat-value">{{ high }}</div><div class="stat-label">High</div></div>
+        <div class="stat-card sev-medium"><div class="stat-value">{{ med }}</div><div class="stat-label">Medium</div></div>
+        <div class="stat-card sev-low"><div class="stat-value">{{ low }}</div><div class="stat-label">Low</div></div>
+        <div class="stat-card sev-info"><div class="stat-value">{{ info }}</div><div class="stat-label">Info</div></div>
+    </div>
+
+    <!-- Severity Distribution Bar -->
+    <div class="severity-bar">
+        {% if crit > 0 %}<div class="bar-critical" style="width: {{ (crit / total * 100)|round(1) }}%"></div>{% endif %}
+        {% if high > 0 %}<div class="bar-high" style="width: {{ (high / total * 100)|round(1) }}%"></div>{% endif %}
+        {% if med > 0 %}<div class="bar-medium" style="width: {{ (med / total * 100)|round(1) }}%"></div>{% endif %}
+        {% if low > 0 %}<div class="bar-low" style="width: {{ (low / total * 100)|round(1) }}%"></div>{% endif %}
+        {% if info > 0 %}<div class="bar-info" style="width: {{ (info / total * 100)|round(1) }}%"></div>{% endif %}
+    </div>
+
+    <!-- Severity Breakdown Table -->
+    <table>
+        <thead>
+            <tr><th>Severity</th><th>Count</th><th>Percentage</th><th>Distribution</th></tr>
+        </thead>
+        <tbody>
+            {% for sev, cls in [('Critical', 'critical'), ('High', 'high'), ('Medium', 'medium'), ('Low', 'low'), ('Info', 'info')] %}
+            {% set count = severity_counts.get(sev, 0) %}
+            <tr>
+                <td><span class="badge badge-{{ cls }}">{{ sev }}</span></td>
+                <td><strong>{{ count }}</strong></td>
+                <td>{{ (count / total * 100)|round(1) }}%</td>
+                <td>
+                    <div style="background: #f1f5f9; border-radius: 3px; height: 8px; width: 120px; display: inline-block; vertical-align: middle;">
+                        <div class="bar-{{ cls }}" style="height: 100%; width: {{ (count / total * 100)|round(1) }}%; border-radius: 3px;"></div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MASVS CATEGORY OVERVIEW
+     ═══════════════════════════════════════════════════════════ -->
+{% if masvs_categories %}
+<div class="section">
+    <div class="section-title"><span class="num">2</span> MASVS Group Signals</div>
+    <table>
+        <thead>
+            <tr><th>MASVS Group</th><th>Signals</th><th>Critical</th><th>High</th><th>Medium</th><th>Low</th></tr>
+        </thead>
+        <tbody>
+            {% for cat, cat_findings in masvs_categories.items()|sort %}
+            <tr class="masvs-row">
+                <td><span class="badge badge-masvs">{{ cat }}</span></td>
+                <td><strong>{{ cat_findings|length }}</strong></td>
+                <td>
+                    {% set cc = cat_findings|selectattr('severity', 'equalto', 'Critical')|list|length %}
+                    {% if cc > 0 %}<span class="masvs-count masvs-count-high">{{ cc }}</span>{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% set hc = cat_findings|selectattr('severity', 'equalto', 'High')|list|length %}
+                    {% if hc > 0 %}<span class="masvs-count masvs-count-high">{{ hc }}</span>{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% set mc = cat_findings|selectattr('severity', 'equalto', 'Medium')|list|length %}
+                    {% if mc > 0 %}<span class="masvs-count masvs-count-med">{{ mc }}</span>{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% set lc = cat_findings|selectattr('severity', 'equalto', 'Low')|list|length %}
+                    {% if lc > 0 %}<span class="masvs-count masvs-count-low">{{ lc }}</span>{% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     DEPENDENCY ANALYSIS
+     ═══════════════════════════════════════════════════════════ -->
+{% if dependency_summary.total_components > 0 %}
+<div class="section">
+    <div class="section-title"><span class="num">3</span> Dependency Analysis</div>
+    <div class="dep-grid">
+        <div class="dep-card">
+            <div class="dep-value">{{ dependency_summary.total_components }}</div>
+            <div class="dep-label">Total Components</div>
+        </div>
+        <div class="dep-card">
+            <div class="dep-value" style="color: {% if dependency_summary.vulnerable_components > 0 %}#dc2626{% else %}#16a34a{% endif %}">{{ dependency_summary.vulnerable_components }}</div>
+            <div class="dep-label">Vulnerable</div>
+        </div>
+        <div class="dep-card">
+            <div class="dep-value" style="color: {% if dependency_summary.critical_vulnerabilities > 0 %}#dc2626{% else %}#16a34a{% endif %}">{{ dependency_summary.critical_vulnerabilities }}</div>
+            <div class="dep-label">Critical CVEs</div>
+        </div>
+        <div class="dep-card">
+            <div class="dep-value">{{ dependency_summary.license_issues }}</div>
+            <div class="dep-label">License Issues</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     FINDINGS SUMMARY TABLE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="section page-break">
+    <div class="section-title"><span class="num">{% if dependency_summary.total_components > 0 %}4{% else %}3{% endif %}</span> Static Signal Summary</div>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Severity</th><th>Title</th><th>MASVS</th><th>CWE</th><th>File</th></tr>
+        </thead>
+        <tbody>
+            {% for finding in findings %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><span class="badge badge-{{ finding.severity|lower if finding.severity in ['Critical','High','Medium','Low','Info'] else 'info' }}">{{ finding.severity }}</span></td>
+                <td>{{ finding.rule_title|truncate(60) }}</td>
+                <td><span class="badge badge-masvs">{{ finding.masvs|default('—') }}</span></td>
+                <td>{% if finding.cwe %}<span class="badge badge-cwe">{{ finding.cwe }}</span>{% else %}—{% endif %}</td>
+                <td><code style="font-size: 7.5pt;">{{ finding.file|default('')|truncate(40) }}</code></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DETAILED FINDINGS
+     ═══════════════════════════════════════════════════════════ -->
+<div class="section page-break">
+    <div class="section-title"><span class="num">{% if dependency_summary.total_components > 0 %}5{% else %}4{% endif %}</span> Detailed Findings</div>
+
+    {% for finding in findings %}
+    <div class="finding finding-{{ finding.severity|lower if finding.severity in ['Critical','High','Medium','Low','Info'] else 'info' }}">
+        <div class="finding-header">
+            <span class="badge badge-{{ finding.severity|lower if finding.severity in ['Critical','High','Medium','Low','Info'] else 'info' }}">{{ finding.severity }}</span>
+            <span class="finding-title">{{ finding.rule_title }}</span>
+            {% if finding.masvs %}<span class="badge badge-masvs">{{ finding.masvs }}</span>{% endif %}
+            {% if finding.cwe %}<span class="badge badge-cwe">{{ finding.cwe }}</span>{% endif %}
+        </div>
+        <div class="finding-body">
+            {% if finding.desc %}
+            <div class="finding-desc">{{ finding.desc }}</div>
+            {% endif %}
+
+            <div class="finding-meta">
+                <span><strong>File:</strong> <code>{{ finding.file|default('N/A') }}</code></span>
+                <span><strong>Line:</strong> {{ finding.line|default('—') }}</span>
+                {% if finding.reference %}<span><strong>Ref:</strong> {{ finding.reference }}</span>{% endif %}
+            </div>
+
+            {% if finding.code and finding.code != 'N/A' %}
+            <div class="finding-code">{{ finding.code }}</div>
+            {% endif %}
+
+            {% if finding.contextChecks and finding.contextChecks|length > 0 %}
+            <div class="finding-context">
+                <strong>Context Checks:</strong> {{ finding.contextChecks|join(' · ') }}
+            </div>
+            {% endif %}
+
+            {% if finding.ai_validation and finding.ai_validation.reasoning %}
+            <div class="finding-context" style="border-left-color: #a78bfa; background: #faf5ff;">
+                <strong>Triage:</strong> {{ finding.ai_validation.reasoning }}
+                {% if finding.ai_validation.adjusted_severity and finding.ai_validation.adjusted_severity != finding.severity %}
+                 · <strong>Adjusted:</strong> {{ finding.severity }} → {{ finding.ai_validation.adjusted_severity }}
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCAN METADATA
+     ═══════════════════════════════════════════════════════════ -->
+<div class="section page-break">
+    <div class="section-title"><span class="num">{% if dependency_summary.total_components > 0 %}6{% else %}5{% endif %}</span> Scan Metadata</div>
+    <table>
+        <tbody>
+            <tr><td style="width: 160px;"><strong>APK Name</strong></td><td>{{ apk_name }}</td></tr>
+            <tr><td><strong>Scan ID</strong></td><td><code>{{ scan_id }}</code></td></tr>
+            <tr><td><strong>Timestamp</strong></td><td>{{ timestamp }}</td></tr>
+            <tr><td><strong>Scan Mode</strong></td><td>{{ scan_mode|default('traditional') }}</td></tr>
+            <tr><td><strong>Static Review Signals</strong></td><td>{{ total_findings }}</td></tr>
+            {% if triaged_count is defined and triaged_count > 0 %}
+            <tr><td><strong>Rule-Triaged</strong></td><td>{{ triaged_count }} signals retained by heuristic triage; not independently validated</td></tr>
+            {% endif %}
+            {% if severity_adjusted_count is defined and severity_adjusted_count > 0 %}
+            <tr><td><strong>Severity Adjusted</strong></td><td>{{ severity_adjusted_count }} findings had severity re-assessed</td></tr>
+            {% endif %}
+            <tr><td><strong>Mapping</strong></td><td>OWASP MASVS groups; partial static checks</td></tr>
+            <tr><td><strong>Source Coverage</strong></td><td>{{ scan_metadata.coverage_status|default('unknown')|replace('_', ' ') }}</td></tr>
+            <tr><td><strong>Scanner</strong></td><td>Apkhunt — Static Application Security Testing</td></tr>
+        </tbody>
+    </table>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This report is generated by automated static analysis and may contain false positives.
+        Findings should be validated manually before remediation. This report does not guarantee the absence of
+        vulnerabilities not covered by the scanning rules. Dynamic testing, manual code review, and penetration
+        testing are recommended for comprehensive security assessment.
+    </div>
+</div>
+
+</body>
+</html>

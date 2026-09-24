@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data
+uploads/*
+!uploads/.gitkeep
+decompiled_apks/*
+!decompiled_apks/.gitkeep
+reports/*
+!reports/.gitkeep
+scan_history.json
+scan_jobs.json
+.playwright-mcp/
+
+# Environment / secrets
+.env
+*.env.local
+secrets_config.env
+
+# Cache
+.pytest_cache/
+.ai_cache/
+
+# Claude Code
+.claude/

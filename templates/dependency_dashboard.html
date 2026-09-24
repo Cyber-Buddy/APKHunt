@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkhunt Dependency Evidence - {{ apk_name }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/apkhunt-mark.svg') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/apkhunt.css') }}" rel="stylesheet">
+</head>
+<body class="apkhunt-shell">
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}"><img class="ah-brand-mark" src="{{ url_for('static', filename='img/apkhunt-mark.svg') }}" alt="" width="32" height="32"><span>Apkhunt</span></a>
+            <div class="ms-auto d-flex gap-2">
+                <a class="btn btn-outline-primary btn-sm" href="{{ url_for('view_specific_report', scan_id=scan_id) }}"><i class="bi bi-arrow-left me-1"></i>Back to report</a>
+                <a class="btn btn-primary btn-sm" href="{{ url_for('scan_history_list') }}"><i class="bi bi-clock-history me-1"></i>History</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="apkhunt-workbench">
+        <div class="apkhunt-workbench__head">
+            <div>
+                <p class="apkhunt-kicker">Supply-chain evidence</p>
+                <h1>Dependency snapshot</h1>
+                <p class="apkhunt-workbench__meta">{{ apk_name }} &middot; {{ scan_id }}</p>
+            </div>
+            {% if dependencies.sbom %}
+            <a class="btn btn-primary" href="{{ url_for('export_sbom', scan_id=scan_id) }}"><i class="bi bi-download me-2"></i>Download SBOM</a>
+            {% endif %}
+        </div>
+
+        <section class="evidence-strip" data-state="{{ dependencies.analysis.inventory_status }}" aria-labelledby="snapshot-status">
+            <div class="evidence-strip__mark"><i class="bi bi-journal-check" aria-hidden="true"></i></div>
+            <div>
+                <span class="evidence-strip__eyebrow" id="snapshot-status">{{ dependencies.analysis.inventory_source }} &middot; {{ dependencies.analysis.vulnerability_status }}</span>
+                <p class="evidence-strip__body">{{ dependencies.analysis.message }} Results below are the saved scan snapshot; opening this page does not rerun the inventory or contact OSV.</p>
+            </div>
+        </section>
+
+        <section class="dependency-stats" aria-label="Dependency snapshot summary">
+            <div class="dependency-stat"><div class="dependency-stat__label">Components</div><div class="dependency-stat__value">{{ dependency_summary.total_components }}</div></div>
+            <div class="dependency-stat"><div class="dependency-stat__label">Versioned identities</div><div class="dependency-stat__value">{{ dependency_summary.queryable_components }}</div></div>
+            <div class="dependency-stat dependency-stat--signal"><div class="dependency-stat__label">High / critical components</div><div class="dependency-stat__value">{{ dependency_summary.vulnerable_components }}</div></div>
+            <div class="dependency-stat dependency-stat--danger"><div class="dependency-stat__label">Critical advisories</div><div class="dependency-stat__value">{{ dependency_summary.critical_vulnerabilities }}</div></div>
+        </section>
+
+        {% if dependencies.components %}
+        <section class="dependency-toolbar" aria-label="Filter dependency snapshot">
+            <div class="dependency-toolbar__field dependency-toolbar__search">
+                <label for="packageSearch">Search components</label>
+                <input id="packageSearch" class="form-control" type="search" placeholder="Name, package URL, or license" autocomplete="off">
+                <button id="clearSearch" class="dependency-toolbar__clear d-none" type="button" onclick="window.apkhuntClearDependencySearch()" aria-label="Clear component search"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="dependency-toolbar__field">
+                <label for="componentState">Evidence state</label>
+                <select id="componentState" class="form-select">
+                    <option value="">All evidence states</option>
+                    <option value="matched">Advisory matched</option>
+                    <option value="queried">Queried, no match</option>
+                    <option value="not-queried">Not queried</option>
+                    <option value="not-queryable">No versioned identity</option>
+                </select>
+            </div>
+            <div class="dependency-toolbar__field">
+                <label for="componentType">Component type</label>
+                <select id="componentType" class="form-select">
+                    <option value="">All types</option>
+                    {% for component_type in dependencies.components|map(attribute='type')|unique|sort %}<option value="{{ component_type }}">{{ component_type|title }}</option>{% endfor %}
+                </select>
+            </div>
+            <p class="dependency-toolbar__status" id="filterStatus" role="status" aria-live="polite">Showing {{ dependencies.components|length }} components from this saved snapshot.</p>
+        </section>
+
+        <section class="card overflow-hidden" aria-labelledby="component-heading">
+            <div class="card-header d-flex align-items-center justify-content-between py-3 px-4">
+                <h2 id="component-heading" class="h5 mb-0">Component inventory</h2>
+                <span class="evidence-tag"><i class="bi bi-lock-fill"></i>Stored result</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <caption class="visually-hidden">Dependency inventory and saved vulnerability-enrichment state</caption>
+                    <thead><tr><th scope="col">Component</th><th scope="col">Version</th><th scope="col">Evidence</th><th scope="col">Severity</th><th scope="col"><span class="visually-hidden">Inspect component</span></th></tr></thead>
+                    <tbody id="dependenciesTable">
+                        {% for component in dependencies.components %}
+                        <tr class="component-row" data-name="{{ ((component.name or '') ~ ' ' ~ (component.purl or '') ~ ' ' ~ (component.licenses|join(' ')))|lower }}" data-state="{{ component.vulnerability_state }}" data-type="{{ component.type }}">
+                            <td><div class="component-name">{{ component.name }}</div>{% if component.purl %}<div class="component-coordinate">{{ component.purl }}</div>{% endif %}</td>
+                            <td class="font-monospace small">{{ component.version or 'unknown' }}</td>
+                            <td>
+                                {% if component.vulnerability_state == 'matched' %}<span class="evidence-tag evidence-tag--matched"><i class="bi bi-exclamation-diamond"></i>{{ component.vulnerabilities|length }} advisory match{{ 'es' if component.vulnerabilities|length != 1 }}</span>
+                                {% elif component.vulnerability_state == 'queried' %}<span class="evidence-tag evidence-tag--queried"><i class="bi bi-check2-circle"></i>Queried, no match</span>
+                                {% elif component.vulnerability_state == 'not-queryable' %}<span class="evidence-tag"><i class="bi bi-question-circle"></i>No versioned identity</span>
+                                {% else %}<span class="evidence-tag"><i class="bi bi-cloud-slash"></i>Not queried</span>{% endif %}
+                            </td>
+                            <td><span class="severity-label severity-label--{{ component.severity|lower }}">{{ component.severity or 'Unknown' }}</span></td>
+                            <td class="text-end"><button class="btn btn-outline-primary btn-sm component-details" type="button" data-component-index="{{ loop.index0 }}" onclick="window.apkhuntShowDependencyComponent(this)" aria-label="Inspect {{ component.name }}">Inspect <i class="bi bi-arrow-up-right ms-1"></i></button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="noFilterResults" class="dependency-empty d-none"><i class="bi bi-search" aria-hidden="true"></i><h3 class="h5 mt-3">No components match these filters</h3><p>Clear the component search or choose a different evidence state.</p><button id="resetFilters" type="button" class="btn btn-outline-primary mt-3" onclick="window.apkhuntResetDependencyFilters()">Reset filters</button></div>
+        </section>
+        {% else %}
+        <section class="card dependency-empty"><i class="bi bi-box-seam" aria-hidden="true"></i><h2 class="h5 mt-3">No dependency inventory is available</h2><p>{{ dependencies.analysis.message }} The static source-code report remains available.</p><a class="btn btn-primary mt-3" href="{{ url_for('view_specific_report', scan_id=scan_id) }}">Open static report</a></section>
+        {% endif %}
+    </main>
+
+    <div class="modal fade" id="componentModal" tabindex="-1" aria-labelledby="componentModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg"><div class="modal-content"><div class="modal-header"><div><p class="apkhunt-kicker mb-2">Stored component evidence</p><h2 class="modal-title h5" id="componentModalTitle">Component detail</h2></div><button type="button" class="btn-close" onclick="bootstrap.Modal.getOrCreateInstance(this.closest('.modal')).hide()" aria-label="Close component detail"></button></div><div class="modal-body" id="componentModalBody"></div></div></div>
+    </div>
+
+    <script id="componentsData" type="application/json">{{ dependencies.components|tojson }}</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const components = JSON.parse(document.getElementById('componentsData').textContent);
+            const search = document.getElementById('packageSearch');
+            const state = document.getElementById('componentState');
+            const type = document.getElementById('componentType');
+            const clear = document.getElementById('clearSearch');
+            const status = document.getElementById('filterStatus');
+            const empty = document.getElementById('noFilterResults');
+            const rows = Array.from(document.querySelectorAll('.component-row'));
+
+            function filterRows() {
+                const query = search.value.trim().toLowerCase();
+                let visible = 0;
+                rows.forEach(function (row) {
+                    const matches = (!query || row.dataset.name.includes(query)) && (!state.value || row.dataset.state === state.value) && (!type.value || row.dataset.type === type.value);
+                    row.classList.toggle('d-none', !matches);
+                    if (matches) visible += 1;
+                });
+                clear.classList.toggle('d-none', !search.value);
+                status.textContent = 'Showing ' + visible + ' of ' + rows.length + ' components from this saved snapshot.';
+                empty.classList.toggle('d-none', visible !== 0);
+            }
+
+            if (search) {
+                search.addEventListener('input', filterRows);
+                state.addEventListener('change', filterRows);
+                type.addEventListener('change', filterRows);
+                window.apkhuntClearDependencySearch = function () { search.value = ''; filterRows(); search.focus(); };
+                window.apkhuntResetDependencyFilters = function () { search.value = ''; state.value = ''; type.value = ''; filterRows(); search.focus(); };
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('componentModal'));
+            const modalTitle = document.getElementById('componentModalTitle');
+            const modalBody = document.getElementById('componentModalBody');
+            function appendTextElement(tag, text, className) { const element = document.createElement(tag); if (className) element.className = className; element.textContent = text; return element; }
+            function addDefinitionList(component) {
+                const list = document.createElement('dl');
+                [['Name', component.name || 'Unknown'], ['Version', component.version || 'Unknown'], ['Package URL', component.purl || 'No package URL captured'], ['Source', component.source || 'Legacy snapshot'], ['Path', component.path || 'Not captured'], ['SHA-256', component.sha256 || 'Not captured'], ['Licenses', (component.licenses || []).join(', ') || 'No license metadata captured']].forEach(function (entry) {
+                    list.append(appendTextElement('dt', entry[0]), appendTextElement('dd', entry[1]));
+                });
+                modalBody.appendChild(list);
+            }
+            function addAdvisories(component) {
+                const advisories = component.vulnerabilities || [];
+                modalBody.appendChild(appendTextElement('h3', advisories.length ? 'Matched advisories' : 'Advisory status', 'h6 mt-4'));
+                if (!advisories.length) {
+                    modalBody.appendChild(appendTextElement('p', component.vulnerability_state === 'queried' ? 'OSV was queried for this versioned package identity and no advisory was returned in the saved scan.' : 'No vulnerability conclusion was made for this component in the saved scan.', 'text-muted mb-0'));
+                    return;
+                }
+                advisories.forEach(function (advisory) {
+                    const card = document.createElement('section'); card.className = 'border rounded-3 p-3 mb-2';
+                    card.append(appendTextElement('div', advisory.advisory_id || advisory.cve_id || 'OSV advisory', 'fw-bold'), appendTextElement('p', advisory.description || 'No advisory summary was captured.', 'small text-muted mb-2'));
+                    (advisory.references || []).forEach(function (reference) {
+                        try {
+                            const url = new URL(reference.url);
+                            if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
+                            const link = document.createElement('a'); link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.className = 'd-block small'; link.textContent = url.href; card.appendChild(link);
+                        } catch (error) { /* Invalid advisory links are intentionally not rendered. */ }
+                    });
+                    modalBody.appendChild(card);
+                });
+            }
+            window.apkhuntShowDependencyComponent = function (button) {
+                const component = components[Number(button.dataset.componentIndex)];
+                if (!component) return;
+                modalTitle.textContent = component.name || 'Component detail'; modalBody.replaceChildren(); addDefinitionList(component); addAdvisories(component); modal.show(button);
+            };
+        });
+    </script>
+    {% include '_scan_status.html' %}
+</body>
+</html>
