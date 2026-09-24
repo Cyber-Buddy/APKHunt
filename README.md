@@ -118,7 +118,9 @@ docker compose down
 python3 -m pytest -q
 ```
 
-The container runs as a non-root user and ships Syft 1.52.0, JADX 1.5.1, Apktool 2.10.0, and TruffleHog 3.95.9. Compose binds the web UI to local loopback. Gunicorn uses one process with four request threads because the background queue and status are process-local.
+The container runs as a non-root user and ships Syft 1.52.0, JADX 1.5.1, Apktool 2.10.0, TruffleHog 3.95.9, curl, and ADB. No separate host installation of those scan tools is needed. Compose binds the web UI to local loopback. Gunicorn uses one process with four request threads because the background queue and status are process-local.
+
+Runtime tests require a connected, authorized Android device and an ADB server reachable from the container. Installing ADB in the image alone does not expose a macOS USB device to Docker Desktop. The static APK scan, dependency inventory, secret review, and saved report do not require a device.
 
 ## Configuration
 
